@@ -39,3 +39,19 @@ added shell context
         - For example would the Project table have all the attributes from its subclasses, where some (col, row) values are blank?
     - Where makeProject() fits in all this ()
     - How multidimensional objects can be stored in a database
+
+## Part V Crypto
+
+`$ pip install flask-login` <br>
+`$ pip install email-validator` <br>
+"Flask-Login keeps track of the logged in user by storing its unique identifier in Flask's user session, a storage space assigned to each user who connects to the application" <br>
+- then add to `routes.py`
+- `@login_required` if you want to protect a page
+<br>
+∆ Confused how in routes.py functions, render_template occurs at the end. How is all the data inputted then? (e.g username when registering) What is it returning? I guess that's where the decorators come in?
+
+## Part VI Prof pages
+- user() in routes have a parameter because it is passed in from the decorator (when you go to that link)
+- when linking in base.html, use current_user.username (dynamic)
+- What are validators again?
+- What is .data attribute in routes?
