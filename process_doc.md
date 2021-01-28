@@ -55,3 +55,39 @@ added shell context
 - when linking in base.html, use current_user.username (dynamic)
 - What are validators again?
 - What is .data attribute in routes?
+
+## Part VII Debugging
+`$ export FLASK_DEBUG=1` <br>
+
+to test email server:
+- `$ python -m smtpd -n -c DebuggingServer localhost:8025` in new shell
+- `export MAIL_SERVER=localhost` and `MAIL_PORT=8025`
+- can also set up an gmail server (not always safe, refer to [here](https://support.google.com/accounts/answer/6010255?hl=en)):<br>
+`export MAIL_SERVER=smtp.googlemail.com`<br>
+`export MAIL_PORT=587`<br>
+`export MAIL_USE_TLS=1`<br>
+`export MAIL_USERNAME=<your-gmail-username>`<br>
+`export MAIL_PASSWORD=<your-gmail-password>`<br>
+
+## Part VIII Followers chapter
+
+- Though I do not necessarily want to focus on followers, this chapter is important for understanding the X to X, where X in {One, Many} relationships, as database values cannot be lists
+- In my case, users will have followers, and projects will have "followers" (but more like a star on github) and _members_
+     - so the latter is a Many to Many
+        - Can't be done by adding foreign keys to the existing tables.
+        - Thus association tables w/ two foreign keys (member to project)
+        - **<span style="color:orange">∆! How to assign different roles to members?</span>**
+            And how to assign multiple creators?
+        - **<span style="color:orange">∆! How to establish [many to many relationship](https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/) in Users()?</span>**
+    - The former is as well but w/ self-referential many to many (user to user)
+        - "Each record in this table represents one link between a follower user and a followed user. "
+- What's lazy?
+
+
+## Common errors
+- Did you remember to migrate and upgrade after changing DB in models.py?
+- Maybe: Order of code
+
+
+## Other notes
+- "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."

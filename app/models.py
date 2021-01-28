@@ -6,6 +6,24 @@ from app import login
 #avatar imports
 from hashlib import md5
 
+## Association tables ##
+
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+# members = db.Table('members',
+#     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('member_of_id', db.Integer, db.ForeignKey('project.id'))
+# )
+
+## for starring projects
+# project_followers = db.Table('members',
+#     db.Column('proj_follower_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('proj_followed_id', db.Integer, db.ForeignKey('project.id'))
+# )
+
 class User(UserMixin, db.Model):
     """ 
     $ flask db migrate -m "users table" 
@@ -17,7 +35,51 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     projects = db.relationship('Project', backref='creator', lazy='dynamic')
     about_me = db.Column(db.String(140))
+    # From the perspective of the follower
+    followed = db.relationship( # Looking at relationship from follower (one) --> following (many), this yield the right side (those followed)
+        'User', secondary=followers, #Self-ref, association table
+        primaryjoin=(followers.c.follower_id == id), #condition to join left side (follower) w/ assoc. table
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
+        
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
 
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0 # checking if 1 or 0
+    
+    def followed_projects(self):
+        """ Displays projects of people User follows
+        Need to figure out where to put the stream of posts (as this is more of a secondary feature) """
+        return Project.query.join(
+            followers, (followers.c.followed_id == Project.user_id)).filter( #post ID and followed_id match
+                followers.c.follower_id == self.id).order_by(
+                    Project.timestamp.desc())
+    
+    ### member functions IN PROGRESS ###
+    def star(self, proj):
+        """Star project User is interested in. Need following project association table"""
+        return
+
+    def request_join(self, proj):
+        """Request to join a project"""
+        return
+        if not self.is_member(proj):
+            # project_requests not yet defined
+            self.project_requests.append(proj)
+    
+    def is_member(self, proj):
+        return
+        return self.followed.filter(
+            members.c.member_of_id == proj.id).count() > 0
+
+    ### PASSWORD FUNC ###
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -41,10 +103,17 @@ def load_user(id):
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(140))
+    desc = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
+
+    # member_of = db.relationship( #also need a relationship in User()?
+    #     'User', secondary=members,
+    #     primaryjoin=(members.c.member_id == id),
+    #     secondaryjoin=(members.c.member_of_id == id),
+    #     backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
-        return '<Project {}>'.format(self.description)
+        return '<Project {}>'.format(self.desc)
         
+
