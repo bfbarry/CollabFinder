@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, flash, redirect, url_for
-from app.models import User
+from app.models import User, Project
 #login stuff
 from app.forms import LoginForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -8,23 +8,21 @@ from flask import request
 from werkzeug.urls import url_parse
 #user things
 from app import db
-from app.forms import RegistrationForm, EditProfileForm, EmptyForm
+from app.forms import RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST']) #how to require login only for creating a project on /index?
 def index():
-    user = {'username': 'Brian'} #test user, no longer passed in to render_template() bc of login functionality
-    projects = [
-        {
-            'creator': {'username': 'John'},
-            'desc': 'Beautiful day in Portland!'
-        },
-        {
-            'creator': {'username': 'Susan'},
-            'desc': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', projects = projects)
+    form = ProjectForm()
+    if form.validate_on_submit():
+        project = Project(description=form.project.data, creator=current_user)
+        db.session.add(project)
+        db.session.commit()
+        flash('Your project is now live!')
+        return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh
+    
+    projects = current_user.followed_projects().all()
+    return render_template('index.html', title='Home', form = form, projects = projects)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

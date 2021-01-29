@@ -83,6 +83,10 @@ to test email server:
         - "Each record in this table represents one link between a follower user and a followed user. "
 - What's lazy?
 
+## Part IX Pagination
+- Why doesn't PostForm() refer to Post() class? Confused on how some forms use the class, others use just a form that is used by object in routes.py
+- TextAreaField Length(): is it characters or words?
+- Redirect after submission of post: "this simple trick is called the Post/Redirect/Get pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form."
 
 ## Common errors
 - Did you remember to migrate and upgrade after changing DB in models.py?
@@ -91,3 +95,4 @@ to test email server:
 
 ## Other notes
 - "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."
+
