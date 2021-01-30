@@ -30,9 +30,9 @@ class RegistrationForm(FlaskForm):
 
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
-    # title = TextAreaField('Give your project a name', validators=[
-    #     DataRequired(), Length(min=1, max=60)])
-    project = TextAreaField('Describe your project', validators=[ # rename as 'desc' later
+    name = TextAreaField('Give your project a name', validators=[
+        DataRequired(), Length(min=1, max=60)])
+    descr = TextAreaField('Describe your project', validators=[ # rename as 'desc' later
         DataRequired(), Length(min=1, max=140)]) #make 1030
     submit = SubmitField('Submit')
 

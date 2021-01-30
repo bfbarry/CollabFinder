@@ -57,13 +57,13 @@ class UserModelCase(unittest.TestCase):
 
         # create four Projects
         now = datetime.utcnow()
-        p1 = Project(desc="Project from john", creator=u1,
+        p1 = Project(descr="Project from john", creator=u1,
                   timestamp=now + timedelta(seconds=1))
-        p2 = Project(desc="Project from susan", creator=u2,
+        p2 = Project(descr="Project from susan", creator=u2,
                   timestamp=now + timedelta(seconds=4))
-        p3 = Project(desc="Project from mary", creator=u3,
+        p3 = Project(descr="Project from mary", creator=u3,
                   timestamp=now + timedelta(seconds=3))
-        p4 = Project(desc="Project from david", creator=u4,
+        p4 = Project(descr="Project from david", creator=u4,
                   timestamp=now + timedelta(seconds=2))
         db.session.add_all([p1, p2, p3, p4])
         db.session.commit()

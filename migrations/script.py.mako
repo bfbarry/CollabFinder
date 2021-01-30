@@ -18,7 +18,13 @@ depends_on = ${repr(depends_on)}
 
 def upgrade():
     ${upgrades if upgrades else "pass"}
-
+    ## with op.batch_alter_table('project') as batch_op:
+    ##     batch_op.drop_column('description')
+    ##     batch_op.drop_column('descr')
+    
+    ## op.drop_column('project', 'description')
+    ## op.drop_column('project', 'descr')
+    ## op.alter_column('project', 'description', nullable=False, new_column_name='descr')
 
 def downgrade():
     ${downgrades if downgrades else "pass"}

@@ -14,6 +14,8 @@
 
 \>>>app/models.py: User database model (class User())
 
+<span style="color:orange"> How do you db downgrade after an error without dropping tables?  How do you alter columns when you have old columns and new columns and data in both? </span>
+
 #### Creating The Migration Repository
 `$ flask db init`
 First database migration: `$ flask db migrate -m "[new table name e.g.,] table"` (generates new migration script [where is this script?].  Also when it detects new table name is it from the -m message?)<br>
@@ -87,12 +89,15 @@ to test email server:
 - Why doesn't PostForm() refer to Post() class? Confused on how some forms use the class, others use just a form that is used by object in routes.py
 - TextAreaField Length(): is it characters or words?
 - Redirect after submission of post: "this simple trick is called the Post/Redirect/Get pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form."
+- **<span style="color:orange"> How do you get multiple forms on a page?</span>** 
 
 ## Common errors
 - Did you remember to migrate and upgrade after changing DB in models.py?
 - Maybe: Order of code
+- If db upgrade error and want to revert, 
 
 
 ## Other notes
 - "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."
+- [Why models have no constructors](https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor): "Flask-SQLAlchemy's base model class (which is also SQLAlchemy's declarative base class) defines a constructor that just takes **kwargs and stores all the arguments given, so it isn't really necessary to define a constructor."
 

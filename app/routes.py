@@ -15,7 +15,7 @@ from app.forms import RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 def index():
     form = ProjectForm()
     if form.validate_on_submit():
-        project = Project(description=form.project.data, creator=current_user)
+        project = Project(name = form.name.data, descr=form.descr.data, creator=current_user)
         db.session.add(project)
         db.session.commit()
         flash('Your project is now live!')

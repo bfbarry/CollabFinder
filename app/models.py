@@ -103,8 +103,8 @@ def load_user(id):
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # name = db.Column(db.String(60))
-    description = db.Column(db.String(140))
+    name = db.Column(db.String(60))
+    #descr = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
 
@@ -115,6 +115,6 @@ class Project(db.Model):
     #     backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
-        return '<Project {}>'.format(self.desc)
+        return '<Project {}>'.format(self.descr)
         
 

@@ -3,11 +3,17 @@
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
     <form action="" method="post">
-        {{ form.hidden_tag() }}
+        {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
         <p>
-            {{ form.project.label }}<br>
-            {{ form.project(cols=32, rows=4) }}<br>
-            {% for error in form.project.errors %}
+            {{ form.name.label }}<br>            <!-- input label --> 
+            {{ form.name(cols=32, rows=4) }}<br>  <!-- user input --> 
+            {% for error in form.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            
+            {{ form.descr.label }}<br>            
+            {{ form.descr(cols=32, rows=4) }}<br> 
+            {% for error in form.descr.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
@@ -15,6 +21,6 @@
     </form>
     
     {% for project in projects %}
-    <div><p>{{ project.creator.username }} says: <b>{{ project.desc }}</b></p></div>
+    <div><p>{{ project.creator.username }} says: <b>{{ project.descr }}</b></p></div>
     {% endfor %}
 {% endblock %}
