@@ -103,8 +103,9 @@ def load_user(id):
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(60))
     name = db.Column(db.String(60))
-    #descr = db.Column(db.String(140))
+    descr = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
 

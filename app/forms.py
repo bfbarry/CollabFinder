@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from app.models import User
+from app.models import User, Project
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -30,10 +30,13 @@ class RegistrationForm(FlaskForm):
 
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
+    categories = ['learning','software development']
     name = TextAreaField('Give your project a name', validators=[
         DataRequired(), Length(min=1, max=60)])
-    descr = TextAreaField('Describe your project', validators=[ # rename as 'desc' later
+    category = SelectField('Category', choices=categories, default=1)
+    descr = TextAreaField('Describe your project', validators=[ 
         DataRequired(), Length(min=1, max=140)]) #make 1030
+    
     submit = SubmitField('Submit')
 
 class EditProfileForm(FlaskForm):

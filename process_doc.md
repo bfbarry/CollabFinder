@@ -94,10 +94,17 @@ to test email server:
 ## Common errors
 - Did you remember to migrate and upgrade after changing DB in models.py?
 - Maybe: Order of code
-- If db upgrade error and want to revert, 
+- If db upgrade error and want to revert, downgrade
+- If change var name, remember to alter_table() in migration script
+- use batch to drop column 
 
 
 ## Other notes
 - "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."
 - [Why models have no constructors](https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor): "Flask-SQLAlchemy's base model class (which is also SQLAlchemy's declarative base class) defines a constructor that just takes **kwargs and stores all the arguments given, so it isn't really necessary to define a constructor."
 
+# Website design
+Front page:<br>
+Find a project search bar <br>
+or <br>
+"Start a project" button (equally big)
