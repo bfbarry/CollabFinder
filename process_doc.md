@@ -102,9 +102,34 @@ to test email server:
 ## Other notes
 - "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."
 - [Why models have no constructors](https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor): "Flask-SQLAlchemy's base model class (which is also SQLAlchemy's declarative base class) defines a constructor that just takes **kwargs and stores all the arguments given, so it isn't really necessary to define a constructor."
+- [Calling raw SQL commands](https://stackoverflow.com/questions/17972020/how-to-execute-raw-sql-in-flask-sqlalchemy-app?rq=1)
+
+# Chapters to look at:
+- Facelift
+- Better applicaiton structure
+- Full text search
+- 
+
+# TODO in code
+- add nav bar to base.html
+- Look into API, react
+- How to clear db version history
+- APIs
 
 # Website design
 Front page:<br>
 Find a project search bar <br>
 or <br>
 "Start a project" button (equally big)
+
+- Follow topics/interests with feed
+
+Don't show followed projects if anonymous user
+
+# TEST USERS
+susan: cat
+bo: 1
+
+# Other resources
+- https://stackoverflow.com/questions/57332069/how-to-dynamically-create-fields-in-form-based-on-user-input-from-selectfield
+- [Dynamic select video](https://www.youtube.com/watch?v=I2dJuNwlIH0)

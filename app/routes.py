@@ -2,21 +2,22 @@ from app import app
 from flask import render_template, flash, redirect, url_for
 from app.models import User, Project
 #login stuff
-from app.forms import LoginForm
+from app.forms import LoginForm, RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 from flask_login import current_user, login_user, logout_user, login_required
 from flask import request
 from werkzeug.urls import url_parse
 #user things
 from app import db
-from app.forms import RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 
+### View functions ###
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST']) #how to require login only for creating a project on /index?
+@login_required
 def index():
     form = ProjectForm()
     if form.validate_on_submit():
         project = Project(name = form.name.data, category = form.category.data, #consider using **kwargs
-                        descr=form.descr.data, creator=current_user)
+                        descr=form.descr.data, learning_category = form.learning_category.data, creator=current_user)
         db.session.add(project)
         db.session.commit()
         flash('Your project is now live!')
