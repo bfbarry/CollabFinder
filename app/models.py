@@ -118,4 +118,16 @@ class Project(db.Model):
     def __repr__(self):
         return '<Project {}>'.format(self.descr)
         
-
+class Learning(Project):
+    '''Can be study group for a course, or just auto-didacts studying a subject together'''
+    
+    # NEED FOREIGN KEY FOR PROJECT
+    id = db.Column(db.Integer, primary_key=True)
+    
+    pace = db.Column(db.String(60))
+        
+    learning_category = db.Column(db.String(60))
+    subject = db.Column(db.String(60))
+    # crude way to add new subjects to learning_categories
+    if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
+        ProjectDataBase.learning_categories[learning_category].append(subject)

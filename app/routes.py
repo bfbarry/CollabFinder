@@ -16,9 +16,18 @@ from app import db
 def index():
     form = ProjectForm()
     if form.validate_on_submit():
-        project = Project(name = form.name.data, category = form.category.data, #consider using **kwargs
-                        descr=form.descr.data, learning_category = form.learning_category.data, creator=current_user)
+        project = Project(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
+                        descr=form.descr.data, learning_category = form.learning_category.data)
         db.session.add(project)
+        
+        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("__")][5:-1] #args except ones above and submit
+        spec_args = []
+        for a in spec_arg_names:
+            exec(f'spec_args.append(form.{a}.data)')
+        spec_args = [a for a in spec_args if a != None]
+        project_spec = ProjectDB.categories[form.category.data](*spec_args) #the specific project
+        db.session.add(project_spec)
+        
         db.session.commit()
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh

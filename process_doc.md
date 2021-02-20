@@ -115,6 +115,7 @@ to test email server:
 - Look into API, react
 - How to clear db version history
 - APIs
+- Private projects
 
 # Website design
 Front page:<br>

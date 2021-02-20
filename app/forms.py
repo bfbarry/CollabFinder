@@ -37,6 +37,7 @@ class ProjectForm(FlaskForm):
     category = SelectField('Category', choices=categories, default=1)
     descr = TextAreaField('Describe your project', validators=[ 
         DataRequired(), Length(min=1, max=140)]) #make 1030
+    #Learning specific
     learning_category = SelectField('learning category', choices=learning_categories, default=1)
     
     submit = SubmitField('Submit')

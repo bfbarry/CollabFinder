@@ -36,17 +36,19 @@
         <p>{{ form.submit() }}</p>
     </form>
     
+    <!-- User feed -->
     {% for project in projects %}
     <div><p>{{ project.creator.username }} says: <b>{{ project.name }}</b></p></div>
     {% endfor %}
     
 <script type="text/javascript">
+    // Show and hide category specific form fields
     $(document).ready(function() {
         $("#category").change(function () { 
             var val = $(this).val();
             if (val == "learning") {
-                console.log('SAAAAAAAAAAAAAB')
                 $("#learning").show();
+                //hide other category forms?
             }
             else {
                 $("#learning").hide(); 
