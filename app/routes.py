@@ -1,6 +1,7 @@
 from app import app
 from flask import render_template, flash, redirect, url_for
-from app.models import User, Project
+from app.models import User, Project #, \
+                            #Learning #Project subclasses
 #login stuff
 from app.forms import LoginForm, RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -8,6 +9,9 @@ from flask import request
 from werkzeug.urls import url_parse
 #user things
 from app import db
+
+import sys
+import logging
 
 ### View functions ###
 @app.route('/', methods=['GET', 'POST'])
@@ -17,22 +21,26 @@ def index():
     form = ProjectForm()
     if form.validate_on_submit():
         project = Project(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-                        descr=form.descr.data, learning_category = form.learning_category.data)
+                        descr=form.descr.data)
         db.session.add(project)
         
-        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("__")][5:-1] #args except ones above and submit
+        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][6:-1] #args except ones above and submit
         spec_args = []
         for a in spec_arg_names:
+            print(a, flush=True)
             exec(f'spec_args.append(form.{a}.data)')
-        spec_args = [a for a in spec_args if a != None]
-        project_spec = ProjectDB.categories[form.category.data](*spec_args) #the specific project
-        db.session.add(project_spec)
+        spec_args = [a for a in spec_args if a != 'None'] # only the args that were inputted on the form
         
-        db.session.commit()
+        # project_spec = ProjectDB.categories[form.category.data](*spec_args) #instatiating the specific project
+        # db.session.add(project_spec)
+        
+        #db.session.commit()
+        print(spec_args, flush=True)
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh
     
     projects = current_user.followed_projects().all()
+    
     return render_template('index.html', title='Home', form = form, projects = projects)
 
 @app.route('/login', methods=['GET', 'POST'])

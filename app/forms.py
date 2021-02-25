@@ -30,15 +30,21 @@ class RegistrationForm(FlaskForm):
 
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
+    # SelectField options
     categories = ['Select one', 'learning','software development'] #these should be inherited
     learning_categories = ['None', 'Math']
+    langs = ['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby']
+
     name = TextAreaField('Give your project a name', validators=[
         DataRequired(), Length(min=1, max=60)])
     category = SelectField('Category', choices=categories, default=1)
     descr = TextAreaField('Describe your project', validators=[ 
         DataRequired(), Length(min=1, max=140)]) #make 1030
-    #Learning specific
+    #Learning
     learning_category = SelectField('learning category', choices=learning_categories, default=1)
+
+    #Software Development
+    lang = SelectField('Language', choices=['None'] + sorted(langs), default=1) #eventually would want to type it and it autofills since there are so many
     
     submit = SubmitField('Submit')
 

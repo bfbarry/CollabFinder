@@ -22,7 +22,7 @@
             {% for error in form.descr.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
-
+            
             <div id = "learning" style="margin:0 auto; display:none;">
                 {{ form.learning_category.label }}<br>            
                 {{ form.learning_category(cols=32, rows=4) }}<br> 
@@ -30,7 +30,14 @@
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </div>
-                
+            
+            <div id = "software" style="margin:0 auto; display:none;">
+                {{ form.lang.label }}<br>            
+                {{ form.lang(cols=32, rows=4) }}<br> 
+                {% for error in form.lang.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
 
         </p>
         <p>{{ form.submit() }}</p>
@@ -44,17 +51,38 @@
 <script type="text/javascript">
     // Show and hide category specific form fields
     $(document).ready(function() {
-        $("#category").change(function () { 
+        $("#category").change(function () { // detecting change in category drop down
+            let cat_list  = ['learning', 'software']; 
             var val = $(this).val();
-            if (val == "learning") {
-                $("#learning").show();
-                //hide other category forms?
+            for (i = 0; i < cat_list.length; i++) {
+                if (val == cat_list[i]) {
+                    $('#' + cat_list[i]).show();
+                    for (c = 0; c < cat_list.length; c++) {
+                        if (val != cat_list[c]) {
+                            $('#' + cat_list[c]).hide();
+                        }
+                    }
+                }
             }
-            else {
-                $("#learning").hide(); 
-            }
-            });     
-    });
+            
+            // if (val == "software development") {
+            //     $("#software").show();
+            //     $("#learning").hide(); 
+
+            //     //hide other category forms?
+            // }
+            // else if (val == "learning"){
+            //     $("#learning").show(); 
+            //     $("#software").hide(); 
+            // }
+            // else {
+            //     $("#learning").hide(); 
+            //     $("#software").hide();
+            // }
+            }); 
+            
+        });     
+
 </script>
 {% endblock %}
     
