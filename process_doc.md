@@ -104,6 +104,8 @@ to test email server:
 - [Why models have no constructors](https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor): "Flask-SQLAlchemy's base model class (which is also SQLAlchemy's declarative base class) defines a constructor that just takes **kwargs and stores all the arguments given, so it isn't really necessary to define a constructor."
 - [Calling raw SQL commands](https://stackoverflow.com/questions/17972020/how-to-execute-raw-sql-in-flask-sqlalchemy-app?rq=1)
 
+## Business matters
+- Crowdfight is doing something similar, for science/research projects
 # Chapters to look at:
 - Facelift
 - Better applicaiton structure

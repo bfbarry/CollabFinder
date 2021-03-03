@@ -13,6 +13,9 @@ from app import db
 import sys
 import logging
 
+# to instatiate specific project classes in index
+proj_categories = {'learning': Learning, 'software development':SoftwareDev}
+
 ### View functions ###
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST']) #how to require login only for creating a project on /index?
@@ -31,7 +34,7 @@ def index():
             exec(f'spec_args.append(form.{a}.data)')
         spec_args = [a for a in spec_args if a != 'None'] # only the args that were inputted on the form
         
-        # project_spec = ProjectDB.categories[form.category.data](*spec_args) #instatiating the specific project
+        #project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
         # db.session.add(project_spec)
         
         #db.session.commit()

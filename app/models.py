@@ -106,9 +106,12 @@ class Project(db.Model):
     category = db.Column(db.String(60))
     name = db.Column(db.String(60))
     descr = db.Column(db.String(140))
+    skill_level = db.Column(db.String(20))
+    setting = db.Column(db.String(20))
+
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
-
+    
     # member_of = db.relationship( #also need a relationship in User()?
     #     'User', secondary=members,
     #     primaryjoin=(members.c.member_id == id),
@@ -118,16 +121,17 @@ class Project(db.Model):
     def __repr__(self):
         return '<Project {}>'.format(self.descr)
         
-# class Learning(Project):
-#     '''Can be study group for a course, or just auto-didacts studying a subject together'''
+class Learning(Project):
+    '''Can be study group for a course, or just auto-didacts studying a subject together'''
     
-#     # NEED FOREIGN KEY FOR PROJECT
-#     id = db.Column(db.Integer, primary_key=True)
+    # NEED FOREIGN KEY FOR PROJECT
+    id = db.Column(db.Integer, primary_key=True)
     
-#     pace = db.Column(db.String(60))
+    pace = db.Column(db.String(60))
         
-#     learning_category = db.Column(db.String(60))
-#     subject = db.Column(db.String(60))
-#     # crude way to add new subjects to learning_categories
-#     if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
-#         ProjectDataBase.learning_categories[learning_category].append(subject)
+    learning_category = db.Column(db.String(60))
+    subject = db.Column(db.String(60))
+    
+    # crude way to add new subjects to learning_categories
+    # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
+    #     ProjectDataBase.learning_categories[learning_category].append(subject)
