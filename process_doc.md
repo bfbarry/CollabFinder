@@ -18,7 +18,7 @@
 
 #### Creating The Migration Repository
 `$ flask db init`
-First database migration: `$ flask db migrate -m "[new table name e.g.,] table"` (generates new migration script [where is this script?].  Also when it detects new table name is it from the -m message?)<br>
+First database migration: `$ flask db migrate -m "[new table name e.g.,] table"` (generates new migration script [where is this script?].  <br>
 Apply changes to database: `$ flask db upgrade`
 
 #### DB relationships
@@ -113,11 +113,17 @@ to test email server:
 - 
 
 # TODO in code
-- add nav bar to base.html
-- Look into API, react
-- How to clear db version history
-- APIs
-- Private projects
+- Database
+    - Adding each project type to database 
+    - How to clear db version history
+    - How to add location/geo
+    - Make sure instantiating a project subclass + adding it to db also adds a Project 
+- Web stuff
+    - Adding javascript to simplify project type display
+    - add nav bar to base.html
+    - Look into API, react
+Higher lever
+    - Private projects
 
 # Website design
 Front page:<br>
@@ -136,3 +142,7 @@ bo: 1
 # Other resources
 - https://stackoverflow.com/questions/57332069/how-to-dynamically-create-fields-in-form-based-on-user-input-from-selectfield
 - [Dynamic select video](https://www.youtube.com/watch?v=I2dJuNwlIH0)
+
+# WHERE I LEFT OFF
+
+3/9/21: added Learning(), it nor project will add to DB.  Also printing to console in submit scope not working.

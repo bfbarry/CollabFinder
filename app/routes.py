@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, flash, redirect, url_for
-from app.models import User, Project #, \
-                            #Learning #Project subclasses
+from app.models import User, Project , \
+                            Learning #Project subclasses
 #login stuff
 from app.forms import LoginForm, RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
 from flask_login import current_user, login_user, logout_user, login_required
@@ -14,7 +14,7 @@ import sys
 import logging
 
 # to instatiate specific project classes in index
-proj_categories = {'learning': Learning, 'software development':SoftwareDev}
+proj_categories = {'learning': Learning} #, 'software development':SoftwareDev}
 
 ### View functions ###
 @app.route('/', methods=['GET', 'POST'])
@@ -27,17 +27,18 @@ def index():
                         descr=form.descr.data)
         db.session.add(project)
         
-        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][6:-1] #args except ones above and submit
+        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][6:-1] #args except ones above and submit; first index subject to change
         spec_args = []
         for a in spec_arg_names:
             print(a, flush=True)
             exec(f'spec_args.append(form.{a}.data)')
         spec_args = [a for a in spec_args if a != 'None'] # only the args that were inputted on the form
         
-        #project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
+        project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
+        print(project_spec, flush=True)
         # db.session.add(project_spec)
         
-        #db.session.commit()
+        # db.session.commit()
         print(spec_args, flush=True)
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh

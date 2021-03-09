@@ -28,6 +28,12 @@
                 {{ form.learning_category(cols=32, rows=4) }}<br> 
                 {% for error in form.learning_category.errors %}
                 <span style="color: red;">[{{ error }}]</span>
+                {% endfor %} <br>
+                
+                {{ form.pace.label }}<br>            
+                {{ form.pace(cols=32, rows=4) }}<br> 
+                {% for error in form.pace.errors %}
+                <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </div>
             

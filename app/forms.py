@@ -35,7 +35,7 @@ class ProjectForm(FlaskForm):
     option1 = 'Select one'
     categories = [option1] + ['learning','software development'] # test version, see below
     #categories = [option1] + sorted(proj_categories.keys) 
-    proj_settings = (option1,) + ("casual", "professional")
+    proj_settings = (option1,) + ("casual", "serious/professional")
     skill_lvls = (option1,) + ('any','beginner','intermediate','advanced')
     ## proj spec
     learning_categories = ['None', 'Math']
