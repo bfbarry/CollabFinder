@@ -23,22 +23,24 @@ proj_categories = {'learning': Learning} #, 'software development':SoftwareDev}
 def index():
     form = ProjectForm()
     if form.validate_on_submit():
-        project = Project(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-                        descr=form.descr.data)
-        db.session.add(project)
+        # project = Project(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
+        #                 skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data)
+        #db.session.add(project)
         
-        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][6:-1] #args except ones above and submit; first index subject to change
+        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][12:-1] #args except ones above and submit; first index subject to change
         spec_args = []
         for a in spec_arg_names:
-            print(a, flush=True)
             exec(f'spec_args.append(form.{a}.data)')
         spec_args = [a for a in spec_args if a != 'None'] # only the args that were inputted on the form
-        
-        project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
+        print(spec_args, flush=True)
+        #project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
+        project_spec = Learning(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
+                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, **{'learning_category':form.learning_category.data,
+                                    'pace':form.pace.data})
         print(project_spec, flush=True)
-        # db.session.add(project_spec)
+        db.session.add(project_spec)
         
-        # db.session.commit()
+        db.session.commit()
         print(spec_args, flush=True)
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh

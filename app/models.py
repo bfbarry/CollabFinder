@@ -112,6 +112,7 @@ class Project(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
     
+    __mapper_args__ = {'polymorphic_on': category}
     # member_of = db.relationship( #also need a relationship in User()?
     #     'User', secondary=members,
     #     primaryjoin=(members.c.member_id == id),
@@ -125,13 +126,14 @@ class Learning(Project):
     '''Can be study group for a course, or just auto-didacts studying a subject together'''
     
     # NEED FOREIGN KEY FOR PROJECT
-    id = db.Column(db.Integer, primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'learning'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
     
     pace = db.Column(db.String(60))
         
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60))
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id')) #project ID, need to make sure there is an existing project too
+
     
     def __repr__(self):
         return '<Project {} {}>'.format(self.learning_category, id)

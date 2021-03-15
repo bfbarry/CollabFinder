@@ -126,6 +126,9 @@ Higher lever
     - Private projects
 
 # Website design
+
+Form: skill level should be a slider
+
 Front page:<br>
 Find a project search bar <br>
 or <br>
@@ -146,3 +149,11 @@ bo: 1
 # WHERE I LEFT OFF
 
 3/9/21: added Learning(), it nor project will add to DB.  Also printing to console in submit scope not working.
+
+3/14/21: find other way to get `spec_arg_names` in index, such as a dictionary (since variables and positions change too much)
+- When `Learning` inherits from `Project`, get this:
+
+```
+/Users/brianbarry/Desktop/AppsComputing/CollabFinder/venv/lib/python3.7/site-packages/sqlalchemy/orm/mapper.py:1899: SAWarning: Implicitly combining column project.id with column learning.id under attribute 'id'.  Please configure one or more attributes for these same-named columns explicitly.
+ util.warn(msg)
+```

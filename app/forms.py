@@ -42,13 +42,15 @@ class ProjectForm(FlaskForm):
     pace_types = (option1,) + ("custom-pace","self-paced", "quarter","semester")
     langs = [option1] + ['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby']
 
+    #Basic form fields
     name = TextAreaField('Give your project a name', validators=[
         DataRequired(), Length(min=1, max=60)])
     category = SelectField('Category', choices=categories, default=1)
     descr = TextAreaField('Describe your project', validators=[ 
         DataRequired(), Length(min=1, max=140)]) #make 1030
-    setting = SelectField('Skill Level', choices=proj_settings, default=1)  
+    setting = SelectField('Setting', choices=proj_settings, default=1)  
     skill_level = SelectField('Skill Level', choices=skill_lvls, default=1)  
+    
     #Learning
     learning_category = SelectField('Learning category', choices=learning_categories, default=1)
     pace = SelectField('Learning pace', choices=pace_types, default=1)

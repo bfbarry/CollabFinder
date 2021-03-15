@@ -17,6 +17,18 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
             
+            {{ form.setting.label }}<br>            
+            {{ form.setting(cols=32, rows=4) }}<br> 
+            {% for error in form.setting.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+            {{ form.skill_level.label }}<br>            
+            {{ form.skill_level(cols=32, rows=4) }}<br> 
+            {% for error in form.skill_level.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
             {{ form.descr.label }}<br>            
             {{ form.descr(cols=32, rows=4) }}<br> 
             {% for error in form.descr.errors %}
