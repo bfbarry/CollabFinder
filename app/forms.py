@@ -38,9 +38,9 @@ class ProjectForm(FlaskForm):
     proj_settings = (option1,) + ("casual", "serious/professional")
     skill_lvls = (option1,) + ('any','beginner','intermediate','advanced')
     ## proj spec
-    learning_categories = ['None', 'Math']
+    learning_categories = [option1] + sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics'])
     pace_types = (option1,) + ("custom-pace","self-paced", "quarter","semester")
-    langs = [option1] + ['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby']
+    langs = [option1] + ['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby','Scala']
 
     #Basic form fields
     name = TextAreaField('Give your project a name', validators=[
@@ -48,8 +48,8 @@ class ProjectForm(FlaskForm):
     category = SelectField('Category', choices=categories, default=1)
     descr = TextAreaField('Describe your project', validators=[ 
         DataRequired(), Length(min=1, max=140)]) #make 1030
-    setting = SelectField('Setting', choices=proj_settings, default=1)  
-    skill_level = SelectField('Skill Level', choices=skill_lvls, default=1)  
+    skill_level = SelectField('Skill Level', choices=skill_lvls, default=1)
+    setting = SelectField('Setting', choices=proj_settings, default=1)    
     
     #Learning
     learning_category = SelectField('Learning category', choices=learning_categories, default=1)

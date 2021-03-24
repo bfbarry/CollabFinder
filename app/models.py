@@ -123,16 +123,16 @@ class Project(db.Model):
         return '<Project {}>'.format(self.descr)
         
 class Learning(Project):
-    '''Can be study group for a course, or just auto-didacts studying a subject together'''
+    '''Can be study group for a course, or just auto-didacts studying a subject together
+    pace: according to perosnal timelines or college terms
+    learning_category: general subject matter (e.g. Math) '''
     
-    # NEED FOREIGN KEY FOR PROJECT
     __mapper_args__ = {'polymorphic_identity': 'learning'}
     id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
     
-    pace = db.Column(db.String(60))
-        
+    pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
-    subject = db.Column(db.String(60))
+    subject = db.Column(db.String(60)) #still have to figure out how to implement this
 
     
     def __repr__(self):

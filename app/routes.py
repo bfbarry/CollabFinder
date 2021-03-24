@@ -1,6 +1,6 @@
 from app import app
 from flask import render_template, flash, redirect, url_for
-from app.models import User, Project , \
+from app.models import User, Project, \
                             Learning #Project subclasses
 #login stuff
 from app.forms import LoginForm, RegistrationForm, ProjectForm, EditProfileForm, EmptyForm
@@ -23,25 +23,20 @@ proj_categories = {'learning': Learning} #, 'software development':SoftwareDev}
 def index():
     form = ProjectForm()
     if form.validate_on_submit():
-        # project = Project(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-        #                 skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data)
-        #db.session.add(project)
+        proj_kwargs = {}
+        proj_model = proj_categories[form.category.data]
+        spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][1:] # skipping id column
+        spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
+        form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
+        for a in spec_args:
+            if a in form_args: #in case some columns of model are not yet implemented in front end
+                exec(f'proj_kwargs[a] = form.{a}.data')
         
-        spec_arg_names = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")][12:-1] #args except ones above and submit; first index subject to change
-        spec_args = []
-        for a in spec_arg_names:
-            exec(f'spec_args.append(form.{a}.data)')
-        spec_args = [a for a in spec_args if a != 'None'] # only the args that were inputted on the form
-        print(spec_args, flush=True)
-        #project_spec = proj_categories[form.category.data](*spec_args) #instatiating the specific project
-        project_spec = Learning(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, **{'learning_category':form.learning_category.data,
-                                    'pace':form.pace.data})
-        print(project_spec, flush=True)
-        db.session.add(project_spec)
+        project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
+                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, **proj_kwargs) #instatiating the specific project
         
+        db.session.add(project)
         db.session.commit()
-        print(spec_args, flush=True)
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh
     

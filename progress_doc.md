@@ -113,6 +113,9 @@ to test email server:
 - 
 
 # TODO in code
+- Front page
+    - Log in, allow un logged users to create project and later prompt to create account if not signed in
+- Project page, figuring out URL, request to join project (if private)
 - Database
     - Adding each project type to database 
     - How to clear db version history
@@ -122,12 +125,14 @@ to test email server:
     - Adding javascript to simplify project type display
     - add nav bar to base.html
     - Look into API, react
-Higher lever
+    - Transition for div hide and show
+Higher level
     - Private projects
 
 # Website design
 
-Form: skill level should be a slider
+**Form**: skill level should be a slider <br>
+**Search bar**: typing in names suggests users
 
 Front page:<br>
 Find a project search bar <br>
@@ -148,12 +153,19 @@ bo: 1
 
 # WHERE I LEFT OFF
 
-3/9/21: added Learning(), it nor project will add to DB.  Also printing to console in submit scope not working.
+3/9/21: FIXD added Learning(), it nor project will add to DB.  Also printing to console in submit scope not working.
 
 3/14/21: find other way to get `spec_arg_names` in index, such as a dictionary (since variables and positions change too much)
-- When `Learning` inherits from `Project`, get this:
 
-```
-/Users/brianbarry/Desktop/AppsComputing/CollabFinder/venv/lib/python3.7/site-packages/sqlalchemy/orm/mapper.py:1899: SAWarning: Implicitly combining column project.id with column learning.id under attribute 'id'.  Please configure one or more attributes for these same-named columns explicitly.
- util.warn(msg)
-```
+- Inheritance good for Learning, need to extend to the other subclasses 
+- Need more efficient way to get args and instantiate class in routes
+- Need to to figure out other db relationships like memebrs
+- Search bar
+
+3/23/21
+- Routes.py efficient instantiating
+- Front end efficient div show/hide
+- Next: search and project page
+
+# Details of my code
+- sub project variables (e.g. those of `Learning`) should be named the same as those in `ProjectForm()` in order for `routes.py` to work
