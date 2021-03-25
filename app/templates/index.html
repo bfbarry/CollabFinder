@@ -65,16 +65,30 @@
 {% endif %} <!-- end of form bool -->
 
 <!-- User feed -->
-{% for project in projects %}
-    {% include '_project.html' %}
-{% endfor %}
 
-{% if prev_url %}
-    <a href="{{ prev_url }}">Newer projects</a>
-{% endif %}
-{% if next_url %}
-    <a href="{{ next_url }}">Older projects</a>
-{% endif %}
+<div class='project_stream' >
+
+    {% for project in projects %}
+    {% include '_project.html' %}
+    {% endfor %}
+
+    <nav aria-label="..."> <!-- supposed to be greyed out and horizontal -->
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> Newer projects
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older projects <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
     
 <script type="text/javascript">
     // Show and hide category specific form fields

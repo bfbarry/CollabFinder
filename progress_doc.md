@@ -90,6 +90,17 @@ to test email server:
 - TextAreaField Length(): is it characters or words?
 - Redirect after submission of post: "this simple trick is called the Post/Redirect/Get pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form."
 
+## Part XV  Better App Structure
+current subsystems: 
+- user auth
+- error
+- core app functionality (making projects)
+Weakness: reusing global app, not good for testing multiple configurations <br>
+So want an *application factory* function: this accepts a configuration object as an argument, and returns a Flask application instance, configured with those settings.
+
+- Replace all url_for() with module.url e.g., `url_for('auth.login')`
+- app --> current_app
+
 ## Common errors
 >"write each part of the application without making any assumptions about how the other parts work, and this enables me to write modular and robust applications that are easier to extend and to test, and are less likely to fail or have bugs."
 - Did you remember to migrate and upgrade after changing DB in models.py?
@@ -171,6 +182,9 @@ bo: 1
 - Routes.py efficient instantiating
 - Front end efficient div show/hide
 - Next: search and project page
+
+3/25/21
+- CSS messed up for project stream relative to project creation form
 
 # Details of my code
 - sub project variables (e.g. those of `Learning`) should be named the same as those in `ProjectForm()` in order for `routes.py` to work

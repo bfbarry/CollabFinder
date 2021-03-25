@@ -58,7 +58,7 @@ class ProjectForm(FlaskForm):
     #Software Development
     lang = SelectField('Language', choices=['None'] + sorted(langs), default=1) #eventually would want to type it and it autofills since there are so many
     
-    submit = SubmitField('Submit')
+    submit = SubmitField('Create Project')
 
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

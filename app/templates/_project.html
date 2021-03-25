@@ -1,5 +1,24 @@
 <!-- project sub-template -->
-<table>
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <a href="{{ url_for('user', username=project.creator.username) }}">
+                <img src="{{ project.creator.avatar(70) }}" />
+            </a>
+        </td>
+        <td>
+            <a href="{{ url_for('user', username=project.creator.username) }}">
+                {{ project.creator.username }}
+            </a>
+            created a project:<br>
+            {{ project.name }}<br>
+            {{ project.descr }}
+        </td>
+    </tr>
+</table>
+
+
+<!-- <table>
     <tr valign="top">
         <td><img src="{{ project.creator.avatar(36) }}"></td>
         <td>
@@ -7,8 +26,8 @@
                 {{ project.creator.username }}
             </a>
             created a project:<br>
-            {{ project.name }}
+            {{ project.name }}<br>
             {{ project.descr }}
         </td>
     </tr>
-</table>
+</table> -->
