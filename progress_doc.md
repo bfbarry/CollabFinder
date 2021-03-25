@@ -89,14 +89,19 @@ to test email server:
 - Why doesn't PostForm() refer to Post() class? Confused on how some forms use the class, others use just a form that is used by object in routes.py
 - TextAreaField Length(): is it characters or words?
 - Redirect after submission of post: "this simple trick is called the Post/Redirect/Get pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form."
-- **<span style="color:orange"> How do you get multiple forms on a page?</span>** 
 
 ## Common errors
+>"write each part of the application without making any assumptions about how the other parts work, and this enables me to write modular and robust applications that are easier to extend and to test, and are less likely to fail or have bugs."
 - Did you remember to migrate and upgrade after changing DB in models.py?
 - Maybe: Order of code
 - If db upgrade error and want to revert, downgrade
 - If change var name, remember to alter_table() in migration script
-- use batch to drop column 
+- use batch to drop column:
+```
+with op.batch_alter_table("project") as batch_op:
+        batch_op.drop_column('descr')
+```
+- If "None has no avatar" error, this is because some post was created by Null
 
 
 ## Other notes

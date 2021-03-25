@@ -33,8 +33,15 @@
     </table>
     <hr>
     {% for project in projects %}
-    <!-- can have optional code here to display prof pics for each post 
-    https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vi-profile-page-and-avatars -->
-    {% include '_project.html' %}
+        <!-- can have optional code here to display prof pics for each post 
+        https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vi-profile-page-and-avatars -->
+        {% include '_project.html' %}
     {% endfor %}
+
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Newer projects</a>
+    {% endif %}
+    {% if next_url %}
+        <a href="{{ next_url }}">Older projects</a>
+    {% endif %}
 {% endblock %}

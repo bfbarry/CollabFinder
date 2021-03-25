@@ -2,6 +2,13 @@
 <table>
     <tr valign="top">
         <td><img src="{{ project.creator.avatar(36) }}"></td>
-        <td>{{ project.creator.username }} says:<br>{{ project.descr }}</td>
+        <td>
+            <a href="{{ url_for('user', username=project.creator.username) }}">
+                {{ project.creator.username }}
+            </a>
+            created a project:<br>
+            {{ project.name }}
+            {{ project.descr }}
+        </td>
     </tr>
 </table>

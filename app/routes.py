@@ -40,9 +40,28 @@ def index():
         flash('Your project is now live!')
         return redirect(url_for('index')) #want this redirect because of POST; avoids having to refresh
     
-    projects = current_user.followed_projects().all()
-    
-    return render_template('index.html', title='Home', form = form, projects = projects)
+    page = request.args.get('page', 1, type=int)
+    projects = current_user.followed_projects().paginate(
+        page, app.config['PROJECTS_PER_PAGE'], False)
+    next_url = url_for('index', page=projects.next_num) \
+        if projects.has_next else None
+    prev_url = url_for('index', page=projects.prev_num) \
+        if projects.has_prev else None
+    return render_template('index.html', title='Home', form = form, projects = projects.items, 
+                            next_url=next_url, prev_url=prev_url)
+
+@app.route('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    projects = Project.query.order_by(Project.timestamp.desc()).paginate(
+        page, app.config['PROJECTS_PER_PAGE'], False)
+    next_url = url_for('explore', page=projects.next_num) \
+        if projects.has_next else None
+    prev_url = url_for('explore', page=projects.prev_num) \
+        if projects.has_prev else None    
+    return render_template('index.html', title='Explore', projects = projects.items, 
+                            next_url=next_url, prev_url=prev_url) #does not pass form to exclude it
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -84,12 +103,16 @@ def register():
 @app.route('/user/<username>') #dynamic component
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    projects = [
-        {'creator': user, 'desc': 'Test post #1'},
-        {'creator': user, 'desc': 'Test post #2'}
-    ]
+    page = request.args.get('page', 1, type=int)
+    projects = user.projects.order_by(Project.timestamp.desc()).paginate(
+        page, app.config['PROJECTS_PER_PAGE'], False)
+    next_url = url_for('user', username=user.username, page=projects.next_num) \
+        if projects.has_next else None
+    prev_url = url_for('user', username=user.username, page=projects.prev_num) \
+        if projects.has_prev else None
     form = EmptyForm() #follow/unfollow button
-    return render_template('user.html', user=user, projects=projects, form=form)
+    return render_template('user.html', user=user, projects=projects.items,
+                            next_url=next_url, prev_url=prev_url, form=form)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required

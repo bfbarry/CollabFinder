@@ -1,73 +1,85 @@
 {% extends "base.html" %}
 {% block content %}
-<p>HELLO</p>
-    <h1>Hi, {{ current_user.username }}!</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
-        <p>
-            {{ form.name.label }}<br>            <!-- input label --> 
-            {{ form.name(cols=32, rows=4) }}<br>  <!-- user input --> 
-            {% for error in form.name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-            
-            {{ form.category.label }}<br>            <!-- input label --> 
-            {{ form.category(cols=32, rows=4) }}<br>  <!-- user input --> 
-            {% for error in form.category.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-            
-            {{ form.setting.label }}<br>            
-            {{ form.setting(cols=32, rows=4) }}<br> 
-            {% for error in form.setting.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
 
-            {{ form.skill_level.label }}<br>            
-            {{ form.skill_level(cols=32, rows=4) }}<br> 
-            {% for error in form.skill_level.errors %}
+<h1>Hi, {{ current_user.username }}!</h1>
+
+{% if form %}
+<form action="" method="post">
+    {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
+    <p>
+        {{ form.name.label }}<br>            <!-- input label --> 
+        {{ form.name(cols=32, rows=4) }}<br>  <!-- user input --> 
+        {% for error in form.name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        
+        {{ form.category.label }}<br>            <!-- input label --> 
+        {{ form.category(cols=32, rows=4) }}<br>  <!-- user input --> 
+        {% for error in form.category.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        
+        {{ form.setting.label }}<br>            
+        {{ form.setting(cols=32, rows=4) }}<br> 
+        {% for error in form.setting.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+
+        {{ form.skill_level.label }}<br>            
+        {{ form.skill_level(cols=32, rows=4) }}<br> 
+        {% for error in form.skill_level.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+
+        {{ form.descr.label }}<br>            
+        {{ form.descr(cols=32, rows=4) }}<br> 
+        {% for error in form.descr.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+        
+        <div id = "learning" style="margin:0 auto; display:none;">
+            {{ form.learning_category.label }}<br>            
+            {{ form.learning_category(cols=32, rows=4) }}<br> 
+            {% for error in form.learning_category.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %} <br>
+            
+            {{ form.pace.label }}<br>            
+            {{ form.pace(cols=32, rows=4) }}<br> 
+            {% for error in form.pace.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
-
-            {{ form.descr.label }}<br>            
-            {{ form.descr(cols=32, rows=4) }}<br> 
-            {% for error in form.descr.errors %}
+        </div>
+        
+        <div id = "software" style="margin:0 auto; display:none;">
+            {{ form.lang.label }}<br>            
+            {{ form.lang(cols=32, rows=4) }}<br> 
+            {% for error in form.lang.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
-            
-            <div id = "learning" style="margin:0 auto; display:none;">
-                {{ form.learning_category.label }}<br>            
-                {{ form.learning_category(cols=32, rows=4) }}<br> 
-                {% for error in form.learning_category.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %} <br>
-                
-                {{ form.pace.label }}<br>            
-                {{ form.pace(cols=32, rows=4) }}<br> 
-                {% for error in form.pace.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </div>
-            
-            <div id = "software" style="margin:0 auto; display:none;">
-                {{ form.lang.label }}<br>            
-                {{ form.lang(cols=32, rows=4) }}<br> 
-                {% for error in form.lang.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </div>
+        </div>
 
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
-    
-    <!-- User feed -->
-    {% for project in projects %}
-    <div><p>{{ project.creator.username }} says: <b>{{ project.name }}</b></p></div>
-    {% endfor %}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endif %} <!-- end of form bool -->
+
+<!-- User feed -->
+{% for project in projects %}
+    {% include '_project.html' %}
+{% endfor %}
+
+{% if prev_url %}
+    <a href="{{ prev_url }}">Newer projects</a>
+{% endif %}
+{% if next_url %}
+    <a href="{{ next_url }}">Older projects</a>
+{% endif %}
     
 <script type="text/javascript">
     // Show and hide category specific form fields
+    // instead of manually creating cat_map, could go through div ids and drop down elements and
+    // automatically create relationship based on word similarity.
     $(document).ready(function() {
         $("#category").change(function () { // detecting change in category drop down
             let cat_map  = {'learning':'learning', 'software development':'software'}; //{form value:div id, ...}

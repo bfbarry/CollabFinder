@@ -6,7 +6,7 @@
             <title>CollabFinder</title>
         {% endif %}
         <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
     </head>
     <body>
         <div>
@@ -15,6 +15,7 @@
             {% if current_user.is_anonymous %}
                 <a href="{{ url_for('login') }}">Login</a>
             {% else %}
+                <a href="{{ url_for('explore') }}">Explore</a>
                 <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             {% endif %}
