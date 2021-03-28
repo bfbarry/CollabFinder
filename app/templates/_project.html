@@ -10,7 +10,8 @@
             <a href="{{ url_for('user', username=project.creator.username) }}">
                 {{ project.creator.username }}
             </a>
-            created a project:<br>
+            {{ _('%(username)s created a project: %(when)s',
+                    username=user_link, when=moment(post.timestamp).fromNow()) }}
             {{ project.name }}<br>
             {{ project.descr }}
         </td>

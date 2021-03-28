@@ -90,6 +90,26 @@ to test email server:
 - TextAreaField Length(): is it characters or words?
 - Redirect after submission of post: "this simple trick is called the Post/Redirect/Get pattern. It avoids inserting duplicate posts when a user inadvertently refreshes the page after submitting a web form."
 
+## PART X Email
+- `flask-mail`, `pyjwt`
+
+## PART XII DATE TIME
+- using `flask-moment`
+
+##  Part XIII: I18n and L10n
+- `pip install flask-babel`
+- `$ pybabel extract -F babel.cfg -k _l -o messages.pot .`
+    - no need to commit this file
+- `$ pybabel init -i messages.pot -d app/translations -l LANG` creates messages.po
+- For empty `msgstr`s, need to manually input translations, then `pybabel compile -d app/translations`
+<br> To make updates to language:
+- `$ pybabel extract -F babel.cfg -k _l -o messages.pot .`
+- `$ pybabel update -i messages.pot -d app/translations`
+
+<br> cli.py
+- enables us to scratch the above and use the `$ flask translate {init, update, compile}` shortcuts
+
+
 ## Part XV  Better App Structure
 current subsystems: 
 - user auth
@@ -122,11 +142,23 @@ with op.batch_alter_table("project") as batch_op:
 
 ## Business matters
 - Crowdfight is doing something similar, for science/research projects
+- Create Subreddit and facebook page 
+
 # Chapters to look at:
-- Facelift
-- Better applicaiton structure
 - Full text search
-- 
+
+
+WHAT WE CAN OFFER THAN FINDCOLLABS DOESN'T
+- random matching with project
+- Learning projects for self teaching
+- Data science category 
+- Emphasis of emergence of a product from interdisciplinary collaboration.
+- restrict by geographical area or school (the latter is important as this is our audience)
+- No chat – leave that to discord or slack
+- Really cater to more than just start ups and coding projects
+- Search function is not restricted to existing tags.
+- No ratings but rather projects worked. And if someone sucks, 
+
 
 # TODO in code
 - Front page
@@ -145,7 +177,7 @@ with op.batch_alter_table("project") as batch_op:
 Higher level
     - Private projects
 
-# Website design
+# Website/App design
 
 **Form**: skill level should be a slider <br>
 **Search bar**: typing in names suggests users
@@ -158,6 +190,17 @@ or <br>
 - Follow topics/interests with feed
 
 Don't show followed projects if anonymous user
+
+"Wanted roles" section
+
+Where to redirect after clicking "Create project"? Project page? 
+
+- Software: Language drop down should be one thing, with other languages as an extra input box, or a multiple select
+- Learning: suggests textbooks based on subject. (How? User contributions?)
+    - Syllabus implementation – automatic? From previous existing courses, submitted by users?
+- Receiving notifications/digest for new projects based on categories you are subscribed to
+- Option to randomly match with projects based on qualifications and interests (machine learning)
+- Category for scientific research. Reach out to crowdfight.
 
 # TEST USERS
 susan: cat

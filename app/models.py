@@ -1,10 +1,12 @@
 from datetime import datetime
-from app import db
+from time import time
+
+from app import app, db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin # incorporates 4 requirements for flask-login
-from app import login
 #avatar imports
 from hashlib import md5
+import jwt
 
 ## Association tables ##
 
@@ -35,6 +37,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     projects = db.relationship('Project', backref='creator', lazy='dynamic')
     about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     # From the perspective of the follower
     followed = db.relationship( # Looking at relationship from follower (one) --> following (many), this yield the right side (those followed)
         'User', secondary=followers, #Self-ref, association table
@@ -85,6 +88,21 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def get_reset_password_token(self, expires_in=600):
+        """expires_in: seconds"""
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
 
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
