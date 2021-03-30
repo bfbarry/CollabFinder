@@ -109,6 +109,10 @@ to test email server:
 <br> cli.py
 - enables us to scratch the above and use the `$ flask translate {init, update, compile}` shortcuts
 
+## PART XIV:
+- `guess_language-spirit`
+- Did not do Ajax part (w/ Azure)
+
 
 ## Part XV  Better App Structure
 current subsystems: 
@@ -120,6 +124,7 @@ So want an *application factory* function: this accepts a configuration object a
 
 - Replace all url_for() with module.url e.g., `url_for('auth.login')`
 - app --> current_app
+- `python-dotenv` for environemtn variables
 
 ## Common errors
 >"write each part of the application without making any assumptions about how the other parts work, and this enables me to write modular and robust applications that are easier to extend and to test, and are less likely to fail or have bugs."

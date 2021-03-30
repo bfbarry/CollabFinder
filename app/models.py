@@ -1,13 +1,12 @@
 from datetime import datetime
 from time import time
-
-from app import app, db, login
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import current_app
 from flask_login import UserMixin # incorporates 4 requirements for flask-login
+from werkzeug.security import generate_password_hash, check_password_hash
 #avatar imports
 from hashlib import md5
 import jwt
-
+from app import db, login
 ## Association tables ##
 
 followers = db.Table('followers',
@@ -93,12 +92,12 @@ class User(UserMixin, db.Model):
         """expires_in: seconds"""
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'], algorithm='HS256')
+            current_app.config['SECRET_KEY'], algorithm='HS256')
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
         except:
             return
@@ -127,6 +126,8 @@ class Project(db.Model):
     skill_level = db.Column(db.String(20))
     setting = db.Column(db.String(20))
 
+    # non optional variables
+    language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
     
