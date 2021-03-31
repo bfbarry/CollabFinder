@@ -7,6 +7,52 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 import jwt
 from app import db, login
+from app.search import add_to_index, remove_from_index, query_index
+
+class SearchableMixin(object):
+    """Used by Project() to search"""
+    @classmethod
+    def search(cls, expression, page, per_page):
+        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        if total == 0:
+            return cls.query.filter_by(id=0), 0
+        when = [] # named after associated SQL statement see https://stackoverflow.com/questions/6332043/sql-order-by-multiple-values-in-specific-order/6332081#6332081
+        for i in range(len(ids)):
+            when.append((ids[i], i))
+        return cls.query.filter(cls.id.in_(ids)).order_by( 
+            db.case(when, value=cls.id)), total #case statement ensures results are in same order as IDs
+
+    @classmethod
+    def before_commit(cls, session):
+        '''keeps track of old model formats/IDs before commit'''
+        session._changes = {
+            'add': list(session.new),
+            'update': list(session.dirty),
+            'delete': list(session.deleted)
+        }
+
+    @classmethod
+    def after_commit(cls, session):
+        for obj in session._changes['add']:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes['update']:
+            if isinstance(obj, SearchableMixin):
+                add_to_index(obj.__tablename__, obj)
+        for obj in session._changes['delete']:
+            if isinstance(obj, SearchableMixin):
+                remove_from_index(obj.__tablename__, obj)
+        session._changes = None
+
+    @classmethod
+    def reindex(cls):
+        '''refreshes an index'''
+        for obj in cls.query:
+            add_to_index(cls.__tablename__, obj)
+
+db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
+db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
+
 ## Association tables ##
 
 followers = db.Table('followers',
@@ -118,7 +164,8 @@ def load_user(id):
     """
     return User.query.get(int(id))
 
-class Project(db.Model):
+class Project(SearchableMixin, db.Model):
+    __searchable__ = ['category','name','descr'] # subject to change
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(60))
     name = db.Column(db.String(60))
@@ -139,7 +186,7 @@ class Project(db.Model):
     #     backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
-        return '<Project {}>'.format(self.descr)
+        return '<Project {}>'.format(self.name)
         
 class Learning(Project):
     '''Can be study group for a course, or just auto-didacts studying a subject together
@@ -152,10 +199,6 @@ class Learning(Project):
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60)) #still have to figure out how to implement this
-
-    
-    def __repr__(self):
-        return '<Project {} {}>'.format(self.learning_category, id)
 
     # crude way to add new subjects to learning_categories
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects

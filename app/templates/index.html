@@ -5,7 +5,7 @@
 <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
 
 {% if form %}
-<form action="" method="post">
+<form class="proj" action="" method="post">
     {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
     <p>
         {{ form.name.label }}<br>            <!-- input label --> 

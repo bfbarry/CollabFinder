@@ -42,6 +42,9 @@ added shell context
     - Where makeProject() fits in all this ()
     - How multidimensional objects can be stored in a database
 
+## Part IV: Database
+-`flask-SQLAlchemy` can be used by any database engine like MySQL
+
 ## Part V Crypto
 
 `$ pip install flask-login` <br>
@@ -126,7 +129,28 @@ So want an *application factory* function: this accepts a configuration object a
 - app --> current_app
 - `python-dotenv` for environemtn variables
 
-## Common errors
+## PArt XVI: Full text search
+- `$ brew install elasticsearch` 
+    - To have launchd start elasticsearch now and restart at login: `$ brew services start elasticsearch`
+        - currently using this. `(label: homebrew.mxcl.elasticsearch)`
+    - w/o background service you can just run: `$ elasticsearch`
+    - says "is a pre-release version of Elasticsearch and is not suitable for production"
+- `$ pip install elasticsearch`
+<!-- language: python -->
+```
+>>> es.index(index='my_index', id=1, body={'text': 'this is a test'})
+>>> es.search(index='my_index', body={'query': {'match': {'text': 'this test'}}})
+>>> es.indices.delete('my_index')
+```
+- Added `ELASTICSEARCH_URL=http://localhost:9200` to `.env` which is in root dir, if this doesn't work, do this in command line.
+- create `search.py` after setting `__searchable__` attribute to models.
+    - this .py file can be rewritten to acommodate different search engines
+    - currently, `__searchable__ = ['category','name','descr']` but might want to reduce to just name and descr when implementing a "browse by category" option
+    - new id that is same as old one overwrites the last one in an index
+- Want to trigger indexing calls automatically as changes to DB are made
+- Create a Mixin class to integrate Elasticsearch with SQLAlchemy
+
+## Common Flask errors
 >"write each part of the application without making any assumptions about how the other parts work, and this enables me to write modular and robust applications that are easier to extend and to test, and are less likely to fail or have bugs."
 - Did you remember to migrate and upgrade after changing DB in models.py?
 - Maybe: Order of code
