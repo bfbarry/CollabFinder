@@ -206,9 +206,14 @@ WHAT WE CAN OFFER THAN FINDCOLLABS DOESN'T
 Higher level
     - Private projects
 
-# Website/App design
+# Website/App design (SCRUM ish stuff)
 
-**Form**: skill level should be a slider <br>
+** Broad/Front page stuff**
+- 
+**Form**: 
+- should skill level be a slider? 
+- TextFields should be restricted by DB char limit
+    - have a 'characters remaining' below each TextField<br>
 **Search bar**: typing in names suggests users
 
 Front page:<br>

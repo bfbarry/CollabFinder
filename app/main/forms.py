@@ -5,11 +5,23 @@ from wtforms.validators import ValidationError, DataRequired, Length
 from flask_babel import _, lazy_gettext as _l
 from app.models import User, Project
 
+### Helper functions ###
 def _l_list(l):
     return [_l(i) for i in l]
 
+def col_char_lim(model):
+    """returns dict of form {colname:length} for string columns"""
+    tb_info = str(vars(model)['__table__'].__dict__['constraints']).split('Column(')
+    tb_lens = dict()
+    for v in tb_info:
+        if 'length=' in v:
+            colname, c_len = re.findall(r"\'(.+?)\'", v)[0], re.findall(r"length=(.+?)\)", v)[0]
+            tb_lens[colname] = int(c_len)
+    return tb_lens
+
+### Forms ###
 class SearchForm(FlaskForm):
-    q = StringField(_l('Search for a project'), validators=[DataRequired()])
+    q = StringField(_l('Find a project'), validators=[DataRequired()])
 
     def __init__(self, *args, **kwargs):
         if 'formdata' not in kwargs:
@@ -41,6 +53,7 @@ class EmptyForm(FlaskForm):
 
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
+    lens = col_char_lim(Project)
     # SelectField options
     option1 = _l('Select one')
     categories = [option1] + _l_list(['learning','software development']) # test version, see below
@@ -54,10 +67,10 @@ class ProjectForm(FlaskForm):
 
     #Basic form fields
     name = TextAreaField(_l('Give your project a name'), validators=[
-        DataRequired(), Length(min=1, max=60)])
+        DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
     category = SelectField(_l('Category'), choices=categories, default=1)
     descr = TextAreaField(_l('Describe your project'), validators=[ 
-        DataRequired(), Length(min=1, max=140)]) #make 1030
+        DataRequired(), Length(min=1, max=140)],render_kw={'maxlength': lens['descr']}) #make 1030
     skill_level = SelectField(_l('Skill Level'), choices=skill_lvls, default=1)
     setting = SelectField(_l('Setting'), choices=proj_settings, default=1)    
     

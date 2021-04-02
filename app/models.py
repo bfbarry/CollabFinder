@@ -172,7 +172,7 @@ class Project(SearchableMixin, db.Model):
     descr = db.Column(db.String(140))
     skill_level = db.Column(db.String(20))
     setting = db.Column(db.String(20))
-
+    #location = db.Column(db.String(20))
     # non optional variables
     language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
