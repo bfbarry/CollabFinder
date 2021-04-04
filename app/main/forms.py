@@ -9,6 +9,7 @@ from app.models import User, Project
 def _l_list(l):
     return [_l(i) for i in l]
 
+import re
 def col_char_lim(model):
     """returns dict of form {colname:length} for string columns"""
     tb_info = str(vars(model)['__table__'].__dict__['constraints']).split('Column(')

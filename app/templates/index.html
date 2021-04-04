@@ -1,69 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- <h1>Hi, {{ current_user.username }}!</h1> -->
 <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
-
-{% if form %}
-<form class="proj" action="" method="post">
-    {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
-    <p>
-        {{ form.name.label }}<br>            <!-- input label --> 
-        {{ form.name(cols=32, rows=4) }}<br>  <!-- user input --> 
-        {% for error in form.name.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        
-        {{ form.category.label }}<br>            <!-- input label --> 
-        {{ form.category(cols=32, rows=4) }}<br>  <!-- user input --> 
-        {% for error in form.category.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        
-        {{ form.setting.label }}<br>            
-        {{ form.setting(cols=32, rows=4) }}<br> 
-        {% for error in form.setting.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-
-        {{ form.skill_level.label }}<br>            
-        {{ form.skill_level(cols=32, rows=4) }}<br> 
-        {% for error in form.skill_level.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-
-        {{ form.descr.label }}<br>            
-        {{ form.descr(cols=32, rows=4) }}<br> 
-        {% for error in form.descr.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-        
-        <div id = "learning" style="margin:0 auto; display:none;">
-            {{ form.learning_category.label }}<br>            
-            {{ form.learning_category(cols=32, rows=4) }}<br> 
-            {% for error in form.learning_category.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %} <br>
-            
-            {{ form.pace.label }}<br>            
-            {{ form.pace(cols=32, rows=4) }}<br> 
-            {% for error in form.pace.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
+<br><br>
+<div class = "go_center fpage_div">
+    {% if g.search_form %}
+    <form class="navbar-form" method="get" action="{{ url_for('main.search') }}" style="margin-top: 25px; width: 200px; text-align: center; display: inline-block;">
+        <div class="form-group">
+            {{ g.search_form.q(size=20, class='form-control',
+                placeholder=g.search_form.q.label.text) }}
         </div>
-        
-        <div id = "software" style="margin:0 auto; display:none;">
-            {{ form.lang.label }}<br>            
-            {{ form.lang(cols=32, rows=4) }}<br> 
-            {% for error in form.lang.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </div>
+    </form>
+    {% endif %}
 
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-{% endif %} <!-- end of form bool -->
+    <p>or...</p><br>
+
+    <a class="btn btn-primary" href="{{ url_for('main.create_project') }}" role="button">Create a new project!</a>
+</div>
 
 <!-- User feed -->
 
@@ -108,7 +61,12 @@
                 else {$("#"+div_ids[i]).hide("slow");}
                 }
             }); 
-        });     
+        });    
+        
+    function TextCounter(field, limit) {
+        var typedChars = $(field).val().length;
+        $(field).next('span').text(typedChars=0?'0 / '+limit:typedChars+' / '+limit);
+        };
 
 </script>
 {% endblock %}

@@ -39,8 +39,44 @@ proj_categories = {'learning': Learning} #, 'software development':SoftwareDev}
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
-@login_required
+@login_required # don't want this
 def index():
+    # form = ProjectForm()
+    # if form.validate_on_submit():
+    #     language = guess_language(form.descr.data)
+    #     if language == 'UNKNOWN' or len(language) > 5:
+    #         language = ''
+
+    #     proj_kwargs = {}
+    #     proj_model = proj_categories[form.category.data]
+    #     spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][1:] # skipping id column
+    #     spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
+    #     form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
+    #     for a in spec_args:
+    #         if a in form_args: #in case some columns of model are not yet implemented in front end
+    #             exec(f'proj_kwargs[a] = form.{a}.data')
+        
+    #     project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
+    #                     skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language,**proj_kwargs) #instatiating the specific project
+        
+    #     db.session.add(project)
+    #     db.session.commit()
+    #     flash(_('Your project is now live!'))
+    #     return redirect(url_for('main.index')) #want this redirect because of POST; avoids having to refresh
+    
+    page = request.args.get('page', 1, type=int)
+    projects = current_user.followed_projects().paginate(
+        page, current_app.config['PROJECTS_PER_PAGE'], False)
+    next_url = url_for('main.index', page=projects.next_num) \
+        if projects.has_next else None
+    prev_url = url_for('main.index', page=projects.prev_num) \
+        if projects.has_prev else None
+    return render_template('index.html', title=_('Home'), projects = projects.items, 
+                            next_url=next_url, prev_url=prev_url)
+
+@bp.route('/create_project', methods=['GET', 'POST'])
+@login_required
+def create_project():
     form = ProjectForm()
     if form.validate_on_submit():
         language = guess_language(form.descr.data)
@@ -57,23 +93,14 @@ def index():
                 exec(f'proj_kwargs[a] = form.{a}.data')
         
         project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language,**proj_kwargs) #instatiating the specific project
+                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, **proj_kwargs) #instatiating the specific project
         
         db.session.add(project)
         db.session.commit()
         flash(_('Your project is now live!'))
         return redirect(url_for('main.index')) #want this redirect because of POST; avoids having to refresh
     
-    page = request.args.get('page', 1, type=int)
-    projects = current_user.followed_projects().paginate(
-        page, current_app.config['PROJECTS_PER_PAGE'], False)
-    next_url = url_for('main.index', page=projects.next_num) \
-        if projects.has_next else None
-    prev_url = url_for('main.index', page=projects.prev_num) \
-        if projects.has_prev else None
-    return render_template('index.html', title=_('Home'), form = form, projects = projects.items, 
-                            next_url=next_url, prev_url=prev_url)
-
+    return render_template('create_project.html', title=_('Create a Project'), form = form)
 
 @bp.route('/explore')
 @login_required
