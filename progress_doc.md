@@ -136,8 +136,8 @@ So want an *application factory* function: this accepts a configuration object a
     - w/o background service you can just run: `$ elasticsearch`
     - says "is a pre-release version of Elasticsearch and is not suitable for production"
 - `$ pip install elasticsearch`
-<!-- language: python -->
-```
+
+```python
 >>> es.index(index='my_index', id=1, body={'text': 'this is a test'})
 >>> es.search(index='my_index', body={'query': {'match': {'text': 'this test'}}})
 >>> es.indices.delete('my_index')
@@ -157,7 +157,7 @@ So want an *application factory* function: this accepts a configuration object a
 - If db upgrade error and want to revert, downgrade
 - If change var name, remember to alter_table() in migration script
 - use batch to drop column:
-```
+```python
 with op.batch_alter_table("project") as batch_op:
         batch_op.drop_column('descr')
 ```
@@ -168,13 +168,6 @@ with op.batch_alter_table("project") as batch_op:
 - "Because GET requests are harder to protect against CSRF, they should only be used on actions that do not introduce state changes."
 - [Why models have no constructors](https://stackoverflow.com/questions/20460339/flask-sqlalchemy-constructor): "Flask-SQLAlchemy's base model class (which is also SQLAlchemy's declarative base class) defines a constructor that just takes **kwargs and stores all the arguments given, so it isn't really necessary to define a constructor."
 - [Calling raw SQL commands](https://stackoverflow.com/questions/17972020/how-to-execute-raw-sql-in-flask-sqlalchemy-app?rq=1)
-
-## Business matters
-- Crowdfight is doing something similar, for science/research projects
-- Create Subreddit and facebook page 
-
-# Chapters to look at:
-- Full text search
 
 
 WHAT WE CAN OFFER THAN FINDCOLLABS DOESN'T

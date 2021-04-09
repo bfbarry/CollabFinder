@@ -3,7 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length
 from flask_babel import _, lazy_gettext as _l
-from app.models import User, Project
+from app.models import User, Project, \
+                            Learning #Project subclasses
 
 ### Helper functions ###
 def _l_list(l):
@@ -54,7 +55,7 @@ class EmptyForm(FlaskForm):
 
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
-    lens = col_char_lim(Project)
+    lens = {**col_char_lim(Project), **col_char_lim(Learning)}
     # SelectField options
     option1 = _l('Select one')
     categories = [option1] + _l_list(['learning','software development']) # test version, see below
@@ -78,6 +79,8 @@ class ProjectForm(FlaskForm):
     #Learning
     learning_category = SelectField(_l('Learning category'), choices=learning_categories, default=1)
     pace = SelectField(_l('Learning pace'), choices=pace_types, default=1)
+    resource = TextAreaField(_l('Main resource (can be a textbook, website, playlist, etc.)'), validators=[
+        Length(min=1, max=60)],render_kw={'maxlength': lens['resource']})
 
     #Software Development
     lang = SelectField(_l('Language'), choices=['None'] + langs, default=1) #eventually would want to type it and it autofills since there are so many

@@ -6,7 +6,7 @@
     {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
     <p>
         {{ form.name.label }}<br>            <!-- input label --> 
-        {{ form.name(cols=32, rows=4, oninput="TextCounter(this, {})".format(form.lens['name'])) }}<br>  <!-- user input --> 
+        {{ form.name(cols=32, rows=4, required='required', oninput="TextCounter(this, {})".format(form.lens['name'])) }}<br>  <!-- user input --> 
         {% for error in form.name.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -30,7 +30,7 @@
         {% endfor %}
 
         {{ form.descr.label }}<br>            
-        {{ form.descr(cols=32, rows=4) }}<br> 
+        {{ form.descr(cols=32, rows=4, required='required') }}<br> 
         {% for error in form.descr.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -45,6 +45,12 @@
             {{ form.pace.label }}<br>            
             {{ form.pace(cols=32, rows=4) }}<br> 
             {% for error in form.pace.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+            {{ form.resource.label }}<br>            
+            {{ form.resource(cols=32, rows=4) }}<br> 
+            {% for error in form.resource.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </div>

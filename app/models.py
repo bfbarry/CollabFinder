@@ -199,6 +199,7 @@ class Learning(Project):
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60)) #still have to figure out how to implement this
+    resource = db.Column(db.String(70)) #can be textbook, playlist, etc.
 
     # crude way to add new subjects to learning_categories
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
