@@ -5,8 +5,8 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
-from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm
-from app.models import User, Project, \
+from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm
+from app.models import User, Project, proj_categories, \
                             Learning #Project subclasses
 from app.main import bp
 
@@ -34,36 +34,10 @@ def search():
     return render_template('search.html', title=_('Search for a project'), projects=projects,
                            next_url=next_url, prev_url=prev_url)
 
-# to instatiate specific project classes in index
-proj_categories = {'learning': Learning} #, 'software development':SoftwareDev}
-
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required # don't want this
 def index():
-    # form = ProjectForm()
-    # if form.validate_on_submit():
-    #     language = guess_language(form.descr.data)
-    #     if language == 'UNKNOWN' or len(language) > 5:
-    #         language = ''
-
-    #     proj_kwargs = {}
-    #     proj_model = proj_categories[form.category.data]
-    #     spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][1:] # skipping id column
-    #     spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
-    #     form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
-    #     for a in spec_args:
-    #         if a in form_args: #in case some columns of model are not yet implemented in front end
-    #             exec(f'proj_kwargs[a] = form.{a}.data')
-        
-    #     project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-    #                     skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language,**proj_kwargs) #instatiating the specific project
-        
-    #     db.session.add(project)
-    #     db.session.commit()
-    #     flash(_('Your project is now live!'))
-    #     return redirect(url_for('main.index')) #want this redirect because of POST; avoids having to refresh
-    
     page = request.args.get('page', 1, type=int)
     projects = current_user.followed_projects().paginate(
         page, current_app.config['PROJECTS_PER_PAGE'], False)
@@ -85,7 +59,7 @@ def create_project():
 
         proj_kwargs = {}
         proj_model = proj_categories[form.category.data]
-        spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][1:] # skipping id column
+        spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][2:] # skipping id column and field_name
         spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
         form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
         for a in spec_args:
@@ -99,7 +73,7 @@ def create_project():
         db.session.commit()
         flash(_('Your project is now live!'))
         return redirect(url_for('main.index')) #want this redirect because of POST; avoids having to refresh
-    
+        
     return render_template('create_project.html', title=_('Create a Project'), form = form)
 
 @bp.route('/explore')
@@ -192,3 +166,11 @@ def unfollow(username):
 # @app.route('/project/<project_id>')
 # def project(projectname):
 #     ...
+
+@bp.route('/test', methods=['GET', 'POST'])
+def test_page():
+    form = TestForm()
+    if form.validate_on_submit():
+        pass
+    
+    return render_template('test.html', title=_(' :-) '), form = form)

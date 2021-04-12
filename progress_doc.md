@@ -162,6 +162,10 @@ with op.batch_alter_table("project") as batch_op:
         batch_op.drop_column('descr')
 ```
 - If "None has no avatar" error, this is because some post was created by Null
+- To print to console, include `flush=True` in print args
+- must use absolute file paths within scripts (no '`../`')
+- If form not validating on submit, something may be wrong in the form
+    - if declaring unused fields in form but not putting them in web page
 
 
 ## Other notes

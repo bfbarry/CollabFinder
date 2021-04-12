@@ -3,10 +3,11 @@
 
 {% if form %}
 <form class="go_center" action="" method="post">
-    {{ form.hidden_tag() }} <!-- PROJECT CREATION FORM -->
+    {{ form.hidden_tag() }} 
+    <!-- PROJECT CREATION FORM -->
     <p>
         {{ form.name.label }}<br>            <!-- input label --> 
-        {{ form.name(cols=32, rows=4, required='required', oninput="TextCounter(this, {})".format(form.lens['name'])) }}<br>  <!-- user input --> 
+        {{ form.name(cols=20, rows=2, required='required', oninput="TextCounter(this, {})".format(form.lens['name'])) }}<br>  <!-- user input --> 
         {% for error in form.name.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -16,12 +17,14 @@
         {% for error in form.category.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
-        
-        {{ form.setting.label }}<br>            
-        {{ form.setting(cols=32, rows=4) }}<br> 
-        {% for error in form.setting.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
+
+        {{ form.setting.label }}<br>           
+        {% for subfield in form.setting %}
+            <tr>
+                <td>{{ subfield(class_="no_rad") }}</td>
+                <td>{{ subfield.label(class_="btn btn-primary") }}</td>
+            </tr>
+        {% endfor %}<br>
 
         {{ form.skill_level.label }}<br>            
         {{ form.skill_level(cols=32, rows=4) }}<br> 
@@ -34,6 +37,10 @@
         {% for error in form.descr.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
+
+        <!-- <div id = "geo_loc" style="margin:0 auto; display:none;">
+        
+        </div> -->
         
         <div id = "learning" style="margin:0 auto; display:none;">
             {{ form.learning_category.label }}<br>            
@@ -65,6 +72,10 @@
 
     </p>
     <p>{{ form.submit() }}</p>
+
+    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+        Single toggle
+      </button>
 </form>
 {% endif %} <!-- end of form bool -->
 
@@ -88,7 +99,15 @@
                 }
             }); 
         });    
-    
+    $('btn-primary').click(
+       
+        function() {
+        $('btn-primary').removeClass('btn-primary').addClass('btn-danger');
+    },
+    function() {
+        $('btn-danger').removeClass('btn-danger').addClass('btn-primary');
+    }
+    );
     function TextCounter(field, limit) {
         /* Supposed to be used in TextAreaField */
         var typedChars = $(field).val().length;

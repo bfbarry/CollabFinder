@@ -195,7 +195,9 @@ class Learning(Project):
     
     __mapper_args__ = {'polymorphic_identity': 'learning'}
     id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    field_name = 'learning' #SelectField option in form
     
+    ### Project spec properties ###
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60)) #still have to figure out how to implement this
@@ -204,3 +206,11 @@ class Learning(Project):
     # crude way to add new subjects to learning_categories
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
     #     ProjectDataBase.learning_categories[learning_category].append(subject)
+
+
+## KEEP THIS AFTER ALL PROJECT CLASSES
+# imported in main/routes.py to instatiate specific project classes in /create_project
+proj_categories = {'learning': Learning} #, 'software development':SoftwareDev} 
+# proj_categories = {cl.field_name:cl for cl in (Learning, SoftwareDev)}
+# imported in main/forms.py for SelectField options
+proj_cat_keys = tuple(proj_categories.keys())
