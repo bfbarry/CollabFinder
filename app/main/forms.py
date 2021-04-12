@@ -55,7 +55,7 @@ class EmptyForm(FlaskForm):
 
 with open('./app/data/colleges.json','r') as f:
     colleges = json.load(f)
-
+    colleges = [i for i in colleges if 'college' in i.lower() or 'university' in i.lower()]
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
     lens = {**col_char_lim(Project), **col_char_lim(Learning)} #DB character lengths for input field limit
@@ -72,18 +72,18 @@ class ProjectForm(FlaskForm):
     descr = TextAreaField(_l('Describe your project'), validators=[ 
         DataRequired(), Length(min=1, max=140)],render_kw={'maxlength': lens['descr']}) #make 1030
     
-    skill_lvls = [option1] + _l_list(('any','beginner','intermediate','advanced'))
-    skill_level = SelectField(_l('Skill Level'), choices=skill_lvls, default=1)
+    skill_lvls = _l_list(('any','beginner','intermediate','advanced'))
+    skill_level = RadioField(_l('Skill Level'), choices=skill_lvls)
     
     proj_settings =  _l_list(("casual", "serious/professional"))
     setting = RadioField(_l('Setting'), choices=proj_settings)
 
     ### Geo ###
-    # geo_options = [option1] + _l_list(('College/university','High school', 'City (no school)'))
-    # geo = RadioField(_l('Is this project constrained to a city or school?'), choices=geo_options)
+    geo_options = _l_list(('College/university','High school', 'City (no school)'))
+    geo_type = RadioField(_l('Is this project constrained to a city or school?'), choices=geo_options)
     
-    # colleges= [option1] + _l_list(colleges[:100])
-    # college=SelectField(_l('Select college or uni'), choices=geo_options, default=1)
+    colleges= [option1] + colleges[:20]
+    college=SelectField(_l('Select college or university'), choices=colleges, default=1)
     ### Learning ###
     learning_categories = [option1] + _l_list(sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics']))
     learning_category = SelectField(_l('Learning category'), choices=learning_categories, default=1)
