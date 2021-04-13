@@ -1,4 +1,5 @@
-<!-- project sub-template -->
+<!-- project preview sub-template 
+want table to be entirely clickable -->
 <table class="table table-hover">
     <tr>
         <td width="70px">
@@ -12,23 +13,8 @@
             </a>
             {{ _('%(username)s created a project: %(when)s',
                     username=user_link, when=moment(project.timestamp).fromNow()) }}
-            {{ project.name }}<br>
+            <a href="{{url_for('main.project', project_id=project.id)}}">{{ project.name }}</a><br>
             {{ project.descr }}
         </td>
     </tr>
 </table>
-
-
-<!-- <table>
-    <tr valign="top">
-        <td><img src="{{ project.creator.avatar(36) }}"></td>
-        <td>
-            <a href="{{ url_for('main.user', username=project.creator.username) }}">
-                {{ project.creator.username }}
-            </a>
-            created a project:<br>
-            {{ project.name }}<br>
-            {{ project.descr }}
-        </td>
-    </tr>
-</table> -->

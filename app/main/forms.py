@@ -22,6 +22,8 @@ def col_char_lim(model):
             tb_lens[colname] = int(c_len)
     return tb_lens
 
+lens = {**col_char_lim(Project), **col_char_lim(Learning)} #DB character lengths for input field limit
+
 ### Forms ###
 class SearchForm(FlaskForm):
     q = StringField(_l('Find a project'), validators=[DataRequired()])
@@ -37,7 +39,7 @@ class EditProfileForm(FlaskForm):
     username = StringField(_l('Username'), validators=[DataRequired()])
     about_me = TextAreaField(_l('About me'),
                              validators=[Length(min=0, max=140)])
-    submit = SubmitField(_l('Submit'))
+    submit = SubmitField(_l('Save'))
 
     def __init__(self, original_username, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
@@ -58,7 +60,7 @@ with open('./app/data/colleges.json','r') as f:
     colleges = [i for i in colleges if 'college' in i.lower() or 'university' in i.lower()]
 class ProjectForm(FlaskForm):
     """Create a new project, on /index"""
-    lens = {**col_char_lim(Project), **col_char_lim(Learning)} #DB character lengths for input field limit
+    lens = lens
     option1 = _l('Select one')
 
     #### Project form fields ####
@@ -88,7 +90,7 @@ class ProjectForm(FlaskForm):
     learning_categories = [option1] + _l_list(sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics']))
     learning_category = SelectField(_l('Learning category'), choices=learning_categories, default=1)
     
-    pace_types = [option1] + _l_list(("custom-pace","self-paced", "quarter","semester"))
+    pace_types = [option1] + _l_list(("custom (synchronized)","individual (asynchronized) ", "quarter","semester"))
     pace = SelectField(_l('Learning pace'), choices=pace_types, default=1)
 
     resource = TextAreaField(_l('Main resource (can be a textbook, website, playlist, etc.)'), validators=[
@@ -99,6 +101,29 @@ class ProjectForm(FlaskForm):
     lang = SelectField(_l('Language'), choices=['None'] + langs, default=1) #eventually would want to type it and it autofills since there are so many
     
     submit = SubmitField(_l('Create Project'))
+
+    def validate_name(self, name):
+        project = Project.query.filter_by(name=name.data).first()
+        if project is not None:
+            raise ValidationError(_('This particular project name is already taken.'))
+
+class EditProjectForm(FlaskForm):
+    lens = lens
+    name = TextAreaField(_l('Project name:'), validators=[
+        DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
+    descr = TextAreaField(_l('Description: '),
+                             validators=[Length(min=0, max=140)])
+    submit = SubmitField(_l('Save'))
+
+    def __init__(self, original_name, *args, **kwargs):
+        super(EditProjectForm, self).__init__(*args, **kwargs)
+        self.original_name = original_name
+
+    def validate_username(self, name):
+        if name.data != self.original_name:
+            project = Project.query.filter_by(name=name.data).first()
+            if project is not None:
+                raise ValidationError(_('This particular project name is already taken.'))
 
 class TestForm(FlaskForm):
     rad = RadioField('Select an option:', choices=['a','b','c'])

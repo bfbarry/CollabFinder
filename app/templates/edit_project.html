@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ _('Edit Profile') }}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<br>            <!-- input label --> 
+            {{ form.name(cols=30, rows=1, required='required', oninput="TextCounter(this, {})".format(form.lens['name'])) }}<br>  <!-- user input --> 
+            {% for error in form.name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.descr.label }}<br>            
+            {{ form.descr(cols=32, rows=4, required='required') }}<br> 
+            {% for error in form.descr.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

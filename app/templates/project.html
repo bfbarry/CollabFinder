@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 style="float: left">{{ proj.name }}</h1> 
+<p style=" white-space: nowrap; overflow: hidden; color: #949494;">  &nbsp started by {{proj.creator.username}}, {{moment(proj.timestamp).fromNow()}} </p>
+<br><h3> A {{proj.category}} project.</h3>
+<p>{{proj.descr}}</p>
+<p>{{proj.setting}} setting - for those at {{proj.skill_level}} skill level</p>
+{% if proj.category == 'learning'%}
+    <div id = 'learning'>
+        <p><b>Pace: </b>Learning at a {{proj_dict['pace']}} pace</p>
+        {% if proj.resource%}
+            <p> <b>Resources: </b>using {{proj.resource}}</p>
+        {% endif %}
+    </div>
+{% elif proj.category == 'software development'%}
+    <div id = 'software'>
+        Hello
+    </div>
+{% endif %}
+
+{% if current_user.username == proj.creator.username %}
+    <a href="{{ url_for('main.edit_project') }}" class="btn btn" style="color:white;background-color:turquoise;"> {{ _(edit project details) }} </a>
+        <br><br>
+    <a class="btn btn" style="color:white;background-color:purple;"> + {{ _(invite) }} </a>
+
+{% endif %}
+
+
+<script type="text/javascript">
+    
+ </script>           
+{% endblock%}

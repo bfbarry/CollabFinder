@@ -166,6 +166,8 @@ with op.batch_alter_table("project") as batch_op:
 - must use absolute file paths within scripts (no '`../`')
 - If form not validating on submit, something may be wrong in the form
     - if declaring unused fields in form but not putting them in web page
+- `sqlalchemy.orm.exc.ObjectDeletedError` if have even commented out error giving code in html
+- Make sure database row being used has updated database and model features before using it to test
 
 
 ## Other notes
