@@ -19,11 +19,11 @@
         Hello
     </div>
 {% endif %}
-
-{% if current_user.username == proj.creator.username %}
-    <a href="{{ url_for('main.edit_project') }}" class="btn btn" style="color:white;background-color:turquoise;"> {{ _(edit project details) }} </a>
+ 
+    {% if current_user.username == proj.creator.username %}
+    <a href="{{ url_for('main.edit_project', project_id=proj.id) }}" method='post' class="btn btn" style="color:white;background-color:turquoise;"> {{_('edit project details')}} </a>
         <br><br>
-    <a class="btn btn" style="color:white;background-color:purple;"> + {{ _(invite) }} </a>
+    <a class="btn btn" style="color:white;background-color:purple;"> + {{ _('invite') }} </a>
 
 {% endif %}
 

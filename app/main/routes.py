@@ -105,21 +105,24 @@ def project(project_id):
     form = EmptyForm()
     return render_template('project.html', proj= proj, proj_dict = proj_dict, form=form)
 
-@bp.route('/edit_project', methods=['GET', 'POST'])
+@bp.route('/edit_project/<project_id>', methods=['GET', 'POST'])
 @login_required
-def edit_project():
+def edit_project(project_id):
+    proj = Project.query.get(project_id)
     form = EditProjectForm(proj.name)
+    if current_user.username != proj.creator.username:
+        flash(_('Must be project admin to make changes'))
+        return redirect(url_for('main.index'))
     if form.validate_on_submit():
         proj.name = form.name.data
         proj.descr = form.descr.data
         db.session.commit()
         flash(_('Your changes have been saved.'))
-        return redirect(url_for('main.edit_profile'))
+        return redirect(url_for('main.edit_project', project_id=proj.id))
     elif request.method == 'GET':
-        proj.name = form.name.data
-        proj.descr = form.descr.data
-    return render_template('edit_project.html', title=_('Edit Project'),
-                           form=form)
+        form.name.data = proj.name
+        form.descr.data = proj.descr
+    return render_template('edit_project.html', title=_('Edit Project'), form=form)
 
 @bp.route('/join/<project_id>', methods=['POST'])
 def join_project(project_id):

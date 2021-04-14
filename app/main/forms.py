@@ -119,9 +119,9 @@ class EditProjectForm(FlaskForm):
         super(EditProjectForm, self).__init__(*args, **kwargs)
         self.original_name = original_name
 
-    def validate_username(self, name):
+    def validate_name(self, name):
         if name.data != self.original_name:
-            project = Project.query.filter_by(name=name.data).first()
+            project = Project.query.filter_by(name=self.name.data).first()
             if project is not None:
                 raise ValidationError(_('This particular project name is already taken.'))
 
