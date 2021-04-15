@@ -6,7 +6,19 @@
 <p style=" white-space: nowrap; overflow: hidden; color: #949494;">  &nbsp started by {{proj.creator.username}}, {{moment(proj.timestamp).fromNow()}} </p>
 <br><h3> A {{proj.category}} project.</h3>
 <p>{{proj.descr}}</p>
+{% if tags|length > 0 %}
+    <b>tags:</b>
+    <ul>
+    {%for tag in tags%}
+        <a href="search?q={{tag}}" class="btn btn-sm" style="color:white;background-color:rgb(98, 199, 101);"> {{_(tag)}}</a>
+    {%endfor%}
+    </ul>
+{%endif%}
 <p>{{proj.setting}} setting - for those at {{proj.skill_level}} skill level</p>
+{%if proj.chat_link and current_user.username == proj.creator.username %} <!-- later check if member not creator-->
+    <p>Join the conversation: <a class = "btn btn-info" href="http://{{proj.chat_link}}">{{proj.chat_link}}</a></p>
+{%endif%}
+
 {% if proj.category == 'learning'%}
     <div id = 'learning'>
         <p><b>Pace: </b>Learning at a {{proj_dict['pace']}} pace</p>

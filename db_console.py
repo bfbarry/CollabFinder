@@ -4,10 +4,10 @@ Script to modify database
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db, cli
-from app.models import User, Project,\
+from app.models import User, Project, Tag,\
                             Learning
 
-
+import app.models as models
 from config import Config
 import os
 
@@ -20,17 +20,20 @@ app.app_context().push() # to accomodate updated app structure
 
 # p = Project.query.filter_by(id=22)     
 # print(p)
-proj_sub = Learning.query.get(12)
-print(proj_sub.pace)
+# cs = Tag(name='computer science')
+# db.session.add(cs)
+# db.session.commit()
 
-proj_dict = {}
-#spec_args = [attr for attr in list(vars(Learning)) if not attr.startswith("_")][2:]
-# for a in spec_args:
-#     print(a)
-    #exec(f'proj_dict[a] = proj_sub.{a}')
+# proj_sub = Project.query.get(23)
+#ts = Tag.query.all()
+x = Project.query.filter_by(name='116').first()
+f = Tag.query.filter_by(name='four').first()
+x.tags.remove(f)
+db.session.commit()
 
-print(proj_dict)
+
+# print(tag_names)
+# print(Tag.query.filter_by(name='math').first())
+
 
 #projects = Project.query.all()     
-#db.session.delete(projects[n])
-#db.session.commit()

@@ -111,8 +111,10 @@ class EditProjectForm(FlaskForm):
     lens = lens
     name = TextAreaField(_l('Project name:'), validators=[
         DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
-    descr = TextAreaField(_l('Description: '),
-                             validators=[Length(min=0, max=140)])
+    descr = TextAreaField(_l('Description: '),validators=[
+        DataRequired(), Length(min=0, max=140)])
+    chat_link = TextAreaField(_l('Link to messaging platform: '),validators=[Length(min=0, max=512)]) # Discord, slack etc.
+    tags = TextAreaField(_l('Tags: '),validators=[Length(min=0, max=100)])
     submit = SubmitField(_l('Save'))
 
     def __init__(self, original_name, *args, **kwargs):

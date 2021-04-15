@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
 from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm
-from app.models import User, Project, proj_categories, \
+from app.models import User, Project, Tag, proj_categories, \
                             Learning #Project subclasses
 from app.main import bp
 
@@ -67,12 +67,12 @@ def create_project():
                 exec(f'proj_kwargs[a] = form.{a}.data')
         
         project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
-                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, **proj_kwargs) #instatiating the specific project
+                        skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, chat_link = None, **proj_kwargs) #instatiating the specific project
         
         db.session.add(project)
         db.session.commit()
         flash(_('Your project is now live!'))
-        return redirect(url_for('main.index')) #want this redirect because of POST; avoids having to refresh
+        return redirect(url_for('main.project', project_id=project.id)) #want this redirect because of POST; avoids having to refresh
         
     return render_template('create_project.html', title=_('Create a Project'), form = form)
 
@@ -103,26 +103,63 @@ def project(project_id):
         exec(f'proj_dict[a] = proj_sub.{a}')
 
     form = EmptyForm()
-    return render_template('project.html', proj= proj, proj_dict = proj_dict, form=form)
+    return render_template('project.html', proj= proj, proj_dict = proj_dict, tags = [t.name for t in proj.tags], form=form)
 
 @bp.route('/edit_project/<project_id>', methods=['GET', 'POST'])
 @login_required
 def edit_project(project_id):
     proj = Project.query.get(project_id)
     form = EditProjectForm(proj.name)
+    
+    tag_names = [t.name for t in Tag.query.all()]
+    tagms = []
     if current_user.username != proj.creator.username:
         flash(_('Must be project admin to make changes'))
         return redirect(url_for('main.index'))
     if form.validate_on_submit():
         proj.name = form.name.data
         proj.descr = form.descr.data
+        proj.chat_link = form.chat_link.data
+        
+        tags = [i.strip() for i in form.tags.data.split(',')]
+        orig_tags = [t.name for t in proj.tags]
+        for t in orig_tags:
+            if t not in tags:
+                proj.rm_tag(Tag.query.filter_by(name=t).first())
+        for tag in tags:
+            tag = tag.lower()
+            if tag not in tag_names:
+                db.session.add(Tag(name=tag))
+                db.session.commit()
+            tagms.append(Tag.query.filter_by(name=tag).first()) #there should only be one
+        proj.add_tags(tagms)
+        
         db.session.commit()
         flash(_('Your changes have been saved.'))
-        return redirect(url_for('main.edit_project', project_id=proj.id))
+        return redirect(url_for('main.project', project_id=proj.id))
     elif request.method == 'GET':
         form.name.data = proj.name
         form.descr.data = proj.descr
+        form.chat_link.data = proj.chat_link
+        form.tags.data = ', '.join(map(str, [t.name for t in proj.tags]))
     return render_template('edit_project.html', title=_('Edit Project'), form=form)
+
+@bp.route('/add_tag/<project_id>', methods=['POST'])
+@login_required
+def add_tag(project_id, tags):
+    """actually not necessary this functionality should go in edit_project or create_project"""
+    proj = Project.query.get(project_id)
+    tag_names = [t.name for t in Tag.query.all()]
+    tagms = []
+    for tag in tags:
+        tag = tag.lower()
+        if tag not in tag_names:
+            db.session.add(Tag(name=tag))
+            db.session.commit()
+        tagms.append(Tag.query.filter_by(name=tag).first()) #there should only be one
+    proj.add_tags(tagms)
+    db.session.commit()
+
 
 @bp.route('/join/<project_id>', methods=['POST'])
 def join_project(project_id):

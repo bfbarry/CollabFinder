@@ -98,13 +98,20 @@
             {% if messages %}
             <ul>
                 {% for message in messages %}
-                <li>{{ message }}</li>
+                <div id="flash" style="background-color:whitesmoke;">{{ message }}</div>
                 {% endfor %}
             </ul>
             {% endif %}
             {% endwith %}
             {% block content %}{% endblock %}
         </div>
-    </body>
+      
+      <script type="text/javascript">
+        setTimeout(function(){
+            $('#flash').fadeOut()
+        }, 3000) // time in milliseconds
+      </script>
+    
+  </body>
 </html>
 

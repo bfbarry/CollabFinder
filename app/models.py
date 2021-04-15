@@ -50,6 +50,7 @@ class SearchableMixin(object):
         for obj in cls.query:
             add_to_index(cls.__tablename__, obj)
 
+# set up the event handlers
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
 db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
@@ -59,6 +60,10 @@ followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
+    # project tags
+tag_map = db.Table('tag_map', 
+        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
 
 # members = db.Table('members',
 #     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
@@ -173,13 +178,34 @@ class Project(SearchableMixin, db.Model):
     skill_level = db.Column(db.String(20))
     setting = db.Column(db.String(20))
     # location = db.Column(db.String(20))
-    # chat_link = db.Column(db.String(512)) # Discord, slack etc.
+    chat_link = db.Column(db.String(512)) # Discord, slack etc.
     # non optional variables
     language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
     
     __mapper_args__ = {'polymorphic_on': category}
+
+    tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
+        'Tag', secondary=tag_map, #Self-ref, association table
+        # primaryjoin=(tag_map.c.project_id == id), 
+        # secondaryjoin=(tag_map.c.tag_id == tag_map.tag_id),
+        backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
+        
+    def add_tags(self, _tags):
+        '''where _tags is list of tag objs fed in route'''
+        for tag in _tags:
+            if not self.has_tag(tag):
+                self.tags.append(tag)
+
+    def rm_tag(self, tag):
+        if self.has_tag(tag):
+            self.tags.remove(tag)
+    
+    def has_tag(self, tag):
+        return self.tags.filter(
+            tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
+
     # member_of = db.relationship( #also need a relationship in User()?
     #     'User', secondary=members,
     #     primaryjoin=(members.c.member_id == id),
@@ -188,7 +214,19 @@ class Project(SearchableMixin, db.Model):
 
     def __repr__(self):
         return '<Project {}>'.format(self.name)
-        
+
+class Tag(SearchableMixin, db.Model):
+    __searchable__ = ['name']
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25))
+    
+    tags = db.relationship( 
+        'Project', secondary=tag_map,
+        backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') 
+    
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+
 class Learning(Project):
     '''Can be study group for a course, or just auto-didacts studying a subject together
     pace: according to perosnal timelines or college terms

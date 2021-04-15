@@ -18,6 +18,20 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
+        <p>
+            {{ form.chat_link.label }}<br>            
+            {{ form.chat_link(cols=32, rows=1) }}<br> 
+            {% for error in form.chat_link.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.tags.label }}<br>            
+            {{ form.tags(cols=32, rows=1) }}<br> 
+            {% for error in form.tags.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}
