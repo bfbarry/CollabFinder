@@ -26,8 +26,15 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.wanted_positions.label }}<br>            
+            {{ form.wanted_positions(cols=32, rows=2) }}<br> 
+            {% for error in form.wanted_positions.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.tags.label }}<br>            
-            {{ form.tags(cols=32, rows=1) }}<br> 
+            {{ form.tags(cols=32, rows=2) }}<br> 
             {% for error in form.tags.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}

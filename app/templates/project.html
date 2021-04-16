@@ -14,6 +14,17 @@
     {%endfor%}
     </ul>
 {%endif%}
+
+{% if wanted_positions|length > 0 %}
+    <b>wanted positions:</b>
+    <ul>
+    {%for pos in wanted_positions%}
+        <a href="search?q={{pos}}" class="btn btn-sm" style="color:white;background-color:rgb(140, 98, 199);"> {{_(pos)}}</a>
+    {%endfor%}
+    </ul>
+{%endif%}
+
+
 <p>{{proj.setting}} setting - for those at {{proj.skill_level}} skill level</p>
 {%if proj.chat_link and current_user.username == proj.creator.username %} <!-- later check if member not creator-->
     <p>Join the conversation: <a class = "btn btn-info" href="http://{{proj.chat_link}}">{{proj.chat_link}}</a></p>

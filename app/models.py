@@ -64,6 +64,16 @@ followers = db.Table('followers',
 tag_map = db.Table('tag_map', 
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+    # for Projects' wanted positions
+position_map = db.Table('position_map', 
+        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+        db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
+    # for users requesting invite OR invitations
+join_requests = db.Table('join_requests',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')), 
+        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+        db.Column('kind', db.String(15)),
+        db.Column('message', db.String(650)))
 
 # members = db.Table('members',
 #     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
@@ -170,7 +180,8 @@ def load_user(id):
     return User.query.get(int(id))
 
 class Project(SearchableMixin, db.Model):
-    __searchable__ = ['category','name','descr'] # subject to change
+    """tags and wanted positions share the same methods due to overlap in functionality"""
+    __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(60))
     name = db.Column(db.String(60))
@@ -191,20 +202,37 @@ class Project(SearchableMixin, db.Model):
         # primaryjoin=(tag_map.c.project_id == id), 
         # secondaryjoin=(tag_map.c.tag_id == tag_map.tag_id),
         backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
-        
-    def add_tags(self, _tags):
-        '''where _tags is list of tag objs fed in route'''
-        for tag in _tags:
-            if not self.has_tag(tag):
-                self.tags.append(tag)
 
-    def rm_tag(self, tag):
-        if self.has_tag(tag):
-            self.tags.remove(tag)
+    wanted_positions = db.relationship( # represented by 'w_pos' for kind arg in tag functions
+        'Position', secondary=position_map, 
+        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
+        
+    def add_tags(self, _tags, kind='tag'):
+        '''where _tags is list of tag objs fed in route'''
+        if kind == 'tag':
+            for tag in _tags:
+                if not self.has_tag(tag):
+                    self.tags.append(tag)
+        elif kind == 'w_pos':
+            for pos in _tags:
+                if not self.has_tag(pos,'w_pos'):
+                    self.wanted_positions.append(pos)
+
+    def rm_tag(self, tag, kind='tag'):
+        if kind == 'tag':
+            if self.has_tag(tag):
+                self.tags.remove(tag)
+        elif kind == 'w_pos':
+            if self.has_tag(tag,'w_pos'):
+                self.wanted_positions.remove(tag)
     
-    def has_tag(self, tag):
-        return self.tags.filter(
-            tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
+    def has_tag(self, tag, kind='tag'):
+        if kind == 'tag':
+            return self.tags.filter(
+                tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
+        elif kind == 'w_pos':
+            return self.wanted_positions.filter(
+                position_map.c.position_id == tag.id).count() > 0
 
     # member_of = db.relationship( #also need a relationship in User()?
     #     'User', secondary=members,
@@ -220,9 +248,23 @@ class Tag(SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25))
     
-    tags = db.relationship( 
+    #project tags
+    tags = db.relationship(
         'Project', secondary=tag_map,
         backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') 
+    
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+
+class Position(SearchableMixin, db.Model):
+    """Both for 'wanted positions' and member descriptors """
+    __searchable__ = ['name']
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25))
+    
+    wanted_positions = db.relationship( 
+        'Project', secondary=position_map,
+        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
     
     def __repr__(self):
         return '<{}>'.format(self.name)
