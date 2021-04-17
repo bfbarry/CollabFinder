@@ -69,11 +69,22 @@ position_map = db.Table('position_map',
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
         db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
     # for users requesting invite OR invitations
-join_requests = db.Table('join_requests',
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')), 
-        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
-        db.Column('kind', db.String(15)),
-        db.Column('message', db.String(650)))
+
+class JoinRequest(db.Model):
+    """Association table User <--> Project 
+    kind: 'invation' (project-->user) or 'request' (user-->project)
+    status: 'pending', 'accepted', 'rejected' """
+    __tablename__ = 'join_requests'
+    id = db.Column('id', db.Integer, primary_key=True) #might not need this column?
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True) 
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    user = db.relationship('User', back_populates='proj_requests')
+    project = db.relationship('Project', back_populates='user_requests')
+    kind = db.Column(db.String(15))
+    msg = db.Column(db.String(650))
+    status = db.Column(db.String(15))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 # members = db.Table('members',
 #     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
@@ -104,6 +115,8 @@ class User(UserMixin, db.Model):
         primaryjoin=(followers.c.follower_id == id), #condition to join left side (follower) w/ assoc. table
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
+
+    proj_requests = db.relationship('JoinRequest', back_populates='user') # try setting to __tablename__ 
         
     def follow(self, user):
         if not self.is_following(user):
@@ -192,7 +205,7 @@ class Project(SearchableMixin, db.Model):
     chat_link = db.Column(db.String(512)) # Discord, slack etc.
     # non optional variables
     language = db.Column(db.String(5))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) # index to retrieve projs in chron. order
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
     
     __mapper_args__ = {'polymorphic_on': category}

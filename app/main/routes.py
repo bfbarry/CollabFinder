@@ -162,6 +162,12 @@ def edit_project(project_id):
 @bp.route('/join/<project_id>', methods=['POST'])
 def join_project(project_id):
     pass
+    if request:
+        JoinRequest.user = current_user 
+    elif invite:
+        j = JoinRequest(kind='invite')
+        JoinRequest.user = User.query.filter_by(username=username).first_or_404()
+        project.add_request(j) #or could switch it where this method is in User class
 
 @bp.route('/user/<username>')
 @login_required
