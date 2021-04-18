@@ -5,8 +5,8 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
-from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm
-from app.models import User, Project, Tag, Position, proj_categories, \
+from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
+from app.models import User, Project, JoinRequest, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.main import bp
 
@@ -159,15 +159,34 @@ def edit_project(project_id):
         form.wanted_positions.data = ', '.join(map(str, [p.name for p in proj.wanted_positions]))
     return render_template('edit_project.html', title=_('Edit Project'), form=form)
 
-@bp.route('/join/<project_id>', methods=['POST'])
-def join_project(project_id):
-    pass
-    if request:
-        JoinRequest.user = current_user 
-    elif invite:
-        j = JoinRequest(kind='invite')
-        JoinRequest.user = User.query.filter_by(username=username).first_or_404()
-        project.add_request(j) #or could switch it where this method is in User class
+@bp.route('/request_project/<project_id>/<kind>', methods=['GET', 'POST'])
+@login_required
+def request_project(project_id,kind):
+    ''' 
+    route for both sending request and sending invitation 
+    u_inv a username string
+    '''
+    form = RequestForm()
+    proj = Project.query.get(project_id) # also used in HTML
+    if form.validate_on_submit():
+        if kind == 'invite':
+            r = JoinRequest(kind='invite',msg=form.msg.data,status='pending')
+            r.project = proj
+            u = User.query.filter_by(username=form.u_inv.data).first_or_404()
+            r.user = u
+            u.proj_requests.append(r) #or could switch it where this method is in User class
+            db.session.commit()
+            flash(_('Invitation to join sent to %(username)s!', username=form.u_inv.data))
+        elif kind == 'request':
+            r = JoinRequest(kind='request',msg=form.msg.data,status='pending')
+            r.project = proj
+            r.user = current_user
+            current_user.proj_requests.append(r)
+            db.session.commit()
+            flash(_('Application sent to %(project)s!', project=proj.name))
+        
+        return redirect(url_for('main.project', project_id=project_id))
+    return render_template('request_project.html', title=_('Project request'), form=form, proj = proj)
 
 @bp.route('/user/<username>')
 @login_required

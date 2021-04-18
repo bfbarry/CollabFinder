@@ -68,14 +68,14 @@ tag_map = db.Table('tag_map',
 position_map = db.Table('position_map', 
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
         db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
-    # for users requesting invite OR invitations
 
 class JoinRequest(db.Model):
-    """Association table User <--> Project 
-    kind: 'invation' (project-->user) or 'request' (user-->project)
-    status: 'pending', 'accepted', 'rejected' """
+    """
+    Association table User <--> Project 
+    kind: 'invite' (project admin-->user) or 'request' (user-->project)
+    status: 'pending', 'accepted', 'rejected' 
+    """
     __tablename__ = 'join_requests'
-    id = db.Column('id', db.Integer, primary_key=True) #might not need this column?
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True) 
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
     
@@ -84,7 +84,7 @@ class JoinRequest(db.Model):
     kind = db.Column(db.String(15))
     msg = db.Column(db.String(650))
     status = db.Column(db.String(15))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) #indexed to order them easily
 
 # members = db.Table('members',
 #     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
@@ -99,8 +99,6 @@ class JoinRequest(db.Model):
 
 class User(UserMixin, db.Model):
     """ 
-    $ flask db migrate -m "users table" 
-    $ flask db upgrade
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -137,6 +135,32 @@ class User(UserMixin, db.Model):
             followers, (followers.c.followed_id == Project.user_id)).filter( #post ID and followed_id match
                 followers.c.follower_id == self.id).order_by(
                     Project.timestamp.desc())
+                    
+    def send_request(self,proj,r,kind='request',u_inv=None):
+        ''' to send request to join proj, or invite '''
+        if kind == 'request':
+            if self.can_request(proj):
+                self.proj_requests.append(r)
+        elif kind == 'invite':
+            if u_inv.can_request(proj):
+                u_inv.proj_requests.append(r)
+
+    def cancel_request(self,proj,r,kind='request',u_inv=None):
+        if kind == 'request':
+            if not self.can_request(proj):
+                self.proj_requests.remove(r)
+        elif kind == 'invite':
+            if u_inv.can_request(proj):
+                u_inv.proj_requests.remove(r)
+
+    def can_request(self, proj):
+        ''' if sent a request or (maybe?) if member'''
+        # if self.is_member(proj):
+        #     return False
+        return not self.proj_requests.filter(
+            JoinRequest.c.project_id == proj.id).count() > 0
+    
+    
     
     ### member functions IN PROGRESS ###
     def star(self, proj):
@@ -220,6 +244,8 @@ class Project(SearchableMixin, db.Model):
         'Position', secondary=position_map, 
         backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
         
+    user_requests = db.relationship('JoinRequest', back_populates='project') # try setting to __tablename__ 
+
     def add_tags(self, _tags, kind='tag'):
         '''where _tags is list of tag objs fed in route'''
         if kind == 'tag':

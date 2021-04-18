@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField
 from wtforms.validators import ValidationError, DataRequired, Length
 from flask_babel import _, lazy_gettext as _l
-from app.models import User, Project, proj_cat_keys,\
+from app.models import User, Project, JoinRequest, proj_cat_keys,\
                             Learning #Project subclasses
 import json
 
@@ -22,7 +22,7 @@ def col_char_lim(model):
             tb_lens[colname] = int(c_len)
     return tb_lens
 
-lens = {**col_char_lim(Project), **col_char_lim(Learning)} #DB character lengths for input field limit
+lens = {**col_char_lim(Project), **col_char_lim(Learning),**col_char_lim(JoinRequest)} #DB character lengths for input field limit
 
 ### Forms ###
 class SearchForm(FlaskForm):
@@ -54,6 +54,14 @@ class EditProfileForm(FlaskForm):
 
 class EmptyForm(FlaskForm):
     submit = SubmitField('Submit')
+
+class RequestForm(FlaskForm):
+    ''' empty labels depend on "request" or "invitation" in JS'''
+    lens=lens #why is this necessary?
+    u_inv = TextAreaField('Name of user to invite: ')
+    msg = TextAreaField(' ', validators=[
+        DataRequired(), Length(min=1, max=lens['msg'])],render_kw={'maxlength': lens['msg']})
+    submit = SubmitField(' ')
 
 with open('./app/data/colleges.json','r') as f:
     colleges = json.load(f)

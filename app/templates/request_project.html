@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ _('Project Request') }}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        {% if current_user == proj.creator %}
+        
+            <p>
+                {{ form.u_inv.label }}<br>            <!-- input label --> 
+                {{ form.u_inv(cols=15, rows=1, required='required') }}<br>  <!-- user input --> 
+                {% for error in form.u_inv.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                <p>Write a message for the user: </p><br>            
+                {{ form.msg(cols=32, rows=5, required='required') }}<br> 
+                {% for error in form.msg.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            
+            <p>{{ form.submit(label='Send invite', class_="btn-lg btn-success") }}</p>
+        {% elif current_user.can_request(proj) %}
+            <p>
+                <p>Explain : </p><br>            
+                {{ form.msg(cols=32, rows=5, required='required') }}<br> 
+                {% for error in form.msg.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+
+            <p>{{ form.submit(label='Send request to join', class_="btn-lg btn-success") }}</p>
+        {% endif %}
+        
+        
+    </form>
+{% endblock %}

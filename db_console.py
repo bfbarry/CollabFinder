@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db, cli
-from app.models import User, Project, Tag,\
+from app.models import User, Project, JoinRequest, Tag,\
                             Learning
 
 import app.models as models
@@ -24,11 +24,12 @@ app.app_context().push() # to accomodate updated app structure
 # db.session.add(cs)
 # db.session.commit()
 
-# proj_sub = Project.query.get(23)
-#ts = Tag.query.all()
-x = Project.query.filter_by(name='116').first()
-f = Tag.query.filter_by(name='four').first()
-x.tags.remove(f)
+u = User.query.get(1)
+r = JoinRequest(kind='request',msg='hello',status='pending')
+r.project = Project.query.filter_by(name='116').first()
+r.user = u
+u.proj_requests.append(r)
+
 db.session.commit()
 
 
@@ -37,3 +38,4 @@ db.session.commit()
 
 
 #projects = Project.query.all()     
+
