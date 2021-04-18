@@ -21,7 +21,7 @@
                 {% endfor %}
             </p>
             
-            <p>{{ form.submit(label='Send invite', class_="btn-lg btn-success") }}</p>
+            <p>{{ form.submit(value='Send invite', class_="btn-lg btn-success") }}</p>
         {% elif current_user.can_request(proj) %}
             <p>
                 <p>Explain : </p><br>            
@@ -31,7 +31,7 @@
                 {% endfor %}
             </p>
 
-            <p>{{ form.submit(label='Send request to join', class_="btn-lg btn-success") }}</p>
+            <p>{{ form.submit(value='Send request to join', class_="btn-lg btn-success") }}</p>
         {% endif %}
         
         

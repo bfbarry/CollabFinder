@@ -170,11 +170,11 @@ def request_project(project_id,kind):
     proj = Project.query.get(project_id) # also used in HTML
     if form.validate_on_submit():
         if kind == 'invite':
+            u = User.query.filter_by(username=form.u_inv.data).first_or_404()
             r = JoinRequest(kind='invite',msg=form.msg.data,status='pending')
             r.project = proj
-            u = User.query.filter_by(username=form.u_inv.data).first_or_404()
             r.user = u
-            u.proj_requests.append(r) #or could switch it where this method is in User class
+            u.send_request(proj,r,kind='invite',u_inv=u) #or could switch it where this method is in User class
             db.session.commit()
             flash(_('Invitation to join sent to %(username)s!', username=form.u_inv.data))
         elif kind == 'request':

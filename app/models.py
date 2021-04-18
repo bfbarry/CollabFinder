@@ -114,7 +114,8 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
 
-    proj_requests = db.relationship('JoinRequest', back_populates='user') # try setting to __tablename__ 
+    proj_requests = db.relationship('JoinRequest', back_populates='user', 
+                        lazy='dynamic',cascade="all, delete-orphan") # cascade to remove
         
     def follow(self, user):
         if not self.is_following(user):
@@ -146,6 +147,7 @@ class User(UserMixin, db.Model):
                 u_inv.proj_requests.append(r)
 
     def cancel_request(self,proj,r,kind='request',u_inv=None):
+        ''' should make this easier where r not required '''
         if kind == 'request':
             if not self.can_request(proj):
                 self.proj_requests.remove(r)
@@ -158,7 +160,7 @@ class User(UserMixin, db.Model):
         # if self.is_member(proj):
         #     return False
         return not self.proj_requests.filter(
-            JoinRequest.c.project_id == proj.id).count() > 0
+            JoinRequest.__table__.c.project_id == proj.id).count() > 0
     
     
     
@@ -244,7 +246,7 @@ class Project(SearchableMixin, db.Model):
         'Position', secondary=position_map, 
         backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
         
-    user_requests = db.relationship('JoinRequest', back_populates='project') # try setting to __tablename__ 
+    user_requests = db.relationship('JoinRequest', back_populates='project', lazy='dynamic') # try setting to __tablename__ 
 
     def add_tags(self, _tags, kind='tag'):
         '''where _tags is list of tag objs fed in route'''
