@@ -159,6 +159,9 @@ def edit_project(project_id):
         form.wanted_positions.data = ', '.join(map(str, [p.name for p in proj.wanted_positions]))
     return render_template('edit_project.html', title=_('Edit Project'), form=form)
 
+def delete_project(project_id):
+    ...
+    
 @bp.route('/request_project/<project_id>/<kind>', methods=['GET', 'POST'])
 @login_required
 def request_project(project_id,kind):
@@ -174,19 +177,28 @@ def request_project(project_id,kind):
             r = JoinRequest(kind='invite',msg=form.msg.data,status='pending')
             r.project = proj
             r.user = u
-            u.send_request(proj,r,kind='invite',u_inv=u) #or could switch it where this method is in User class
+            u.send_request(proj,r,kind='invite',u_inv=u) # works like invited user is sending request to themselves
             db.session.commit()
             flash(_('Invitation to join sent to %(username)s!', username=form.u_inv.data))
         elif kind == 'request':
+            u = User.query.get(current_user.id)
             r = JoinRequest(kind='request',msg=form.msg.data,status='pending')
             r.project = proj
-            r.user = current_user
-            current_user.proj_requests.append(r)
+            r.user = u
+            u.send_request(proj,r)
             db.session.commit()
             flash(_('Application sent to %(project)s!', project=proj.name))
         
         return redirect(url_for('main.project', project_id=project_id))
-    return render_template('request_project.html', title=_('Project request'), form=form, proj = proj)
+    return render_template('request_project.html', title=_('Project request'), kind=kind, form=form, proj = proj)
+
+@bp.route('/cancel_request/<project_id>/<kind>', methods=['POST'])
+@login_required
+def cancel_request(project_id,kind):
+    form = EmptyForm()
+    proj = Project.query.get(project_id)
+    if form.validate_on_submit():
+
 
 @bp.route('/user/<username>')
 @login_required

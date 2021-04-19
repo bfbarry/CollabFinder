@@ -10,7 +10,10 @@ from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
 
 class SearchableMixin(object):
-    """Used by Project() to search"""
+    """
+    Used by Project() to search
+    from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search
+    """
     @classmethod
     def search(cls, expression, page, per_page):
         ids, total = query_index(cls.__tablename__, expression, page, per_page)
@@ -246,7 +249,7 @@ class Project(SearchableMixin, db.Model):
         'Position', secondary=position_map, 
         backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
         
-    user_requests = db.relationship('JoinRequest', back_populates='project', lazy='dynamic') # try setting to __tablename__ 
+    user_requests = db.relationship('JoinRequest', back_populates='project',cascade="all, delete-orphan", lazy='dynamic') # try setting to __tablename__ 
 
     def add_tags(self, _tags, kind='tag'):
         '''where _tags is list of tag objs fed in route'''
