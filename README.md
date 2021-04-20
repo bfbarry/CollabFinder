@@ -33,6 +33,13 @@ To start server:
 ```shell
 $ flask run
 ```
+
+ranks:
+<br>in flask shell:
+```python
+Rank.insert_ranks()
+```
+
 ### **Test usernames:passwords**
 susan: cat<br>
 bo: 1

@@ -114,7 +114,7 @@ def edit_project(project_id):
     
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
     tagms, posms = [], [] # holds the associated models (needed for db commits!)
-    if current_user.username != proj.creator.username:
+    if current_user != proj.creator: # removed .username (Remove me)
         flash(_('Must be project admin to make changes'))
         return redirect(url_for('main.index'))
     if form.validate_on_submit():
@@ -198,7 +198,7 @@ def cancel_request(project_id,kind):
     form = EmptyForm()
     proj = Project.query.get(project_id)
     if form.validate_on_submit():
-
+        pass
 
 @bp.route('/user/<username>')
 @login_required

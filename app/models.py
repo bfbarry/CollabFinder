@@ -72,6 +72,12 @@ position_map = db.Table('position_map',
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
         db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
 
+## for starring projects
+# project_followers = db.Table('members',
+#     db.Column('proj_follower_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('proj_followed_id', db.Integer, db.ForeignKey('project.id'))
+# )
+
 class JoinRequest(db.Model):
     """
     Association table User <--> Project 
@@ -89,16 +95,29 @@ class JoinRequest(db.Model):
     status = db.Column(db.String(15))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) #indexed to order them easily
 
-# members = db.Table('members',
-#     db.Column('member_id', db.Integer, db.ForeignKey('user.id')),
-#     db.Column('member_of_id', db.Integer, db.ForeignKey('project.id'))
-# )
+class ProjMember(db.Model):
+    '''
+    '''
+    __tablename__ = 'proj_members'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True) 
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    rank_id = db.Column(db.Integer, db.ForeignKey('rank.id')) # primary_key=True?
+    position_id = db.Column(db.Integer, db.ForeignKey('position.id')) # primary_key=True?
+    
+    user = db.relationship('User', back_populates='member_of')
+    project = db.relationship('Project', back_populates='members')
+    rank = db.relationship('Rank', back_populates='member_ranks')
+    position = db.relationship('Position', back_populates='member_positions')
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
-## for starring projects
-# project_followers = db.Table('members',
-#     db.Column('proj_follower_id', db.Integer, db.ForeignKey('user.id')),
-#     db.Column('proj_followed_id', db.Integer, db.ForeignKey('project.id'))
-# )
+    def __init__(self, **kwargs):
+        super(ProjMember, self).__init__(**kwargs)
+        if self.rank is None:
+            proj = Project.query.get(self.project_id).first()
+            if self.user == proj.creator:
+                self.rank = Rank.query.filter_by(name='Admin').first()
+            if self.rank is None:
+                self.rank = Rank.query.filter_by(default=True).first()
 
 class User(UserMixin, db.Model):
     """ 
@@ -119,7 +138,10 @@ class User(UserMixin, db.Model):
 
     proj_requests = db.relationship('JoinRequest', back_populates='user', 
                         lazy='dynamic',cascade="all, delete-orphan") # cascade to remove
-        
+
+    member_of = db.relationship('ProjMember',back_populates='user',
+                        lazy='dynamic',cascade="all, delete-orphan")    
+
     def follow(self, user):
         if not self.is_following(user):
             self.followed.append(user)
@@ -165,19 +187,25 @@ class User(UserMixin, db.Model):
         return not self.proj_requests.filter(
             JoinRequest.__table__.c.project_id == proj.id).count() > 0
     
-    
-    
+    ### PERMISSION FUNCS (both site-wide and project scope)###
+    def can(self,perm,proj=None):
+        ''' check permissions for site or given proj '''
+        if proj:
+            membership = self.member_of.filter(ProjMember.__table__.c.project_id == proj.id)
+            return membership.rank is not None and membership.rank.has_permission(perm)
+        else: #site case
+            ...
+
+    def is_admin(self,proj=None):
+        if proj:
+            return self.can(ProjPerm.ADMIN, proj)
+        else: #site case
+            return self.can(SitePerm.ADMIN)
+
     ### member functions IN PROGRESS ###
     def star(self, proj):
         """Star project User is interested in. Need following project association table"""
         return
-
-    def request_join(self, proj):
-        """Request to join a project"""
-        return
-        if not self.is_member(proj):
-            # project_requests not yet defined
-            self.project_requests.append(proj)
     
     def is_member(self, proj):
         return
@@ -221,6 +249,20 @@ def load_user(id):
     """
     return User.query.get(int(id))
 
+class SitePerm:
+    '''Permissions for website roles'''
+    FOLLOW = 1
+    COMMENT = 2
+    WRITE = 4
+    MODERATE = 8
+    ADMIN = 16
+
+class ProjPerm:
+   '''Permissions for project ranks'''
+   READ = 1
+   MODERATE = 2
+   ADMIN = 4
+
 class Project(SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
@@ -251,6 +293,9 @@ class Project(SearchableMixin, db.Model):
         
     user_requests = db.relationship('JoinRequest', back_populates='project',cascade="all, delete-orphan", lazy='dynamic') # try setting to __tablename__ 
 
+    members = db.relationship('ProjMember',back_populates='project',
+                        lazy='dynamic',cascade="all, delete-orphan")
+                          
     def add_tags(self, _tags, kind='tag'):
         '''where _tags is list of tag objs fed in route'''
         if kind == 'tag':
@@ -304,12 +349,60 @@ class Position(SearchableMixin, db.Model):
     """Both for 'wanted positions' and member descriptors """
     __searchable__ = ['name']
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25))
+    name = db.Column(db.String(25), unique=True)
     
     wanted_positions = db.relationship( 
         'Project', secondary=position_map,
-        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
+        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic')
+
+    member_positions = db.relationship('ProjMember',back_populates='position',
+                        lazy='dynamic',cascade="all, delete-orphan")   
     
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+
+class Rank(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25),unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
+    member_ranks = db.relationship('ProjMember', back_populates='rank', lazy='dynamic') # ,cascade="all, delete-orphan"
+    def __init__(self, **kwargs):
+        super(Rank, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+    
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+    
+    def reset_permissions(self):
+        self.permissions = 0
+    
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
+    @staticmethod # because it makes sense to put in this class
+    def insert_ranks():
+        ranks = {'Member':[ProjPerm.READ],
+                'Moderator':[ProjPerm.READ, ProjPerm.MODERATE],
+                'Admin':[ProjPerm.READ, ProjPerm.MODERATE, ProjPerm.ADMIN]}
+        default_rank = 'Member'
+        for r in ranks:
+            rank = Rank.query.filter_by(name=r).first()
+            if rank is None:
+                rank = Rank(name=r)
+            rank.reset_permissions()
+            for perm in ranks[r]:
+                rank.add_permission(perm)
+            rank.default = (rank.name == default_rank)
+            db.session.add(rank)
+        db.session.commit()
+
     def __repr__(self):
         return '<{}>'.format(self.name)
 
@@ -332,10 +425,14 @@ class Learning(Project):
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
     #     ProjectDataBase.learning_categories[learning_category].append(subject)
 
+class SoftwareDev:
+    ...
+class Engineering:
+    ...
 
 ## KEEP THIS AFTER ALL PROJECT CLASSES
 # imported in main/routes.py to instatiate specific project classes in /create_project
-proj_categories = {'learning': Learning} #, 'software development':SoftwareDev} 
-# proj_categories = {cl.field_name:cl for cl in (Learning, SoftwareDev)}
+proj_categories = {'learning': Learning} #, 'software development':SoftwareDev, engineering} 
+# proj_categories = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
 # imported in main/forms.py for SelectField options
 proj_cat_keys = tuple(proj_categories.keys())
