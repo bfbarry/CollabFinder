@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db, cli
-from app.models import User, Project, JoinRequest, ProjMember, Tag,\
+from app.models import User, Role, Project, JoinRequest, ProjMember, Tag, ProjPerm,\
                             Learning
 
 import app.models as models
@@ -12,6 +12,7 @@ from config import Config
 import os
 
 from app import create_app
+
 app = create_app()
 app.app_context().push() # to accomodate updated app structure
 
@@ -22,27 +23,25 @@ app.app_context().push() # to accomodate updated app structure
 
 #Session
 db.session.add(instance)
-db.session.commit
-
+db.session.commit()
+db.session.delete()
 
 '''
 
 
 u = User.query.filter_by(username='susan').first_or_404()
-proj = Project.query.filter_by(name='asd').first()
-m = ProjMember(project_id = proj.id, rank_id=3,position_id=1)
-m.user =u
-m.project=proj
-proj.members.append(m)
-db.session.commit()
+proj = Project.query.filter_by(name='Bo project').first()
+print(u.can(ProjPerm.ADMIN,proj))
+
+# m = ProjMember(user_id=u.id, rank_id=3, project_id = proj.id,position_id=2)
+# u.member_of.append(m)
+# db.session.commit()
 # r = JoinRequest(kind='request',msg='hello',status='pending')
 # r.project = proj
 # r.user = u
 # u.send_request(proj, r)
 
-# for i in u.proj_requests:
-#     u.proj_requests.remove(i)
-# db.session.commit()
+
 
 
 # print(tag_names)

@@ -3,7 +3,7 @@ from flask import abort
 from flask_login import current_user
 from .models import ProjPerm, SitePerm
 
-def proj_perm_required(perm,proj):
+def perm_required(perm,proj=None):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args,**kwargs):
@@ -13,5 +13,9 @@ def proj_perm_required(perm,proj):
         return decorated_function
     return decorator
 
-def proj_admin_required(f):
-    return proj_perm_required(ProjPerm.ADMIN)(f)
+def admin_required(f):
+    return perm_required(SitePerm.ADMIN)(f)
+
+def proj_admin_required(f,proj):
+    '''not sure if this would work'''
+    return perm_required(ProjPerm.ADMIN,proj)(f)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from time import time
 from flask import current_app
-from flask_login import UserMixin # incorporates 4 requirements for flask-login
+from flask_login import UserMixin, AnonymousUserMixin # incorporates requirements for flask-login
 from werkzeug.security import generate_password_hash, check_password_hash
 #avatar imports
 from hashlib import md5
@@ -112,9 +112,12 @@ class ProjMember(db.Model):
 
     def __init__(self, **kwargs):
         super(ProjMember, self).__init__(**kwargs)
-        if self.rank is None:
-            proj = Project.query.get(self.project_id).first()
-            if self.user == proj.creator:
+        proj = Project.query.get(self.project_id)
+        u = User.query.get(self.user_id)
+
+        if self.rank_id is None:
+            
+            if u == proj.creator:
                 self.rank = Rank.query.filter_by(name='Admin').first()
             if self.rank is None:
                 self.rank = Rank.query.filter_by(default=True).first()
@@ -124,9 +127,10 @@ class User(UserMixin, db.Model):
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    projects = db.relationship('Project', backref='creator', lazy='dynamic')
+    projects = db.relationship('Project', backref='creator', lazy='dynamic') # only keep for ProjMember __init__?
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     # From the perspective of the follower
@@ -142,6 +146,15 @@ class User(UserMixin, db.Model):
     member_of = db.relationship('ProjMember',back_populates='user',
                         lazy='dynamic',cascade="all, delete-orphan")    
 
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if self.role is None:
+            if self.email in current_app.config['ADMINS']:
+                self.role = Role.query.filter_by(name='Admin').first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
+    
+    ### user-user func ###
     def follow(self, user):
         if not self.is_following(user):
             self.followed.append(user)
@@ -161,7 +174,8 @@ class User(UserMixin, db.Model):
             followers, (followers.c.followed_id == Project.user_id)).filter( #post ID and followed_id match
                 followers.c.follower_id == self.id).order_by(
                     Project.timestamp.desc())
-                    
+
+    ### REQUEST FUNC ###              
     def send_request(self,proj,r,kind='request',u_inv=None):
         ''' to send request to join proj, or invite '''
         if kind == 'request':
@@ -191,10 +205,10 @@ class User(UserMixin, db.Model):
     def can(self,perm,proj=None):
         ''' check permissions for site or given proj '''
         if proj:
-            membership = self.member_of.filter(ProjMember.__table__.c.project_id == proj.id)
+            membership = self.member_of.filter(ProjMember.__table__.c.project_id == proj.id).first()
             return membership.rank is not None and membership.rank.has_permission(perm)
         else: #site case
-            ...
+            return self.role is not None and self.role.has_permission(perm)
 
     def is_admin(self,proj=None):
         if proj:
@@ -241,6 +255,12 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)   
 
+class AnonymousUser(AnonymousUserMixin):
+    def can(self,permissions):
+        return False
+    def is_admin(self):
+        return False
+
 @login.user_loader
 def load_user(id):
     """
@@ -250,7 +270,8 @@ def load_user(id):
     return User.query.get(int(id))
 
 class SitePerm:
-    '''Permissions for website roles'''
+    '''Permissions for website roles
+    Subject to change'''
     FOLLOW = 1
     COMMENT = 2
     WRITE = 4
@@ -263,6 +284,58 @@ class ProjPerm:
    MODERATE = 2
    ADMIN = 4
 
+class Role(db.Model):
+    ''' Role for user across the website'''
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25),unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
+    users = db.relationship('User', backref='role', lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+    
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+    
+    def reset_permissions(self):
+        self.permissions = 0
+    
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
+    @staticmethod # because it makes sense to put in this class
+    def insert_roles():
+        roles = {
+                'User': [SitePerm.FOLLOW, SitePerm.COMMENT, SitePerm.WRITE],
+                'Moderator': [SitePerm.FOLLOW, SitePerm.COMMENT,
+                                SitePerm.WRITE, SitePerm.MODERATE],
+                'Admin': [SitePerm.FOLLOW, SitePerm.COMMENT,
+                                SitePerm.WRITE, SitePerm.MODERATE,
+                                SitePerm.ADMIN]
+                }
+        default_role = 'User'
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default = (role.name == default_role)
+            db.session.add(role)
+        db.session.commit()
+
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+        
 class Project(SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
@@ -362,6 +435,8 @@ class Position(SearchableMixin, db.Model):
         return '<{}>'.format(self.name)
 
 class Rank(db.Model):
+    ''' Rank for member (user) within a project
+    Same factory pattern as Role '''
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25),unique=True)
     default = db.Column(db.Boolean, default=False, index=True)

@@ -38,6 +38,7 @@ ranks:
 <br>in flask shell:
 ```python
 Rank.insert_ranks()
+Role.insert_roles()
 ```
 
 ### **Test usernames:passwords**
