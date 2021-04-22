@@ -150,6 +150,12 @@ So want an *application factory* function: this accepts a configuration object a
 - Want to trigger indexing calls automatically as changes to DB are made
 - Create a Mixin class to integrate Elasticsearch with SQLAlchemy
 
+## BOOK CHAPTER 9 USER ROLES:
+- binary role representation and bitwise and to verify
+- adding `__init__` to user to assign default role
+- added same idea to `Rank()` and `ProjMember()`
+- decorators for permissions (not sure how to use yet)
+
 ## Common Flask errors
 >"write each part of the application without making any assumptions about how the other parts work, and this enables me to write modular and robust applications that are easier to extend and to test, and are less likely to fail or have bugs."
 - Did you remember to migrate and upgrade after changing DB in models.py?
@@ -168,6 +174,8 @@ with op.batch_alter_table("project") as batch_op:
     - if declaring unused fields in form but not putting them in web page
 - `sqlalchemy.orm.exc.ObjectDeletedError` if have even commented out error giving code in html
 - Make sure database row being used has updated database and model features before using it to test
+- **<span style="color:orange">∆! ALWAYS MIGRATE AND UPGRADE WITH DB CHANGES</span>** otherwise it may freeze and no longer recognize changes
+    - in that case flask shell - > db.drop_all() db.create_all() shell: flask db init, migrate, upgrade.
 
 
 ## Other notes

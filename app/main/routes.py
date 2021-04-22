@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
 from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
-from app.models import User, Project, JoinRequest, Tag, Position, proj_categories, \
+from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.main import bp
 
@@ -70,6 +70,8 @@ def create_project():
                         skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, chat_link = None, **proj_kwargs) #instatiating the specific project
         
         db.session.add(project)
+        membership = ProjMember(user_id=current_user.id, project_id = proj.id, rank_id=3,position_id=None)
+        current_user.member_of.append(membership)
         db.session.commit()
         flash(_('Your project is now live!'))
         return redirect(url_for('main.project', project_id=project.id)) #want this redirect because of POST; avoids having to refresh
@@ -233,6 +235,26 @@ def edit_profile():
     return render_template('edit_profile.html', title=_('Edit Profile'),
                            form=form)
 
+@bp.route('/messages')
+@login_required
+def messages():
+    current_user.last_notif_read_time = datetime.utcnow()
+    db.session.commit()
+    page = request.args.get('page',1, type=int)
+    user_messages = current_user.proj_requests.order_by(
+        JoinRequest.timestamp.desc()).paginate(page, 5, False)
+    proj_messages = JoinRequest.query.join(ProjMember,
+            (JoinRequest.project_id == ProjMember.project_id)).filter(
+                ProjMember.user_id == current_user.id).order_by(
+        JoinRequest.timestamp.desc()).paginate(page, 5, False)
+    messages = user_messages + proj_messages
+    next_url = url_for('main.messages', page = messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('main.messages', page = messages.prev_num) \
+        if messages.has_prev else None
+    
+    return render_template('messages.html',messages =messages.items(),
+                            next_url = next_url, prev_url=prev_url)
 
 @bp.route('/follow/<username>', methods=['POST'])
 @login_required

@@ -142,40 +142,32 @@ class User(UserMixin, db.Model):
 
     proj_requests = db.relationship('JoinRequest', back_populates='user', 
                         lazy='dynamic',cascade="all, delete-orphan") # cascade to remove
-
+    last_notif_read_time = db.Column(db.DateTime)
+    
     member_of = db.relationship('ProjMember',back_populates='user',
                         lazy='dynamic',cascade="all, delete-orphan")    
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.role is None:
+        if self.role is None: # lint error because backrefd
             if self.email in current_app.config['ADMINS']:
                 self.role = Role.query.filter_by(name='Admin').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
     
-    ### user-user func ###
-    def follow(self, user):
-        if not self.is_following(user):
-            self.followed.append(user)
+    ### REQUEST FUNC ###
+    def new_requests(self):
+        '''sends notif if:
+            a join request is sent to their project,
+            an invitation is received by self
+        '''
+        last_read_time = self.last_notif_read_time or datetime(1900,1,1)
+        return JoinRequest.query.filter_by(user_id = self.id, kind='invite').filter(
+            JoinRequest.timestamp > last_read_time).count() + \
+            JoinRequest.query.join(ProjMember,
+            (JoinRequest.project_id == ProjMember.project_id)).filter(
+                ProjMember.user_id == self.id).count()
 
-    def unfollow(self, user):
-        if self.is_following(user):
-            self.followed.remove(user)
-
-    def is_following(self, user):
-        return self.followed.filter(
-            followers.c.followed_id == user.id).count() > 0 # checking if 1 or 0
-    
-    def followed_projects(self):
-        """ Displays projects of people User follows
-        Need to figure out where to put the stream of posts (as this is more of a secondary feature) """
-        return Project.query.join(
-            followers, (followers.c.followed_id == Project.user_id)).filter( #post ID and followed_id match
-                followers.c.follower_id == self.id).order_by(
-                    Project.timestamp.desc())
-
-    ### REQUEST FUNC ###              
     def send_request(self,proj,r,kind='request',u_inv=None):
         ''' to send request to join proj, or invite '''
         if kind == 'request':
@@ -201,6 +193,27 @@ class User(UserMixin, db.Model):
         return not self.proj_requests.filter(
             JoinRequest.__table__.c.project_id == proj.id).count() > 0
     
+    ### user-user func ###
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0 # checking if 1 or 0
+    
+    def followed_projects(self):
+        """ Displays projects of people User follows
+        Need to figure out where to put the stream of posts (as this is more of a secondary feature) """
+        return Project.query.join(
+            followers, (followers.c.followed_id == Project.user_id)).filter( #post ID and followed_id match
+                followers.c.follower_id == self.id).order_by(
+                    Project.timestamp.desc())
+
     ### PERMISSION FUNCS (both site-wide and project scope)###
     def can(self,perm,proj=None):
         ''' check permissions for site or given proj '''

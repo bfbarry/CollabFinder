@@ -56,9 +56,11 @@ class EmptyForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class RequestForm(FlaskForm):
-    ''' empty labels depend on "request" or "invitation" in JS'''
+    ''' empty labels depend on "request" or "invitation" in JS
+    
+    could also use an __init__ to handle kind'''
     lens=lens #why is this necessary?
-    u_inv = TextAreaField('Name of user to invite: ')
+    u_inv = TextAreaField(_('Name of user to invite: '))
     msg = TextAreaField(' ', validators=[
         DataRequired(), Length(min=1, max=lens['msg'])],render_kw={'maxlength': lens['msg']})
     submit = SubmitField(' ')
