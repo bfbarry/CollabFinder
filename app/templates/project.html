@@ -50,7 +50,7 @@
 
 {% elif current_user.can_request(proj) %}
     <a href="{{ url_for('main.request_project', project_id=proj.id, kind='request') }}"  method='post' class="btn btn" style="color:white;background-color:purple;"> + {{ _('request to join project') }} </a>
-{% elif not current_user.can_request(proj) %}
+{% elif not current_user.can_request(proj) and not proj.is_member(current_user.id) %}
     <a class="btn btn" style="color:white;background-color:rgb(129, 129, 129);cursor:default;"> + {{ _('Request pending') }} </a>
 {% endif %}
 

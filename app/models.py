@@ -157,16 +157,17 @@ class User(UserMixin, db.Model):
     
     ### REQUEST FUNC ###
     def new_requests(self):
-        '''sends notif if:
+        '''Counts new requests
+            notif if:
             a join request is sent to their project,
             an invitation is received by self
         '''
         last_read_time = self.last_notif_read_time or datetime(1900,1,1)
-        return JoinRequest.query.filter_by(user_id = self.id, kind='invite').filter(
-            JoinRequest.timestamp > last_read_time).count() + \
-            JoinRequest.query.join(ProjMember,
+        return JoinRequest.query.filter_by(kind='request').join(ProjMember,
             (JoinRequest.project_id == ProjMember.project_id)).filter(
-                ProjMember.user_id == self.id).count()
+                ProjMember.user_id == self.id).filter(JoinRequest.timestamp > last_read_time).count() + \
+            JoinRequest.query.filter_by(user_id = self.id, kind='invite').filter(
+                        JoinRequest.timestamp > last_read_time).count()
 
     def send_request(self,proj,r,kind='request',u_inv=None):
         ''' to send request to join proj, or invite '''
@@ -234,11 +235,6 @@ class User(UserMixin, db.Model):
         """Star project User is interested in. Need following project association table"""
         return
     
-    def is_member(self, proj):
-        return
-        return self.followed.filter(
-            members.c.member_of_id == proj.id).count() > 0
-
     ### PASSWORD FUNC ###
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -381,7 +377,22 @@ class Project(SearchableMixin, db.Model):
 
     members = db.relationship('ProjMember',back_populates='project',
                         lazy='dynamic',cascade="all, delete-orphan")
-                          
+
+    ### REQUEST FUNC ###
+    def add_member(self,user_id,membership):
+        if not self.is_member(user_id):
+            self.members.append(membership)
+
+    def remove_member(self, user_id):
+        if self.is_member(user_id):
+            membership = self.members.filter_by(user_id=user_id)
+            self.members.remove(membership)
+
+    def is_member(self,user_id):
+        return self.members.filter(
+            ProjMember.__table__.c.user_id == user_id).count() > 0 # checking if 1 or 0
+    
+    ### TAG FUNC ###                    
     def add_tags(self, _tags, kind='tag'):
         '''where _tags is list of tag objs fed in route'''
         if kind == 'tag':

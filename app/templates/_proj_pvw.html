@@ -3,14 +3,16 @@ want table to be entirely clickable -->
 <table class="table table-hover">
     <tr>
         <td width="70px">
-            <a href="{{ url_for('main.user', username=project.creator.username) }}">
-                <img src="{{ project.creator.avatar(70) }}" />
+            <a href="{{ url_for('main.project', project_id=project.id) }}">
+                <img style='width: 70px', src="{{ url_for('static', filename='img/proj.jpg') }}" />
             </a>
         </td>
         <td>
+            {% set user_link %}
             <a href="{{ url_for('main.user', username=project.creator.username) }}">
                 {{ project.creator.username }}
             </a>
+            {% endset %}
             {{ _('%(username)s created a project: %(when)s',
                     username=user_link, when=moment(project.timestamp).fromNow()) }}
             <a href="{{url_for('main.project', project_id=project.id)}}">{{ project.name }}</a><br>

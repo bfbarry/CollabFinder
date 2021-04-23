@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db, cli
-from app.models import User, Role, Project, JoinRequest, ProjMember, Tag, ProjPerm,\
+from app.models import User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
                             Learning
 from flask import request #for page stuff
 import app.models as models
@@ -29,16 +29,37 @@ db.session.delete()
 instead of paginate, use .all() at end of query
 
 '''
+def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat_link , proj_kwargs):
+    project = proj_model(creator=u, name = name, category = category, 
+                            skill_level = skill_level, setting = setting, descr=descr, language=language, chat_link = chat_link, **proj_kwargs) #instatiating the specific project
+            
+    db.session.add(project)
+    db.session.commit() #so that project.id can be extracted later
+    membership = ProjMember(user_id=u.id, project_id = project.id, rank_id=3,position_id=Position.query.filter_by(name='Lead').first().id)
+    u.member_of.append(membership)
+    db.session.commit()
+
+u = User.query.filter_by(username='susan').first_or_404()
+# proj = Project.query.filter_by(name='Bo project').first()
 
 
-u = User.query.filter_by(username='bo').first_or_404()
-proj = Project.query.filter_by(name='Bo project').first()
 
-x= JoinRequest.query.join(ProjMember,
-    (JoinRequest.project_id == ProjMember.project_id)).filter(
-        ProjMember.user_id == u.id).all()
-print('x \n', x)
-print('items \n', x.items)
+invites = u.proj_requests.filter_by(kind='invite') 
+requests = JoinRequest.query.join(ProjMember,
+            (JoinRequest.project_id == ProjMember.project_id)).filter(
+                ProjMember.user_id == u.id)
+
+
+### ADD PROJECT TO DB ###
+
+if 1:
+    proj_kwargs = {'pace':'quarter','learning_category':'math',
+                    'subject':None,
+                    'resource':'a book'}
+    add_proj(name= 'BriReqs2', proj_model=Learning, descr='Description here',
+            category='learning',skill_level='any',setting = 'casual',language=None, 
+            chat_link = None, proj_kwargs=proj_kwargs)
+
 
 # m = ProjMember(user_id=u.id, rank_id=3, project_id = proj.id,position_id=1)
 # u.member_of.append(m)

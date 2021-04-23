@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
-    current_app
+                    current_app
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
@@ -70,7 +70,8 @@ def create_project():
                         skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, chat_link = None, **proj_kwargs) #instatiating the specific project
         
         db.session.add(project)
-        membership = ProjMember(user_id=current_user.id, project_id = proj.id, rank_id=3,position_id=None)
+        db.session.commit() #so that project.id can be extracted later
+        membership = ProjMember(user_id=current_user.id, project_id = project.id, rank_id=3,position_id=None)
         current_user.member_of.append(membership)
         db.session.commit()
         flash(_('Your project is now live!'))
@@ -181,7 +182,7 @@ def request_project(project_id,kind):
             r.user = u
             u.send_request(proj,r,kind='invite',u_inv=u) # works like invited user is sending request to themselves
             db.session.commit()
-            flash(_('Invitation to join sent to %(username)s!', username=form.u_inv.data))
+            flash(_('Invitation sent to %(username)s!', username=form.u_inv.data))
         elif kind == 'request':
             u = User.query.get(current_user.id)
             r = JoinRequest(kind='request',msg=form.msg.data,status='pending')
@@ -241,20 +242,39 @@ def messages():
     current_user.last_notif_read_time = datetime.utcnow()
     db.session.commit()
     page = request.args.get('page',1, type=int)
-    user_messages = current_user.proj_requests.order_by(
-        JoinRequest.timestamp.desc()).paginate(page, 5, False)
-    proj_messages = JoinRequest.query.join(ProjMember,
+    invites = current_user.proj_requests.filter_by(kind='invite')
+    requests = JoinRequest.query.filter_by(kind='request').join(ProjMember,
             (JoinRequest.project_id == ProjMember.project_id)).filter(
-                ProjMember.user_id == current_user.id).order_by(
-        JoinRequest.timestamp.desc()).paginate(page, 5, False)
-    messages = user_messages + proj_messages
+                ProjMember.user_id == current_user.id)
+    messages = invites.union(requests).order_by(JoinRequest.timestamp.desc()) #order now because union queries can't be ordered
+    p_ids = [m.project_id for m in messages]
+    p_objs = [Project.query.get(i) for i in p_ids]
+    proj_id_map = {k:v for k,v in zip(p_ids, p_objs)} #for easy displaying on HTML
+    messages = messages.paginate(page, 5, False)
+
     next_url = url_for('main.messages', page = messages.next_num) \
         if messages.has_next else None
     prev_url = url_for('main.messages', page = messages.prev_num) \
         if messages.has_prev else None
     
-    return render_template('messages.html',messages =messages.items(),
-                            next_url = next_url, prev_url=prev_url)
+    form=EmptyForm()
+    return render_template('messages.html',messages =messages.items,proj_id_map=proj_id_map,
+                            next_url = next_url, prev_url=prev_url,form=form)
+
+@bp.route('/accept/<user_id>/<project_id>', methods=['POST'])
+@login_required
+def accept(user_id,project_id):
+    '''accept request or invitation'''
+    form = EmptyForm()
+    if form.validate_on_submit():
+        proj = Project.query.get(project_id)
+        m = ProjMember(user_id=user_id, rank_id=1, project_id = proj.id,position_id=None)
+        proj.add_member(user_id,m)
+        db.session.commit()
+        flash(_('Joined %(proj_name)s!', proj_name=proj.name))
+        return redirect(url_for('main.messages'))
+    else:
+        return redirect(url_for('main.index'))
 
 @bp.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -274,7 +294,6 @@ def follow(username):
         return redirect(url_for('main.user', username=username))
     else:
         return redirect(url_for('main.index'))
-
 
 @bp.route('/unfollow/<username>', methods=['POST'])
 @login_required
