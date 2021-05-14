@@ -512,7 +512,7 @@ class Learning(Project):
     
     __mapper_args__ = {'polymorphic_identity': 'learning'}
     id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
-    field_name = 'learning' #SelectField option in form
+    _field_name = 'learning' #SelectField option in form
     
     ### Project spec properties ###
     pace = db.Column(db.String(60))    
@@ -533,5 +533,6 @@ class Engineering:
 # imported in main/routes.py to instatiate specific project classes in /create_project
 proj_categories = {'learning': Learning} #, 'software development':SoftwareDev, engineering} 
 # proj_categories = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
+
 # imported in main/forms.py for SelectField options
 proj_cat_keys = tuple(proj_categories.keys())

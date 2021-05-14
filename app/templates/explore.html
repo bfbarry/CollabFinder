@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br><br>
+
+<!-- User feed -->
+
+<div class='go_center project_stream' >
+
+    {% for project in projects %}
+    {% include '_proj_pvw.html' %}
+    {% endfor %}
+
+    <nav aria-label="..."> <!-- supposed to be greyed out and horizontal -->
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> {{ _('Newer projects') }}
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    {{ _('Older projects') }} <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
+    
+<script type="text/javascript">
+</script>
+{% endblock %}
+    

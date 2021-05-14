@@ -3,7 +3,7 @@
 - from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
 - He also has react stuff so check it out!
 ## Part I
-`export FLASK_APP=collabfinder.py`
+`export FLASK_APP=collabsource.py`
 ## Part IV: Database
 `$ pip install flask-sqlalchemy`<br>
 `$ pip install flask-migrate`

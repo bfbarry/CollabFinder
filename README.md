@@ -1,4 +1,4 @@
-# Collab Finder
+# CollabSource
 
 ## Set up
 ### **Packages**
@@ -23,11 +23,11 @@ Then, run elasticsearch:
 ### **Running flask**
 To make debugging easier:
 ```shell
-$ export FLASK_DEBUG=1
+$ export FLASK_DEBUG=1 # this can also be in your .bash_rc or .bash_profile to automatically set this at start up
 ``` 
-You MIGHT have to run this:
+You MIGHT have to run this for set up:
 ```
-$ export FLASK_APP=collabfinder.py
+$ export FLASK_APP=collabsource.py
 ```
 To start server:
 ```shell

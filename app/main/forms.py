@@ -94,8 +94,11 @@ class ProjectForm(FlaskForm):
     geo_options = _l_list(('College/university','High school', 'City (no school)'))
     geo_type = RadioField(_l('Is this project constrained to a city or school?'), choices=geo_options)
     
-    colleges= [option1] + colleges[:20]
-    college=SelectField(_l('Select college or university'), choices=colleges, default=1)
+    #colleges= {ix:c for ix,c in enumerate(colleges)} # to accomodate select2
+    #college=SelectField(_l('Select college or university'), choices=[("", "")] + [(uuid, name) for uuid, name in colleges.items()], default=1)
+    colleges= colleges
+    college=StringField(_l('Enter college or university (must be currently enrolled or recent alum)'))
+
     ### Learning ###
     learning_categories = [option1] + _l_list(sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics']))
     learning_category = SelectField(_l('Learning category'), choices=learning_categories, default=1)

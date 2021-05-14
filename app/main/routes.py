@@ -16,7 +16,7 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-    g.search_form = SearchForm() # g variable is specific to each request and each client
+        g.search_form = SearchForm() # g variable is specific to each request and each client
     g.locale = str(get_locale())
 
 @bp.route('/search')
@@ -58,13 +58,13 @@ def create_project():
             language = ''
 
         proj_kwargs = {}
-        proj_model = proj_categories[form.category.data]
+        proj_model = proj_categories[form.category.data] # Specific project type model class
         spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][2:] # skipping id column and field_name
         spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
         form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
         for a in spec_args:
             if a in form_args: #in case some columns of model are not yet implemented in front end
-                exec(f'proj_kwargs[a] = form.{a}.data')
+                exec(f'proj_kwargs[a] = form.{a}.data') # could also use setattr() here instead
         
         project = proj_model(creator=current_user, name = form.name.data, category = form.category.data, #consider using **kwargs
                         skill_level = form.skill_level.data, setting = form.setting.data, descr=form.descr.data, language=language, chat_link = None, **proj_kwargs) #instatiating the specific project
@@ -89,7 +89,7 @@ def explore():
         if projects.has_next else None
     prev_url = url_for('main.explore', page=projects.prev_num) \
         if projects.has_prev else None
-    return render_template('index.html', title=_('Explore'),
+    return render_template('explore.html', title=_('Explore'),
                            projects=projects.items, next_url=next_url,
                            prev_url=prev_url)
 

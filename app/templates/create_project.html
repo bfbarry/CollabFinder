@@ -66,16 +66,16 @@
             {% endfor %}
         </div>
 
-        <div id = "college" style="margin:0 auto; display:none;">
+        <div id = "colleges" style="margin:0 auto; display:none;">
             {{ form.college.label }}<br>            
-            {{ form.college(cols=32, rows=4) }}<br> 
+            {{ form.college(size=32) }}<br> 
             {% for error in form.college.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </div>
 
         <div id = "high_school" style="margin:0 auto; display:none;">
-            bub
+            Not implemented
         </div>
 
     
@@ -134,11 +134,9 @@
                 }
             });
         $('input[type=radio][id="geo_type"]').change( function () { // detecting change in geo drop down
-            let div_map  = {'College/university':'college','High school':'high_school'}; //{form value:div id, ...}
+            let div_map  = {'College/university':'colleges','High school':'high_school'}; //{form value:div id, ...}
             var val = $(this).val();
-            console.log(val)
             var div_ids = $.map(div_map, function(value, key) { return value });
-            console.log('geo:', div_ids);
             for (i in div_ids) {
                 if (div_ids[i] == div_map[val]) { 
                     $("#"+div_ids[i]).show("slow");
@@ -150,10 +148,29 @@
         });    
 
     function TextCounter(field, limit) {
-        /* Supposed to be used in TextAreaField */
+        /* NOT WORKING - Supposed to be used in TextAreaField */
         var typedChars = $(field).val().length;
         $(field).next('span').text(typedChars=0?'0 / '+limit:typedChars+' / '+limit);
         };
+
+    // $(document).ready(function () {
+    //     $('#college').select2({
+    //         placeholder: 'Enter a college name',
+    //         allowClear: true,
+    //         'width': 'style'
+    //     });
+    // });
+
+    $( function() {
+        var options = {{ form.colleges|safe }};
+        $( "#college" ).autocomplete({
+        // source: options
+        source: function(request, response) {
+                    var results = $.ui.autocomplete.filter(options, request.term);
+                    response(results.slice(0, 10));
+                }
+        });
+    } );
 
 </script>
 {% endblock %}
