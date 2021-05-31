@@ -9,7 +9,7 @@ from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, 
 from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.main import bp
-
+import json
 
 @bp.before_app_request
 def before_request():
@@ -321,3 +321,10 @@ def test_page():
         pass
     
     return render_template('test.html', title=_(' :-) '), form = form)
+
+@bp.route('/project/test', methods=['GET', 'POST'])
+def project_test():
+    # proj = Project.query.get(project_id) #.first_or_404()
+    proj = {"test": "passed", "rest": {"sex": "yes"}}
+    
+    return proj

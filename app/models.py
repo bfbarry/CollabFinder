@@ -3,6 +3,7 @@ from time import time
 from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin # incorporates requirements for flask-login
 from werkzeug.security import generate_password_hash, check_password_hash
+from dataclasses import dataclass
 #avatar imports
 from hashlib import md5
 import jwt
@@ -344,7 +345,8 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<{}>'.format(self.name)
-        
+
+@dataclass
 class Project(SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
@@ -505,6 +507,7 @@ class Rank(db.Model):
     def __repr__(self):
         return '<{}>'.format(self.name)
 
+@dataclass
 class Learning(Project):
     '''Can be study group for a course, or just auto-didacts studying a subject together
     pace: according to perosnal timelines or college terms
