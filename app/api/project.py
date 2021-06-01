@@ -20,7 +20,7 @@ import json
 #     g.locale = str(get_locale())
 
 
-@bp.route('/api/project/create', methods=['POST'])
+@bp.route('/project/create', methods=['POST'])
 @login_required
 def create_project():
     input_data = request.get_json()
@@ -47,7 +47,7 @@ def create_project():
     # db.session.commit()
     return {"id": project.id}
 
-@bp.route('/api/project/<project_id>', methods=['POST'])
+@bp.route('/project/<project_id>', methods=['POST'])
 def get_project(project_id):
     proj = Project.query.get(project_id) #.first_or_404()
     # model = proj_categories[proj.category]
@@ -61,7 +61,7 @@ def get_project(project_id):
     # form = EmptyForm()
     return jsonify(proj)
    
-@bp.route('/api/project/<project_id>/update', methods=['POST'])
+@bp.route('/project/<project_id>/update', methods=['POST'])
 @login_required
 def update_project(project_id):
     proj = Project.query.get(project_id)
@@ -114,6 +114,6 @@ def update_project(project_id):
         form.wanted_positions.data = ', '.join(map(str, [p.name for p in proj.wanted_positions]))
     return render_template('edit_project.html', title=_('Edit Project'), form=form)
 
-@bp.route('/api/project/<project_id>/delete', methods=['POST'])
+@bp.route('/project/<project_id>/delete', methods=['POST'])
 def delete_project(project_id):
     ...

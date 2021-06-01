@@ -45,6 +45,16 @@ Role.insert_roles()
 susan: cat<br>
 bo: 1
 
+### API commands
+GET
+```bash
+curl -X GET -H "Content-Type: application/json" http://127.0.0.1:5000/api/users/1
+```
+PUT
+```bash
+curl -X PUT -H "Content-Type: application/json" http://127.0.0.1:5000/api/test/put --data '{"name":"mochi"}'
+```
+
 ### **Handy VSCode Extensions**
 - SQLite (allows you to look at database structure by right clicking app.db)
 
