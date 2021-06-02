@@ -330,7 +330,7 @@ def load_user(id):
     return User.query.get(int(id))
 
 class SitePerm:
-    '''Permissions for website roles
+    '''TODO Permissions for website roles
     Subject to change'''
     FOLLOW = 1
     COMMENT = 2
@@ -339,13 +339,13 @@ class SitePerm:
     ADMIN = 16
 
 class ProjPerm:
-   '''Permissions for project ranks'''
+   '''TODO Permissions for project ranks'''
    READ = 1
    MODERATE = 2
    ADMIN = 4
 
 class Role(db.Model):
-    ''' Role for user across the website'''
+    ''' TODO Role for user across the website'''
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25),unique=True)
     default = db.Column(db.Boolean, default=False, index=True)
@@ -401,8 +401,8 @@ class Project(SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(60))
     name = db.Column(db.String(60))
+    category = db.Column(db.String(60))
     descr = db.Column(db.String(140))
     skill_level = db.Column(db.String(20))
     setting = db.Column(db.String(20))
@@ -429,6 +429,38 @@ class Project(SearchableMixin, db.Model):
 
     members = db.relationship('ProjMember',back_populates='project',
                         lazy='dynamic',cascade="all, delete-orphan")
+
+    ### API ###
+    def to_dict_main(self): #inherited classes will have to_dict()
+        data = {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'timestamp': self.timestamp.isoformat() + 'Z',
+            'descr': self.descr,
+            'skill_level': self.skill_level,
+            'setting': self.setting,
+            'members': self.members.count(),
+            'tags' : [t.name for t in self.tags], 
+            'wanted_positions' : [p.name for p in self.wanted_positions],
+            'language': self.language,
+            '_links': {
+                'self': url_for('api.get_user', id=self.id),
+                # 'followers': url_for('api.get_followers', id=self.id),
+                'chat_link': self.chat_link
+            }
+        }
+        return data
+
+    def from_dict_main(self, data):
+        for field in ['name','descr','descr','skill_level','setting']:
+            if field in data:
+                if field == 'tags':
+                    ...
+                elif field == 'wanted_positions':
+                    ...
+                else:
+                    setattr(self, field, data[field])
 
     ### REQUEST FUNC ###
     def add_member(self,user_id,membership):
@@ -565,13 +597,24 @@ class Learning(Project):
     
     __mapper_args__ = {'polymorphic_identity': 'learning'}
     id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
-    _field_name = 'learning' #SelectField option in form
+    _field_name = 'learning' #SelectField option in form, not necessary with API?
     
     ### Project spec properties ###
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60)) #still have to figure out how to implement this
     resource = db.Column(db.String(70)) #can be textbook, playlist, etc.
+
+    ### API ###
+    def to_dict(self): 
+        data = {
+            'pace': self.pace,
+            'learning_category': self.learning_category,
+            'subject': self.subject,
+            'resource': self.resource,
+        }
+
+        return data
 
     # crude way to add new subjects to learning_categories
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects

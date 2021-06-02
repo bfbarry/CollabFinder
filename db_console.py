@@ -52,7 +52,7 @@ requests = JoinRequest.query.join(ProjMember,
 
 ### ADD PROJECT TO DB ###
 
-if 1:
+if 0:
     proj_kwargs = {'pace':'quarter','learning_category':'math',
                     'subject':None,
                     'resource':'a book'}
@@ -60,18 +60,17 @@ if 1:
             category='learning',skill_level='any',setting = 'casual',language=None, 
             chat_link = None, proj_kwargs=proj_kwargs)
 
+if 0:
+    m = ProjMember(user_id=u.id, rank_id=3, project_id = proj.id,position_id=1)
+    u.member_of.append(m)
+    db.session.commit()
+    r = JoinRequest(kind='request',msg='hello',status='pending')
+    r.project = proj
+    r.user = u
+    u.send_request(proj, r)
 
-# m = ProjMember(user_id=u.id, rank_id=3, project_id = proj.id,position_id=1)
-# u.member_of.append(m)
-# db.session.commit()
-# r = JoinRequest(kind='request',msg='hello',status='pending')
-# r.project = proj
-# r.user = u
-# u.send_request(proj, r)
-
-
-
-
+x = Project.query.get_or_404(2)
+print(x.to_dict())
 # print(tag_names)
 # print(Tag.query.filter_by(name='math').first())
 

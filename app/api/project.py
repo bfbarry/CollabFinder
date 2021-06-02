@@ -47,72 +47,56 @@ def create_project():
     # db.session.commit()
     return {"id": project.id}
 
-@bp.route('/project/<project_id>', methods=['POST'])
-def get_project(project_id):
-    proj = Project.query.get(project_id) #.first_or_404()
-    # model = proj_categories[proj.category]
-    # proj_sub = model.query.get(project_id) #.first_or_404() #to access all subclass properties
-    # #print(f'\n {model} \n', flush=1)
-    # proj_dict = {}
-    # spec_args = [attr for attr in list(vars(model)) if not attr.startswith("_")][2:]
-    # for a in spec_args:
-    #     exec(f'proj_dict[a] = proj_sub.{a}')
-
-    # form = EmptyForm()
-    return jsonify(proj)
+@bp.route('/project/<int:id>', methods=['POST'])
+def get_project(id):
+    proj = Project.query.get_or_404(id)
+    proj_data = {**proj.to_dict_main(), 
+            **proj.to_dict()}
+    return jsonify(proj_data)
    
-@bp.route('/project/<project_id>/update', methods=['POST'])
+@bp.route('/project/<int:id>/update', methods=['POST'])
 @login_required
-def update_project(project_id):
-    proj = Project.query.get(project_id)
-    form = EditProjectForm(proj.name)
+def update_project(id):
+    proj = Project.query.get_or_404(id)
+    proj_data = {**proj.to_dict_main(), 
+            **proj.to_dict()}
+    
+    input_data = request.get_json()
     
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
     tagms, posms = [], [] # holds the associated models (needed for db commits!)
-    if current_user != proj.creator: # removed .username (Remove me)
-        flash(_('Must be project admin to make changes'))
-        return redirect(url_for('main.index'))
-    if form.validate_on_submit():
-        proj.name = form.name.data
-        proj.descr = form.descr.data
-        proj.chat_link = form.chat_link.data
-        
-        #current form data for tags and wanted positions
-        tags, wpos = [i.strip() for i in form.tags.data.split(',')], [i.strip() for i in form.wanted_positions.data.split(',')]
-        orig_tags, orig_wpos = [t.name for t in proj.tags], [p.name for p in proj.wanted_positions]
-        for t in orig_tags:
-            if t not in tags:
-                proj.rm_tag(Tag.query.filter_by(name=t).first())
-        for p in orig_wpos:
-            if p not in wpos:
-                proj.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
-        
-        for tag in tags:
-            tag = tag.lower()
-            if tag not in tag_names:
-                db.session.add(Tag(name=tag))
-                db.session.commit()
-            tagms.append(Tag.query.filter_by(name=tag).first()) #there should only be one
-        for pos in wpos:
-            pos = pos.lower()
-            if pos not in pos_names:
-                db.session.add(Position(name=pos))
-                db.session.commit()
-            posms.append(Position.query.filter_by(name=pos).first())
-        
-        proj.add_tags(tagms)
-        proj.add_tags(posms,kind='w_pos')
-        
-        db.session.commit()
-        flash(_('Your changes have been saved.'))
-        return redirect(url_for('main.project', project_id=proj.id))
-    elif request.method == 'GET':
-        form.name.data = proj.name
-        form.descr.data = proj.descr
-        form.chat_link.data = proj.chat_link
-        form.tags.data = ', '.join(map(str, [t.name for t in proj.tags]))
-        form.wanted_positions.data = ', '.join(map(str, [p.name for p in proj.wanted_positions]))
-    return render_template('edit_project.html', title=_('Edit Project'), form=form)
+    # TODO Check if user has perms
+
+    proj.from_dict(input_data)
+    
+    #current form data for tags and wanted positions
+    tags, wpos = [i.strip() for i in form.tags.data.split(',')], [i.strip() for i in form.wanted_positions.data.split(',')]
+    orig_tags, orig_wpos = [t.name for t in proj.tags], [p.name for p in proj.wanted_positions]
+    for t in orig_tags:
+        if t not in tags:
+            proj.rm_tag(Tag.query.filter_by(name=t).first())
+    for p in orig_wpos:
+        if p not in wpos:
+            proj.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
+    
+    for tag in tags:
+        tag = tag.lower()
+        if tag not in tag_names:
+            db.session.add(Tag(name=tag))
+            db.session.commit()
+        tagms.append(Tag.query.filter_by(name=tag).first()) #there should only be one
+    for pos in wpos:
+        pos = pos.lower()
+        if pos not in pos_names:
+            db.session.add(Position(name=pos))
+            db.session.commit()
+        posms.append(Position.query.filter_by(name=pos).first())
+    
+    proj.add_tags(tagms)
+    proj.add_tags(posms,kind='w_pos')
+    
+    db.session.commit()
+    
 
 @bp.route('/project/<project_id>/delete', methods=['POST'])
 def delete_project(project_id):

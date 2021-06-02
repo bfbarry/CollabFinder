@@ -100,7 +100,7 @@ def project(project_id):
     model = proj_categories[proj.category]
     proj_sub = model.query.get(project_id) #.first_or_404() #to access all subclass properties
     #print(f'\n {model} \n', flush=1)
-    proj_dict = {}
+    proj_dict = {} #creating a dictionary for attributes to be accessed easily from HTML side
     spec_args = [attr for attr in list(vars(model)) if not attr.startswith("_")][2:]
     for a in spec_args:
         exec(f'proj_dict[a] = proj_sub.{a}')
