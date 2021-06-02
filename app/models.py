@@ -397,7 +397,7 @@ class Role(db.Model):
         return '<{}>'.format(self.name)
 
 @dataclass
-class Project(SearchableMixin, db.Model):
+class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
     id = db.Column(db.Integer, primary_key=True)
@@ -453,12 +453,28 @@ class Project(SearchableMixin, db.Model):
         return data
 
     def from_dict_main(self, data):
-        for field in ['name','descr','descr','skill_level','setting']:
+        # current form data for tags and wanted positions
+        orig_tags = [t.name for t in self.tags]
+        orig_wpos = [p.name for p in self.wanted_positions]
+        new_tags, new_wpos = [], [] # holds the  model instances
+        for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions']:
             if field in data:
                 if field == 'tags':
-                    ...
+                    for t in orig_tags: # removing tags
+                        if t not in data['tags']:
+                            self.rm_tag(Tag.query.filter_by(name=t).first())
+                    for tag in data['tags']:
+                        tag = tag.lower()
+                        new_tags.append(Tag.query.filter_by(name=tag).first()) #there should only be one
+                    self.add_tags(new_tags)
                 elif field == 'wanted_positions':
-                    ...
+                    for p in orig_wpos:
+                        if p not in data['wanted_positions']:
+                            self.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
+                    for pos in data['wanted_positions']:
+                        pos = pos.lower()
+                        new_wpos.append(Position.query.filter_by(name=pos).first())
+                    self.add_tags(new_wpos, kind='w_pos')
                 else:
                     setattr(self, field, data[field])
 
@@ -602,11 +618,12 @@ class Learning(Project):
     ### Project spec properties ###
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
-    subject = db.Column(db.String(60)) #still have to figure out how to implement this
+    subject = db.Column(db.String(60)) # may be redundant with project name
     resource = db.Column(db.String(70)) #can be textbook, playlist, etc.
 
     ### API ###
-    def to_dict(self): 
+    def to_dict(self):
+        main_data = self.to_dict_main()
         data = {
             'pace': self.pace,
             'learning_category': self.learning_category,
@@ -614,7 +631,13 @@ class Learning(Project):
             'resource': self.resource,
         }
 
-        return data
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['pace','learning_category','subject','resource']:
+            if field in data:
+                setattr(self, field, data[field])
 
     # crude way to add new subjects to learning_categories
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects

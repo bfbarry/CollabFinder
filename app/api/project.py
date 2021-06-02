@@ -19,85 +19,65 @@ import json
 #         g.search_form = SearchForm() # g variable is specific to each request and each client
 #     g.locale = str(get_locale())
 
+@bp.route('/project/<int:id>', methods=['POST'])
+def get_project(id):
+    proj = Project.query.get_or_404(id)
+    proj_data = proj.to_dict()
+    return jsonify(proj_data)
+
+@bp.route('/projects', methods=['GET'])
+def get_projects():
+    page = request.args.get('page',1,type=int)
+    per_page = min(request.args.get('per_page', 10, type=int), 100)
+    data = Project.to_collection_dict(Project.query, page, per_page, 'api.get_projects')
+    return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
-@login_required
+# @login_required
 def create_project():
     input_data = request.get_json()
     category = input_data.get("category")
-    name = input_data.get("name")
-    skill_level = input_data.get("skill_level")
-    setting = input_data.get("setting")
-    descr = input_data.get("descr")
 
-    project = Project(creator=None,
-        chat_link = None,  
-        name = name, 
-        category = category,
-        skill_level = skill_level, 
-        setting = setting, 
-        descr=descr, 
-        language="phold", 
-    ) #instatiating the specific project
+    project = proj_categories[category]()
+    project.from_dict(input_data)
          
     db.session.add(project)
     db.session.commit() #so that project.id can be extracted later
     # membership = ProjMember(user_id="placeholder", project_id = project.id, rank_id=3,position_id=None)
     # current_user.member_of.append(membership)
     # db.session.commit()
-    return {"id": project.id}
+    return jsonify(project.to_dict())
 
-@bp.route('/project/<int:id>', methods=['POST'])
-def get_project(id):
-    proj = Project.query.get_or_404(id)
-    proj_data = {**proj.to_dict_main(), 
-            **proj.to_dict()}
-    return jsonify(proj_data)
-   
 @bp.route('/project/<int:id>/update', methods=['POST'])
 @login_required
 def update_project(id):
+
     proj = Project.query.get_or_404(id)
-    proj_data = {**proj.to_dict_main(), 
-            **proj.to_dict()}
-    
     input_data = request.get_json()
     
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
-    tagms, posms = [], [] # holds the associated models (needed for db commits!)
     # TODO Check if user has perms
-
-    proj.from_dict(input_data)
+    # TODO add from_dict() for specific sub classes
+    proj.from_dict_main(input_data)
     
-    #current form data for tags and wanted positions
-    tags, wpos = [i.strip() for i in form.tags.data.split(',')], [i.strip() for i in form.wanted_positions.data.split(',')]
-    orig_tags, orig_wpos = [t.name for t in proj.tags], [p.name for p in proj.wanted_positions]
-    for t in orig_tags:
-        if t not in tags:
-            proj.rm_tag(Tag.query.filter_by(name=t).first())
-    for p in orig_wpos:
-        if p not in wpos:
-            proj.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
-    
-    for tag in tags:
+    for tag in input_data['tags']:
         tag = tag.lower()
         if tag not in tag_names:
             db.session.add(Tag(name=tag))
             db.session.commit()
-        tagms.append(Tag.query.filter_by(name=tag).first()) #there should only be one
-    for pos in wpos:
+        
+    for pos in input_data['wanted_positions']:
         pos = pos.lower()
         if pos not in pos_names:
             db.session.add(Position(name=pos))
             db.session.commit()
-        posms.append(Position.query.filter_by(name=pos).first())
-    
-    proj.add_tags(tagms)
-    proj.add_tags(posms,kind='w_pos')
-    
-    db.session.commit()
-    
 
-@bp.route('/project/<project_id>/delete', methods=['POST'])
-def delete_project(project_id):
+    db.session.commit()
+
+    return jsonify(proj.to_dict_main()) 
+
+@bp.route('/project/<int:id>/delete', methods=['POST'])
+def delete_project(id):
     ...
+
+# curl -X POST -H "Content-Type: application/json" http://127.0.0.1:5000/api/project/create --data '{"creator":null, "name":"a44","category":"learning","skill_level":"skilz","setting":"set","descr":"asd","language":"phold","pace":"g","learning_category":"l1","subject":"0","resource":"mc"}'

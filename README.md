@@ -54,6 +54,10 @@ PUT
 ```bash
 curl -X PUT -H "Content-Type: application/json" http://127.0.0.1:5000/api/test/put --data '{"name":"mochi"}'
 ```
+POST
+```bash
+curl -X POST -H "Content-Type: application/json" http://127.0.0.1:5000/api/project/create --data '{"creator":"a", "name":"a44","category":"learning","skill_level":"skilz","setting":"set","descr":"asd","language":"phold","pace":"g","learning_category":"l1","subject":"0","resource":"mc"}'
+```
 
 ### **Handy VSCode Extensions**
 - SQLite (allows you to look at database structure by right clicking app.db)
