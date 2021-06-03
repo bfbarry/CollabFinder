@@ -26,26 +26,30 @@ def get_project(id):
     return jsonify(proj_data)
 
 @bp.route('/projects', methods=['GET'])
-def get_projects():
+def get_projects(q=Project.query):
+    """If invoked within User.to_dict(), passes in q as all a user's projects"""
     page = request.args.get('page',1,type=int)
     per_page = min(request.args.get('per_page', 10, type=int), 100)
-    data = Project.to_collection_dict(Project.query, page, per_page, 'api.get_projects')
+    data = Project.to_collection_dict(q, page, per_page, 'api.get_projects')
     return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
 # @login_required
 def create_project():
     input_data = request.get_json()
-    category = input_data.get("category")
 
+    category = input_data.get("category")
     project = proj_categories[category]()
     project.from_dict(input_data)
-         
     db.session.add(project)
-    db.session.commit() #so that project.id can be extracted later
-    # membership = ProjMember(user_id="placeholder", project_id = project.id, rank_id=3,position_id=None)
-    # current_user.member_of.append(membership)
-    # db.session.commit()
+    db.session.commit() 
+
+    user_id = input_data.get("user_id")
+    user = User.query.get_or_404(user_id)
+    membership = ProjMember(user_id=user_id, project_id = project.id, rank_id=1,position_id=None)
+    user.member_of.append(membership)
+    db.session.commit()
+
     return jsonify(project.to_dict())
 
 @bp.route('/project/<int:id>/update', methods=['POST'])
@@ -76,8 +80,35 @@ def update_project(id):
 
     return jsonify(proj.to_dict_main()) 
 
+@bp.route('/project/<int:id>/scrum/', methods=['GET', 'POST'])
+def get_scrum(id):
+    ...
+
+@bp.route('/project/<int:id>/request/', methods=['GET', 'POST'])
+def request_project(id):
+    ''' 
+    endpoint for both sending request and sending invitation 
+    u_inv a username string
+    '''
+    input_data = request.get_json()
+    proj = Project.query.get_or_404(id) 
+    u = User.query.filter_by(input_data.get('username')).first_or_404()
+
+    if input_data.get('kind') == 'invite':
+        r = JoinRequest(kind='invite',msg=input_data.get('msg'),status='pending')
+        r.project = proj
+        r.user = u
+        u.send_request(proj,r,kind='invite',u_inv=u) # works like invited user is sending request to themselves
+        db.session.commit()
+    elif input_data.get('kind') == 'request':
+        r = JoinRequest(kind='request',msg=input_data.get('msg'),status='pending')
+        r.project = proj
+        r.user = u
+        u.send_request(proj,r)
+        db.session.commit()
+        
+    return jsonify(r)
+
 @bp.route('/project/<int:id>/delete', methods=['POST'])
 def delete_project(id):
     ...
-
-# curl -X POST -H "Content-Type: application/json" http://127.0.0.1:5000/api/project/create --data '{"creator":null, "name":"a44","category":"learning","skill_level":"skilz","setting":"set","descr":"asd","language":"phold","pace":"g","learning_category":"l1","subject":"0","resource":"mc"}'

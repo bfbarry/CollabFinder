@@ -190,6 +190,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
             'project_count': self.member_of.count(),
             '_links': {
                 'self': url_for('api.get_user', id=self.id),
+                'projects': url_for('api.get_projects', q=None), #q has to be query instance
                 'followers': url_for('api.get_followers', id=self.id),
                 'followed': url_for('api.get_followers', id=self.id),
                 'avatar': self.avatar(128)
