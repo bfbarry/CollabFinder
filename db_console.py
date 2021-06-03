@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime, timedelta
 import unittest
 from app import create_app, db, cli
-from app.models import User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
+from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
                             Learning
 from flask import request #for page stuff
 import app.models as models
@@ -70,7 +70,16 @@ if 0:
     u.send_request(proj, r)
 
 x = Project.query.get_or_404(2)
-print(x.to_dict())
+# task = ScrumTask(project_id=2, user_id=1, text="doitNOW", task_type="Done")
+# db.session.add(task)
+# db.session.commit()
+
+q= [i.text for i in x.scrum_board]
+q = ScrumTask.query.filter_by(project_id=2).all()
+q = x.scrum_board.filter_by(task_type='Done').all()
+print([i.text for i in q])
+# x.scrum_board.append()
+# print(x.to_dict())
 # print(tag_names)
 # print(Tag.query.filter_by(name='math').first())
 

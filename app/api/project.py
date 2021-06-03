@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
 from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
-from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
+from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.api import bp
 import json
@@ -19,16 +19,17 @@ import json
 #         g.search_form = SearchForm() # g variable is specific to each request and each client
 #     g.locale = str(get_locale())
 
-@bp.route('/project/<int:id>', methods=['POST'])
+@bp.route('/project/<int:id>', methods=['GET'])
 def get_project(id):
-    proj = Project.query.get_or_404(id)
-    proj_data = proj.to_dict()
-    return jsonify(proj_data)
+    return jsonify(Project.query.get_or_404(id).to_dict())
 
 @bp.route('/projects', methods=['GET'])
-def get_projects(q=Project.query):
+def get_projects(q=None):
     """If invoked within User.to_dict(), passes in q as all a user's projects"""
+    if q is None:
+        q=Project.query
     page = request.args.get('page',1,type=int)
+    
     per_page = min(request.args.get('per_page', 10, type=int), 100)
     data = Project.to_collection_dict(q, page, per_page, 'api.get_projects')
     return jsonify(data)
@@ -68,7 +69,7 @@ def update_project(id):
         tag = tag.lower()
         if tag not in tag_names:
             db.session.add(Tag(name=tag))
-            db.session.commit()
+            db.session.commit() #redundant?
         
     for pos in input_data['wanted_positions']:
         pos = pos.lower()
@@ -80,9 +81,28 @@ def update_project(id):
 
     return jsonify(proj.to_dict_main()) 
 
-@bp.route('/project/<int:id>/scrum/', methods=['GET', 'POST'])
+@bp.route('/project/<int:id>/scrum/', methods=['GET'])
 def get_scrum(id):
-    ...
+    return jsonify(Project.query.get_or_404(id).scrum_to_dict())
+
+@bp.route('/project/<int:id>/update_scrum/', methods=['GET'])
+def update_scrum(id):
+    """input_data not same format as get_scrum!"""
+    input_data = request.get_json()
+    proj = Project.query.get_or_404(id)
+    orig_tasks = [{task.text:task.id} for task in proj.scrum_board.all()]
+    for text, id in orig_tasks:
+        if text not in [t.get('text') for t in input_data]:
+            db.session.delete(ScrumTask.query.get_or_404(id))
+    for t in input_data:
+        if t.get('text') not in orig_tasks: #avoid redundant tasks
+            task = ScrumTask(project_id=id, 
+                            user_id=input_data.get('user_id'),
+                            text=input_data.get('text'),
+                            task_type=input_data.get('task_type'))
+            db.session.add(task)
+    db.session.commit()
+    return jsonify(Project.query.get_or_404(id).scrum_to_dict())
 
 @bp.route('/project/<int:id>/request/', methods=['GET', 'POST'])
 def request_project(id):
@@ -108,6 +128,12 @@ def request_project(id):
         db.session.commit()
         
     return jsonify(r)
+
+@bp.route('/project/<int:id>/cancel_request', methods=['POST'])
+@login_required
+def cancel_request(id):
+    proj = Project.query.get_or_404(id)
+    ...
 
 @bp.route('/project/<int:id>/delete', methods=['POST'])
 def delete_project(id):

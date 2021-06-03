@@ -84,6 +84,40 @@ def update_user(id):
     db.session.commit()
     return jsonify(user.to_dict())
     
+@bp.route('/users/<int:id>/messages')
+def get_messages(id):
+    '''proj_id_map used in view to check if is_member (! not jsonifying well)'''
+    user = User.query.get_or_404(id)
+    # user.last_notif_read_time = datetime.utcnow() # How to handle this read time?
+    # db.session.commit()
+    page = request.args.get('page',1, type=int)
+    invites = user.proj_requests.filter_by(kind='invite')
+    requests = JoinRequest.query.filter_by(kind='request').join(ProjMember,
+            (JoinRequest.project_id == ProjMember.project_id)).filter(
+                ProjMember.user_id == user.id)
+    messages = invites.union(requests).order_by(JoinRequest.timestamp.desc()) #order now because union queries can't be ordered
+    p_ids = [m.project_id for m in messages]
+    p_objs = [Project.query.get(i) for i in p_ids]
+    proj_id_map = {k:v for k,v in zip(p_ids, p_objs)} #for easy displaying on HTML
+    messages = messages.paginate(page, 5, False)
+
+    next_url = url_for('api.get_messages', page = messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('api.get_messages', page = messages.prev_num) \
+        if messages.has_prev else None
+    
+    data = {
+        'proj_id_map':proj_id_map, # this no work
+        'messages': [{'user_id': m.user_id,
+                    'project_id':m.project_id,
+                    'msg':m.msg,
+                    'kind':m.kind} for m in messages.items],
+        '_links': {'self': None,
+                'next': next_url,
+                'prev': prev_url}
+    }
+    return jsonify(data)
+
 @bp.route('/test/put', methods=['PUT'])
 def test_put():
     data = request.get_json().get("sex")

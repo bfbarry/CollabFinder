@@ -147,6 +147,20 @@ class ProjMember(db.Model):
             if self.rank is None:
                 self.rank = Rank.query.filter_by(default=True).first()
 
+class ScrumTask(db.Model):
+    __tablename__ = 'scrum_tasks'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+    task_type = db.Column(db.String(15))
+    text = db.Column(db.String(650))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) #indexed to order them easily
+
+    project = db.relationship('Project', back_populates='scrum_board')
+
+    def __repr__(self):
+        return f'<{self.task_type}: {self.text} by {self.user_id} proj {self.project_id}>'
+
 class User(PaginatedAPIMixin, UserMixin, db.Model):
     """ 
     """
@@ -170,7 +184,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     last_notif_read_time = db.Column(db.DateTime)
     
     member_of = db.relationship('ProjMember',back_populates='user',
-                        lazy='dynamic',cascade="all, delete-orphan")    
+                        lazy='dynamic',cascade="all, delete-orphan")   
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -190,7 +204,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
             'project_count': self.member_of.count(),
             '_links': {
                 'self': url_for('api.get_user', id=self.id),
-                'projects': url_for('api.get_projects', q=None), #q has to be query instance
+                # 'projects': url_for('api.get_projects', q=None), #q has to be query instance
                 'followers': url_for('api.get_followers', id=self.id),
                 'followed': url_for('api.get_followers', id=self.id),
                 'avatar': self.avatar(128)
@@ -431,6 +445,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     members = db.relationship('ProjMember',back_populates='project',
                         lazy='dynamic',cascade="all, delete-orphan")
 
+    scrum_board = db.relationship('ScrumTask', back_populates='project',cascade="all, delete-orphan", lazy='dynamic') # try setting to __tablename__ 
     ### API ###
     def to_dict_main(self): #inherited classes will have to_dict()
         data = {
@@ -446,7 +461,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
             'wanted_positions' : [p.name for p in self.wanted_positions],
             'language': self.language,
             '_links': {
-                'self': url_for('api.get_user', id=self.id),
+                'self': url_for('api.get_project', id=self.id),
                 # 'followers': url_for('api.get_followers', id=self.id),
                 'chat_link': self.chat_link
             }
@@ -478,6 +493,19 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
                     self.add_tags(new_wpos, kind='w_pos')
                 else:
                     setattr(self, field, data[field])
+    
+    def scrum_to_dict(self):
+        data = {
+            'Requested' : [],
+            'To do' : [],
+            'In Progress' : [],
+            'Done' : []
+        }
+
+        for task in self.scrum_board.all():
+            data[task.task_type].append({'user_id': task.user_id, 'text':task.text, 'timestamp': task.timestamp.isoformat() + 'Z'})
+
+        return data
 
     ### REQUEST FUNC ###
     def add_member(self,user_id,membership):
@@ -520,12 +548,6 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
         elif kind == 'w_pos':
             return self.wanted_positions.filter(
                 position_map.c.position_id == tag.id).count() > 0
-
-    # member_of = db.relationship( #also need a relationship in User()?
-    #     'User', secondary=members,
-    #     primaryjoin=(members.c.member_id == id),
-    #     secondaryjoin=(members.c.member_of_id == id),
-    #     backref=db.backref('members', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
         return '<Project {}>'.format(self.name)
