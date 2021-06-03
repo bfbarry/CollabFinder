@@ -1,7 +1,7 @@
 from app.api.errors import bad_request
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
-                    current_app, jsonify
+                    current_app, jsonify, abort
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
@@ -10,6 +10,7 @@ from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, 
 from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.api import bp
+# from app.api.auth import token_auth
 
 # @bp.before_app_request
 # def before_request():
@@ -23,6 +24,7 @@ from app.api import bp
 # change all methods to POST later?
 
 @bp.route('/users/<int:id>', methods=['GET'])
+# @token_auth.login_required
 def get_user(id):
     return jsonify(User.query.get_or_404(id).to_dict())
 
@@ -34,6 +36,7 @@ def get_users():
     return jsonify(data)
 
 @bp.route('/users/<int:id>/followers', methods=['GET'])
+# @token_auth.login_required
 def get_followers(id):
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -43,6 +46,7 @@ def get_followers(id):
     return jsonify(data)
 
 @bp.route('/users/<int:id>/followed', methods=['GET'])
+# @token_auth.login_required
 def get_followed(id):
     user = User.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -70,7 +74,10 @@ def create_user(id):
     return response
 
 @bp.route('/users/<int:id>', methods=['PUT'])
+# @token_auth.login_required
 def update_user(id):
+    # if token_auth.current_user().id != id:
+    #     abort(403)
     user = User.query.get_or_404(id)
     data = request.get_json() or {}
     if 'username' in data and data['username'] != user.username and \
@@ -85,6 +92,7 @@ def update_user(id):
     return jsonify(user.to_dict())
     
 @bp.route('/users/<int:id>/messages')
+# @token_auth.login_required
 def get_messages(id):
     '''proj_id_map used in view to check if is_member (! not jsonifying well)'''
     user = User.query.get_or_404(id)
@@ -119,6 +127,7 @@ def get_messages(id):
     return jsonify(data)
 
 @bp.route('/test/put', methods=['PUT'])
+# @token_auth.login_required
 def test_put():
     data = request.get_json().get("sex")
     return {"got_sex": data}

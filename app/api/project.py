@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
-                    current_app, jsonify
+                    current_app, jsonify, abort
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
@@ -10,6 +10,7 @@ from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, P
                             Learning #Project subclasses
 from app.api import bp
 import json
+# from app.api.auth import token_auth
 
 # @bp.before_app_request
 # def before_request():
@@ -35,7 +36,7 @@ def get_projects(q=None):
     return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
-# @login_required
+# @token_auth.login_required
 def create_project():
     input_data = request.get_json()
 
@@ -54,9 +55,10 @@ def create_project():
     return jsonify(project.to_dict())
 
 @bp.route('/project/<int:id>/update', methods=['POST'])
-@login_required
+# @token_auth.login_required
 def update_project(id):
-
+    # if token_auth.current_user().id not in project.members: 
+    #         abort(403)
     proj = Project.query.get_or_404(id)
     input_data = request.get_json()
     
@@ -86,6 +88,7 @@ def get_scrum(id):
     return jsonify(Project.query.get_or_404(id).scrum_to_dict())
 
 @bp.route('/project/<int:id>/update_scrum/', methods=['GET'])
+# @token_auth.login_required
 def update_scrum(id):
     """input_data not same format as get_scrum!"""
     input_data = request.get_json()
@@ -105,6 +108,7 @@ def update_scrum(id):
     return jsonify(Project.query.get_or_404(id).scrum_to_dict())
 
 @bp.route('/project/<int:id>/request/', methods=['GET', 'POST'])
+# @token_auth.login_required
 def request_project(id):
     ''' 
     endpoint for both sending request and sending invitation 
@@ -130,11 +134,12 @@ def request_project(id):
     return jsonify(r)
 
 @bp.route('/project/<int:id>/cancel_request', methods=['POST'])
-@login_required
+# @token_auth.login_required
 def cancel_request(id):
     proj = Project.query.get_or_404(id)
     ...
 
 @bp.route('/project/<int:id>/delete', methods=['POST'])
+# @token_auth.login_required
 def delete_project(id):
     ...
