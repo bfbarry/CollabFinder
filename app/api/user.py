@@ -129,8 +129,8 @@ def get_messages(id):
 @bp.route('/test/put', methods=['PUT'])
 # @token_auth.login_required
 def test_put():
-    data = request.get_json().get("sex")
-    return {"got_sex": data}
+    data = request.get_json().get("hello")
+    return {"got_hello": data}
 
 
 

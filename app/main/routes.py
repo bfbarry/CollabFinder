@@ -325,6 +325,6 @@ def test_page():
 @bp.route('/project/test', methods=['GET', 'POST'])
 def project_test():
     # proj = Project.query.get(project_id) #.first_or_404()
-    proj = {"test": "passed", "rest": {"sex": "yes"}}
+    proj = {"test": "passed", "rest": {"api": "yes"}}
     
     return proj
