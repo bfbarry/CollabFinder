@@ -1,70 +1,66 @@
-# Getting Started with Create React App
+# CollabSource
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Set up
+### **Packages**
+```shell
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+```
 
-## Available Scripts
+### **Elasticsearch (search engine)**
 
-In the project directory, you can run:
+```shell
+$ brew install elasticsearch
+```
 
-### `yarn start`
+Then, run elasticsearch:
+- Run elasticsearch in background perpetually via launchd: `$ brew services start elasticsearch`
+- Or w/o background service you can just run: `$ elasticsearch`
+- check that it works @ http://localhost:9200
+    - should return JSON
+    - may take a minute or two to load after starting elasticsearch
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### **Running flask**
+To make debugging easier:
+```shell
+$ export FLASK_DEBUG=1 # this can also be in your .bash_rc or .bash_profile to automatically set this at start up
+``` 
+You MIGHT have to run this for set up:
+```
+$ export FLASK_APP=collabsource.py
+```
+To start server:
+```shell
+$ flask run
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+ranks:
+<br>in flask shell:
+```python
+Rank.insert_ranks()
+Role.insert_roles()
+```
 
-### `yarn test`
+### **Test usernames:passwords**
+susan: cat<br>
+bo: 1
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### API commands
+GET
+```bash
+curl -X GET -H "Content-Type: application/json" http://127.0.0.1:5000/api/users/1
+```
+PUT
+```bash
+curl -X PUT -H "Content-Type: application/json" http://127.0.0.1:5000/api/test/put --data '{"name":"mochi"}'
+```
+POST
+```bash
+curl -X POST -H "Content-Type: application/json" http://127.0.0.1:5000/api/project/create --data '{"creator":"a", "name":"a44","category":"learning","skill_level":"skilz","setting":"set","descr":"asd","language":"phold","pace":"g","learning_category":"l1","subject":"0","resource":"mc"}'
+```
 
-### `yarn build`
+### **Handy VSCode Extensions**
+- SQLite (allows you to look at database structure by right clicking app.db)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### **Resources**
+progress_doc.md is where I try to record step by step how I build this website as I follow [this tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
