@@ -1,6 +1,8 @@
 # CollabSource
 
 ## Set up
+
+Note: as the website migrates to a React frontend, some things have changed. To view the Flask only portion, cd into `/backend`
 ### **Packages**
 ```shell
 $ source venv/bin/activate
@@ -33,6 +35,17 @@ To start server:
 ```shell
 $ flask run
 ```
+
+To start frontend server on port 3000
+```shell
+yarn start
+```
+
+To start API to feed into the above
+```shell
+yarn start-api
+```
+
 
 ranks:
 <br>in flask shell:

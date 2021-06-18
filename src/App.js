@@ -1,34 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import $ from 'jquery';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useHistory, useParams
+} from "react-router-dom";
 import './App.css';
+import Project  from './components/Project';
+import User  from './components/User';
 
-function App() {
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    fetch('api/project/10')
-      .then(res => res.json())
-      .then(
-        (result) => {
-          setIsLoaded(true);
-          setItems(result);
-        },
-        (error) => {
-          setIsLoaded(true);
-          setError(error);
-        }
-      )
-  }, [])
+export default function App() {
   return (
 
     <div className="App">
+
+      <Router>
+        <div>
+          <Link to='/'>Home</Link>
+          <Link to='/test'>Test</Link>
+        </div>
         
-        <p>{items.name}</p>
+        <Switch>
+          <Route path='/project/:id'>
+            <Project />
+          </Route>
+          <Route path='/user/:id'>
+            <User />
+          </Route>
+          <Route path='/test'>
+            <Test />
+          </Route>
+        </Switch>
+        
+
+      </Router>
 
     </div>
   );
 }
 
-export default App;
+
+
+function Test() {
+  return(
+  <p>Testing!</p>)
+}
