@@ -1,73 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-{# 
- <p style=" white-space: nowrap; overflow: hidden; color: #949494;">  &nbsp started by {{jsonobj['creator'].username}}, {{moment(jsonobj['timestamp']).fromNow()}} </p> 
 
-<br><h3> A {{jsonobj['category']}} project.</h3>
-<p>{{jsonobj['descr']}}</p>
-{% if jsonobj['tags']|length > 0 %}
+<h1 style="float: left">{{ proj.name }}</h1> 
+<p style=" white-space: nowrap; overflow: hidden; color: #949494;">  &nbsp started by {{proj.creator.username}}, {{moment(proj.timestamp).fromNow()}} </p>
+<br><h3> A {{proj.category}} project.</h3>
+<p>{{proj.descr}}</p>
+{% if tags|length > 0 %}
     <b>tags:</b>
     <ul>
-    {%for tag in jsonobj['tags']%}
+    {%for tag in tags%}
         <a href="search?q={{tag}}" class="btn btn-sm" style="color:white;background-color:rgb(98, 199, 101);"> {{_(tag)}}</a>
     {%endfor%}
     </ul>
 {%endif%}
 
-{% if jsonobj['wanted_positions']|length > 0 %}
+{% if wanted_positions|length > 0 %}
     <b>wanted positions:</b>
     <ul>
-    {%for pos in jsonobj['wanted_positions']%}
+    {%for pos in wanted_positions%}
         <a href="search?q={{pos}}" class="btn btn-sm" style="color:white;background-color:rgb(140, 98, 199);"> {{_(pos)}}</a>
     {%endfor%}
     </ul>
 {%endif%}
 
 
-<p>{{jsonobj['setting']}} setting - for those at {{jsonobj['skill_level']}} skill level</p>
-{%if jsonobj['chat_link'] and current_user == jsonobj['creator'] %} <!-- later check if member not creator-->
-    <p>Join the conversation: <a class = "btn btn-info" href="http://{{jsonobj['chat_link']}}">{{jsonobj['chat_link']}}</a></p>
+<p>{{proj.setting}} setting - for those at {{proj.skill_level}} skill level</p>
+{%if proj.chat_link and current_user == proj.creator %} <!-- later check if member not creator-->
+    <p>Join the conversation: <a class = "btn btn-info" href="http://{{proj.chat_link}}">{{proj.chat_link}}</a></p>
 {%endif%}
 
-{% if jsonobj['category'] == 'learning'%}
+{% if proj.category == 'learning'%}
     <div id = 'learning'>
-        <p><b>Pace: </b>Learning at a {{jsonobj['pace']}} pace</p>
-        {% if jsonobj['resource']%}
-            <p> <b>Resources: </b>using {{jsonobj['resource']}}</p>
+        <p><b>Pace: </b>Learning at a {{proj_dict['pace']}} pace</p>
+        {% if proj.resource%}
+            <p> <b>Resources: </b>using {{proj.resource}}</p>
         {% endif %}
     </div>
-{% elif jsonobj['category'] == 'software development'%}
+{% elif proj.category == 'software development'%}
     <div id = 'software'>
         Hello
     </div>
 {% endif %}
-
-{% if current_user == jsonobj['creator'] %}
-    <a href="{{ url_for('main.edit_project', project_id=jsonobj.id) }}" method='post' class="btn btn" style="color:white;background-color:turquoise;"> {{_('edit project details')}} </a>
+ 
+{% if current_user == proj.creator %}
+    <a href="{{ url_for('main.edit_project', project_id=proj.id) }}" method='post' class="btn btn" style="color:white;background-color:turquoise;"> {{_('edit project details')}} </a>
         <br><br>
-    <a href="{{ url_for('main.request_project', project_id=jsonobj.id, kind='invite') }}"  method='post' class="btn btn" style="color:white;background-color:purple;"> + {{ _('invite user') }} </a>
+    <a href="{{ url_for('main.request_project', project_id=proj.id, kind='invite') }}"  method='post' class="btn btn" style="color:white;background-color:purple;"> + {{ _('invite user') }} </a>
 
-
-{% elif current_user.can_request(jsonobj) %}
-    <a href="{{ url_for('main.request_project', project_id=jsonobj.id, kind='request') }}"  method='post' class="btn btn" style="color:white;background-color:purple;"> + {{ _('request to join project') }} </a>
-{% elif not current_user.can_request(jsonobj) and not jsonobj.is_member(current_user.id) %}
+{% elif current_user.can_request(proj) %}
+    <a href="{{ url_for('main.request_project', project_id=proj.id, kind='request') }}"  method='post' class="btn btn" style="color:white;background-color:purple;"> + {{ _('request to join project') }} </a>
+{% elif not current_user.can_request(proj) and not proj.is_member(current_user.id) %}
     <a class="btn btn" style="color:white;background-color:rgb(129, 129, 129);cursor:default;"> + {{ _('Request pending') }} </a>
 {% endif %}
 
-#}
 
-<h1 id="name" style="float: left"></h1> 
-<p id="user_info" style="white-space: nowrap; overflow: hidden; color: #949494;"></p> 
+
 
 <script type="text/javascript">
-    $.getJSON("../api/project/{{project_id}}", function(a) {
-        var name = a.name;
-        //var quoteHTML = $('<div class="quote"><div class="quoteBody">'+quote+'</div><div class="quoteAuthor">'+author+'</div>';
-        $('#name').append(name);
-        $('#user_info').append('&nbsp started by {{a.user_id}}, {{moment(a.timestamp).fromNow()}}');
-        
-        });
+    
  </script>           
 {% endblock%}
-

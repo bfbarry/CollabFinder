@@ -476,6 +476,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
         data = {
             'id': self.id,
             'name': self.name,
+            'creator': Project.query.get(self.id).creator.username,
             'category': self.category,
             'timestamp': self.timestamp.isoformat() + 'Z',
             'descr': self.descr,

@@ -73,11 +73,13 @@ x = Project.query.get_or_404(2)
 # task = ScrumTask(project_id=2, user_id=1, text="doitNOW", task_type="Done")
 # db.session.add(task)
 # db.session.commit()
+if 0:
+    q= [i.text for i in x.scrum_board]
+    q = ScrumTask.query.filter_by(project_id=2).all()
+    q = x.scrum_board.filter_by(task_type='Done').all()
+    print([i.text for i in q])
 
-q= [i.text for i in x.scrum_board]
-q = ScrumTask.query.filter_by(project_id=2).all()
-q = x.scrum_board.filter_by(task_type='Done').all()
-print([i.text for i in q])
+print(x.creator.username)
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)

@@ -98,19 +98,18 @@ def explore():
 @bp.route('/project_<project_id>')
 def project(project_id):
     form = EmptyForm()
-    # proj = Project.query.get(project_id) #.first_or_404()
-    # model = proj_categories[proj.category]
-    # proj_sub = model.query.get(project_id) #.first_or_404() #to access all subclass properties
-    # #print(f'\n {model} \n', flush=1)
-    # proj_dict = {} #creating a dictionary for attributes to be accessed easily from HTML side
-    # spec_args = [attr for attr in list(vars(model)) if not attr.startswith("_")][2:]
-    # for a in spec_args:
-    #     exec(f'proj_dict[a] = proj_sub.{a}')
+    proj = Project.query.get(project_id) #.first_or_404()
+    model = proj_categories[proj.category]
+    proj_sub = model.query.get(project_id) #.first_or_404() #to access all subclass properties
+    #print(f'\n {model} \n', flush=1)
+    proj_dict = {} #creating a dictionary for attributes to be accessed easily from HTML side
+    spec_args = [attr for attr in list(vars(model)) if not attr.startswith("_")][2:]
+    for a in spec_args:
+        exec(f'proj_dict[a] = proj_sub.{a}')
 
     
-    # return render_template('project.html', proj= proj, proj_dict = proj_dict, tags = [t.name for t in proj.tags], 
-    #                                     wanted_positions = [p.name for p in proj.wanted_positions], form=form)
-    return render_template('project.html', project_id=project_id, form=form)
+    return render_template('project.html', proj= proj, proj_dict = proj_dict, tags = [t.name for t in proj.tags], 
+                                        wanted_positions = [p.name for p in proj.wanted_positions], form=form)
 
 @bp.route('/edit_project/<project_id>', methods=['GET', 'POST'])
 @login_required
