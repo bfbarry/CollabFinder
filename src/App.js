@@ -10,6 +10,7 @@ import {
 import './App.css';
 import Project  from './components/Project';
 import User  from './components/User';
+import Login from './components/Login';
 
 export default function App() {
   return (
@@ -30,6 +31,9 @@ export default function App() {
                 </li>
                 <li class="nav-item">
                   <Link class="nav-link" to="/create_project">Create Project</Link>
+                </li>
+                <li class="nav-item">
+                  <Link class="nav-link" to="/login">Login</Link>
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -80,6 +84,9 @@ export default function App() {
         </div> */}
         
         <Switch>
+          <Route path='/login'>
+            <Login />
+          </Route>
           <Route path='/project/:id'>
             <Project />
           </Route>

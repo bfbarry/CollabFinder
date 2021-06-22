@@ -5,9 +5,6 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
-from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
-from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, proj_categories, \
-                            Learning #Project subclasses
 from app.api import bp
 
 from flask_wtf import FlaskForm
@@ -35,8 +32,11 @@ def col_char_lim(model):
 
 lens = {**col_char_lim(Project), **col_char_lim(Learning),**col_char_lim(JoinRequest)} #DB character lengths for input field limit
 
- """Forms
- THese should all be """
+"""
+Forms
+These should all be get requests, with associated posts 
+and puts in their respective files
+"""
 
 class SearchForm(FlaskForm):
     q = StringField(_l('Find a project'), validators=[DataRequired()])

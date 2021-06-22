@@ -11,6 +11,8 @@ from flask_babel import Babel, lazy_gettext as _l
 from config import Config
 from elasticsearch import Elasticsearch
 
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
@@ -30,6 +32,7 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app)
+    jwt = JWTManager(app)
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
