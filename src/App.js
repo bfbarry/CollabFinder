@@ -1,81 +1,88 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext }from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link,
-  NavLink,
-  useHistory, useParams
 } from "react-router-dom";
 import './App.css';
-import Project  from './components/Project';
-import User  from './components/User';
-import Login from './components/Login';
+import Project  from './pages/Project';
+import User  from './pages/User';
+import Login from './pages/Login';
+import UserContext from './store/UserContext'
 
 export default function App() {
+  const user = React.useContext(UserContext);
+  console.log('tok' +user.token +'            id'+ user.id);
   return (
 
     <div className="App">
           
       <Router>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <Link class="navbar-brand" to="/">CollabSource</Link>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <Link className="navbar-brand" to="/">CollabSource</Link>
+            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon"></span>
             </button>
           
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                  <Link class="nav-link" activeClassName="active"  to="/explore">Explore</Link>
+            <div className="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul className="navbar-nav mr-auto">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/explore">Explore</Link>
                 </li>
-                <li class="nav-item">
-                  <Link class="nav-link" to="/create_project">Create Project</Link>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/create_project">Create Project</Link>
                 </li>
-                <li class="nav-item">
-                  <Link class="nav-link" to="/login">Login</Link>
+                <li className="nav-item">
+                  {user.token ? (
+                  <button className="nav-link linkButton"
+                  onClick={() => {
+                    user.logOut();
+                  }} >
+                    Logout</button>
+                  ) : (
+                    <Link className="nav-link" to="/login">Login</Link>
+                  )}
                 </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <li className="nav-item dropdown">
+                  <a className="nav-link dropdown-toggle" href="/#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Dropdown
                   </a>
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Something else here</a>
+                  <div className="dropdown-menu"  href="/#" aria-labelledby="navbarDropdown">
+                    <a className="dropdown-item" href="/#">Action</a>
+                    <a className="dropdown-item" href="/#">Another action</a>
+                    <div className="dropdown-divider"></div>
+                    <a className="dropdown-item" href="/#">Something else here</a>
                   </div>
                 </li>
               
                   
               </ul>
-              {/* <ul class="nav navbar-nav navbar-right">
-                {% if g.search_form %}
-                  <form class="navbar-form" method="get"
+              <ul className="nav navbar-nav navbar-right">
+                {/* {% if g.search_form %}
+                  <form className="navbar-form" method="get"
                           action="{{ url_for('main.search') }}">
-                      <div class="form-group">
-                          {{ g.search_form.q(size=20, class='form-control',
+                      <div className="form-group">
+                          {{ g.search_form.q(size=20, className='form-control',
                               placeholder=g.search_form.q.label.text) }}
                       </div>
                   </form>
-                  {% endif %}
-                
-                {% if current_user.is_anonymous %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></li>
-                {% else %}
-                <li>
-                  <a class="nav-link" href="{{ url_for('main.messages') }}"> 
-                    &nbsp; {{ _('Messages') }} &nbsp;
-                    {% set new_notifs = current_user.new_requests() %} 
-                    {% if new_notifs %}
-                      <span class="badge"> {{ new_notifs }} </span>
-                    {% endif %}
-                  </a>
+                  {% endif %} */}
+                <li className="nav-item">
+                {user.id &&
+                  <Link className="nav-link" to={`/user/${user.id}`}> Profile </Link>
+                }
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.user', username=current_user.username) }}">{{ _('Profile') }} &nbsp; </a></li> <!-- fix spacing -->
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a></li>
-                {% endif %}
-              </ul> */}
+                 {/* <li>
+                   <a className="nav-link" href="{{ url_for('main.messages') }}"> 
+                     &nbsp; {{ _('Messages') }} &nbsp;
+                     {% set new_notifs = current_user.new_requests() %} 
+                     {% if new_notifs %}
+                       <span className="badge"> {{ new_notifs }} </span>
+                     {% endif %}
+                   </a>
+                 </li> */}
+              </ul>
             </div>
           </nav>
         {/* <div>
@@ -108,6 +115,7 @@ export default function App() {
 
 
 function Test() {
+  const user = useContext(UserContext);
   return(
-  <p>Testing!</p>)
+  <p>{user.token}!</p>)
 }

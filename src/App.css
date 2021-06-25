@@ -76,3 +76,8 @@ background-attachment: fixed;
 #grad2 {
 background-image: linear-gradient(to bottom, #3292ff, #e4b6ff);
 }
+
+.linkButton {
+  background: none!important;
+  border: none;
+}

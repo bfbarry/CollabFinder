@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    useHistory, useParams
+  useParams
   } from "react-router-dom";
 
 export default function User() {
@@ -22,20 +22,19 @@ export default function User() {
             setError(error);
           }
         )
-    }, [])
+    }, [id])
 
-    if (!isLoaded) {
-        return <p>Loading...</p>
-    }
-    else
-    {
-
+    if (error) {
+      return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+      return <div>Loading...</div>;
+    } else {
     return (
     <div> 
         <table>
             <tr valign="top">
             <td>
-                <img src={user._links && user._links.avatar} />
+                <img src={user._links && user._links.avatar} alt=""/>
             </td>
             <td>
                 <h1>User: {user.username}</h1>

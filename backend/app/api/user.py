@@ -10,7 +10,7 @@ from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, 
 from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.api import bp
-# from app.api.auth import token_auth
+from app.api.auth import token_auth
 
 # @bp.before_app_request
 # def before_request():

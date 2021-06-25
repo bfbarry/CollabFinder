@@ -22,6 +22,7 @@ mail = Mail()
 moment = Moment()
 babel = Babel()
 
+from .models import User
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -33,6 +34,18 @@ def create_app(config_class=Config):
     moment.init_app(app)
     babel.init_app(app)
     jwt = JWTManager(app)
+       
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        """ Register a callback function that takes whatever object is passed in as the
+        identity when creating JWTs and converts it to a JSON serializable format."""
+        return user.id
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return User.query.filter_by(id=identity).one_or_none()
+    
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
