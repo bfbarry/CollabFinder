@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
   Link,
+  Redirect
 } from "react-router-dom";
 import './App.css';
 import Project  from './pages/Project';
@@ -108,9 +109,14 @@ export default function App(props) {
           <Route path='/user/:id'>
             <User />
           </Route>
-          <Route path='/create_project'>
-            <CreateProject />
-          </Route>
+          <Route 
+            path='/create_project'
+            render={() =>
+              !Boolean(user.token) ? (
+                  <Redirect to={{ pathname: "/login" }}/>
+              ) : (<CreateProject/>)
+          }
+            />
           <Route path='/test'>
             <Test />
           </Route>

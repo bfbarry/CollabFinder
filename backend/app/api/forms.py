@@ -68,7 +68,7 @@ def project_form():
     #categories = [option1] + sorted(_l_list(proj_cat_keys)) 
     skill_lvls = _l_list(('any','beginner','intermediate','advanced'))
     proj_settings =  _l_list(("casual", "serious/professional"))
-    geo_options = _l_list(('College/university','High school', 'City (no school)'))
+    geo_options = _l_list(('college/university','high school', 'city (no school)'))
     learning_categories = [option1] + _l_list(sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics']))
     pace_types = [option1] + _l_list(("custom (synchronized)","individual (asynchronized) ", "quarter","semester"))
     langs = [option1] + _l_list(sorted(['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby','Scala']))

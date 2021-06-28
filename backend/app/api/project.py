@@ -8,7 +8,7 @@ from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, P
                             Learning #Project subclasses
 from app.api import bp
 import json
-# from app.api.auth import token_auth
+from app.api.auth import token_auth
 
 # @bp.before_app_request
 # def before_request():
@@ -48,18 +48,18 @@ def get_projects(q=None):
     return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
-# @token_auth.login_required
+@token_auth.login_required
 def create_project():
     input_data = request.get_json()
-
+    user_id = token_auth.current_user().id
+    user = User.query.get_or_404(user_id)
+    input_data['creator'] = user
     category = input_data.get("category")
     project = proj_categories[category]()
     project.from_dict(input_data)
     db.session.add(project)
     db.session.commit() 
 
-    user_id = input_data.get("user_id")
-    user = User.query.get_or_404(user_id)
     membership = ProjMember(user_id=user_id, project_id = project.id, rank_id=1,position_id=None)
     user.member_of.append(membership)
     db.session.commit()

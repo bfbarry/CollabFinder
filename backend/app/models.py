@@ -499,7 +499,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
         orig_tags = [t.name for t in self.tags]
         orig_wpos = [p.name for p in self.wanted_positions]
         new_tags, new_wpos = [], [] # holds the  model instances
-        for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions']:
+        for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creator']:
             if field in data:
                 if field == 'tags':
                     for t in orig_tags: # removing tags
