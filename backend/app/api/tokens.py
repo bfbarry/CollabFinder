@@ -11,7 +11,8 @@ from app.models import User
 def get_token():
     token = basic_auth.current_user().get_token()
     db.session.commit()
-    return jsonify({'token': token, 'user_id':basic_auth.current_user().id})
+    user_data = basic_auth.current_user().id
+    return jsonify({'auth_token': token, 'user':user_data})
 
 @bp.route('/tokens', methods=['DELETE'])
 @token_auth.login_required

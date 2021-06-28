@@ -1,4 +1,4 @@
-import React, { useContext }from 'react';
+import React, { useHistory }from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -8,12 +8,20 @@ import {
 import './App.css';
 import Project  from './pages/Project';
 import User  from './pages/User';
-import Login from './pages/Login';
-import UserContext from './store/UserContext'
+import Login from './forms/Login';
+import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
 
-export default function App() {
-  const user = React.useContext(UserContext);
-  console.log('tok' +user.token +'            id'+ user.id);
+export default function App(props) {
+  const dispatch = useAuthDispatch();
+  const user = useAuthState();
+  // console.log(user);
+
+  const handleLogout = () => {
+
+    logout(dispatch)
+    
+  }
+
   return (
 
     <div className="App">
@@ -33,17 +41,7 @@ export default function App() {
                 <li className="nav-item">
                   <Link className="nav-link" to="/create_project">Create Project</Link>
                 </li>
-                <li className="nav-item">
-                  {user.token ? (
-                  <button className="nav-link linkButton"
-                  onClick={() => {
-                    user.logOut();
-                  }} >
-                    Logout</button>
-                  ) : (
-                    <Link className="nav-link" to="/login">Login</Link>
-                  )}
-                </li>
+                
                 <li className="nav-item dropdown">
                   <a className="nav-link dropdown-toggle" href="/#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Dropdown
@@ -69,9 +67,18 @@ export default function App() {
                   </form>
                   {% endif %} */}
                 <li className="nav-item">
-                {user.id &&
-                  <Link className="nav-link" to={`/user/${user.id}`}> Profile </Link>
+                {user.user_id !== "" &&
+                  <Link className="nav-link" to={`/user/${user.user_id}`}> Profile </Link>
                 }
+                </li>
+                <li className="nav-item">
+                  {user.user_id !== "" ? (
+                  <button className="nav-link linkButton"
+                  onClick={handleLogout} >
+                    Logout</button>
+                  ) : (
+                    <Link className="nav-link" to="/login">Login</Link>
+                  )}
                 </li>
                  {/* <li>
                    <a className="nav-link" href="{{ url_for('main.messages') }}"> 
@@ -115,7 +122,7 @@ export default function App() {
 
 
 function Test() {
-  const user = useContext(UserContext);
+  const token = useAuthState();
   return(
-  <p>{user.token}!</p>)
+  <p>{token}!</p>)
 }

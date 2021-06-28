@@ -1,15 +1,9 @@
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
                     current_app, jsonify, abort
-from flask_login import current_user, login_required
-from flask_babel import _, get_locale
-from guess_language import guess_language
-from app import db
+from flask_babel import _
 from app.api import bp
 
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField
-from wtforms.validators import ValidationError, DataRequired, Length
 from flask_babel import _, lazy_gettext as _l
 from app.models import User, Project, JoinRequest, proj_cat_keys,\
                             Learning #Project subclasses
@@ -38,122 +32,89 @@ These should all be get requests, with associated posts
 and puts in their respective files
 """
 
-class SearchForm(FlaskForm):
-    q = StringField(_l('Find a project'), validators=[DataRequired()])
+# class SearchForm(FlaskForm):
+#     q = StringField(_l('Find a project'), validators=[DataRequired()])
 
-    def __init__(self, *args, **kwargs):
-        if 'formdata' not in kwargs:
-            kwargs['formdata'] = request.args # for the GET request
-        if 'csrf_enabled' not in kwargs:
-            kwargs['csrf_enabled'] = False
-        super(SearchForm, self).__init__(*args, **kwargs)
-
-class EditProfileForm(FlaskForm):
-    username = StringField(_l('Username'), validators=[DataRequired()])
-    about_me = TextAreaField(_l('About me'),
-                             validators=[Length(min=0, max=140)])
-    submit = SubmitField(_l('Save'))
-
-    def __init__(self, original_username, *args, **kwargs):
-        super(EditProfileForm, self).__init__(*args, **kwargs)
-        self.original_username = original_username
-
-    def validate_username(self, username):
-        if username.data != self.original_username:
-            user = User.query.filter_by(username=self.username.data).first()
-            if user is not None:
-                raise ValidationError(_('Please use a different username.'))
+#     def __init__(self, *args, **kwargs):
+#         if 'formdata' not in kwargs:
+#             kwargs['formdata'] = request.args # for the GET request
+#         if 'csrf_enabled' not in kwargs:
+#             kwargs['csrf_enabled'] = False
+#         super(SearchForm, self).__init__(*args, **kwargs)
 
 
-class EmptyForm(FlaskForm):
-    submit = SubmitField('Submit')
+# class EmptyForm(FlaskForm):
+#     submit = SubmitField('Submit')
 
-class RequestForm(FlaskForm):
-    ''' empty labels depend on "request" or "invitation" in JS
+# class RequestForm(FlaskForm):
+#     ''' empty labels depend on "request" or "invitation" in JS
     
-    could also use an __init__ to handle kind'''
-    lens=lens #why is this necessary?
-    u_inv = TextAreaField(_('Name of user to invite: '))
-    msg = TextAreaField(' ', validators=[
-        DataRequired(), Length(min=1, max=lens['msg'])],render_kw={'maxlength': lens['msg']})
-    submit = SubmitField(' ')
+#     could also use an __init__ to handle kind'''
+#     lens=lens #why is this necessary?
+#     u_inv = TextAreaField(_('Name of user to invite: '))
+#     msg = TextAreaField(' ', validators=[
+#         DataRequired(), Length(min=1, max=lens['msg'])],render_kw={'maxlength': lens['msg']})
+#     submit = SubmitField(' ')
 
 with open('./app/data/colleges.json','r') as f:
     colleges = json.load(f)
     colleges = [i for i in colleges if 'college' in i.lower() or 'university' in i.lower()]
-class ProjectForm(FlaskForm):
-    """Create a new project, on /index"""
-    lens = lens
+
+@bp.route('/create_project', methods=['GET'])
+def project_form():
+    """Create a new project"""
     option1 = _l('Select one')
-
-    #### Project form fields ####
-    name = TextAreaField(_l('Give your project a name'), validators=[
-        DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
-    
-    categories = [option1] + _l_list(['learning','software development']) # test version, see below
+    categories = [option1] + _l_list(['learning','software development'])# test version, see below
     #categories = [option1] + sorted(_l_list(proj_cat_keys)) 
-    category = SelectField(_l('Category'), choices=categories, default=1)
-    
-    descr = TextAreaField(_l('Describe your project'), validators=[ 
-        DataRequired(), Length(min=1, max=140)],render_kw={'maxlength': lens['descr']}) #make 1030
-    
     skill_lvls = _l_list(('any','beginner','intermediate','advanced'))
-    skill_level = RadioField(_l('Skill Level'), choices=skill_lvls)
-    
     proj_settings =  _l_list(("casual", "serious/professional"))
-    setting = RadioField(_l('Setting'), choices=proj_settings)
-
-    ### Geo ###
     geo_options = _l_list(('College/university','High school', 'City (no school)'))
-    geo_type = RadioField(_l('Is this project constrained to a city or school?'), choices=geo_options)
-    
-    #colleges= {ix:c for ix,c in enumerate(colleges)} # to accomodate select2
-    #college=SelectField(_l('Select college or university'), choices=[("", "")] + [(uuid, name) for uuid, name in colleges.items()], default=1)
-    colleges= colleges
-    college=StringField(_l('Enter college or university (must be currently enrolled or recent alum)'))
-
-    ### Learning ###
     learning_categories = [option1] + _l_list(sorted(['math', 'computer science', 'foreign language', 'linguistics', 'data science & machine learning', 'statistics', 'physics']))
-    learning_category = SelectField(_l('Learning category'), choices=learning_categories, default=1)
-    
     pace_types = [option1] + _l_list(("custom (synchronized)","individual (asynchronized) ", "quarter","semester"))
-    pace = SelectField(_l('Learning pace'), choices=pace_types, default=1)
-
-    resource = TextAreaField(_l('Main resource (can be a textbook, website, playlist, etc.)'), validators=[
-        Length(min=1, max=60)],render_kw={'maxlength': lens['resource']})
-
-    ### Software Development ###
     langs = [option1] + _l_list(sorted(['Python', 'Java', 'javascript', 'HTML', 'C', 'C++','Ruby','Scala']))
-    lang = SelectField(_l('Language'), choices=['None'] + langs, default=1) #eventually would want to type it and it autofills since there are so many
+    #### Project form fields ####
     
-    submit = SubmitField(_l('Create Project'))
+    payload = {
+        'name' : {'label':_l('Give your project a name'), 'maxlength': lens['name']}, 
+        'category' : {'label' : _l('Category'), 'options': categories}, # SELECT FIELD
+        'descr' : {'label':_l('Describe your project'), 'maxlength': lens['descr']}, #make 1030
+        'skill_level' : {'label':_l('Skill Level'),   'options':skill_lvls}, # RADIO FIELD
+        'setting' : {'label':_l('Setting'),   'options':proj_settings}, # RADIO FIELD
+        ### GEO ###
+        'geo_type' : {'label':_l('Is this project constrained to a city or school?'),   'options':geo_options}, #RADIO FIELD
+        'college' :{'label':_l('Enter college or university (must be currently enrolled or recent alum)'), 'options':colleges}, # CUSTOM STRING FIELD 
+        ### Learning ###
+        'learning_category' : {'label':_l('Learning category'),   'options':learning_categories}, # SELECT FIELD
+        'pace' : {'label': _l('Learning pace'),   'options':pace_types}, # SELECT FIELD
+        'resource' : {'label': _l('Main resource (can be a textbook, website, playlist, etc.)'), 'maxlength': lens['resource']},
+        ### Software Development ###
+        'lang' : {'label':_l('Language(s)'),   'options':['None'] + langs} #eventually would want to type it and it autofills since there are so many
 
-    def validate_name(self, name):
-        project = Project.query.filter_by(name=name.data).first()
-        if project is not None:
-            raise ValidationError(_('This particular project name is already taken.'))
 
-class EditProjectForm(FlaskForm):
-    lens = lens
-    name = TextAreaField(_l('Project name:'), validators=[
-        DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
-    descr = TextAreaField(_l('Description: '),validators=[
-        DataRequired(), Length(min=0, max=140)])
-    chat_link = TextAreaField(_l('Link to messaging platform: '),validators=[Length(min=0, max=512)]) # Discord, slack etc.
-    tags = TextAreaField(_l('Tags: '),validators=[Length(min=0, max=300)])
-    wanted_positions = TextAreaField(_l('Wanted positions: '),validators=[Length(min=0, max=300)])
-    submit = SubmitField(_l('Save'))
+    }
+    return payload
 
-    def __init__(self, original_name, *args, **kwargs):
-        super(EditProjectForm, self).__init__(*args, **kwargs)
-        self.original_name = original_name
+# class EditProjectForm(FlaskForm):
+#     lens = lens
+#     name = TextAreaField(_l('Project name:'), validators=[
+#         DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
+#     descr = TextAreaField(_l('Description: '),validators=[
+#         DataRequired(), Length(min=0, max=140)])
+#     chat_link = TextAreaField(_l('Link to messaging platform: '),validators=[Length(min=0, max=512)]) # Discord, slack etc.
+#     tags = TextAreaField(_l('Tags: '),validators=[Length(min=0, max=300)])
+#     wanted_positions = TextAreaField(_l('Wanted positions: '),validators=[Length(min=0, max=300)])
+#     submit = SubmitField(_l('Save'))
 
-    def validate_name(self, name):
-        if name.data != self.original_name:
-            project = Project.query.filter_by(name=self.name.data).first()
-            if project is not None:
-                raise ValidationError(_('This particular project name is already taken.'))
+#     def __init__(self, original_name, *args, **kwargs):
+#         super(EditProjectForm, self).__init__(*args, **kwargs)
+#         self.original_name = original_name
 
-class TestForm(FlaskForm):
-    rad = RadioField('Select an option:', choices=['a','b','c'])
+#     def validate_name(self, name):
+#         if name.data != self.original_name:
+#             project = Project.query.filter_by(name=self.name.data).first()
+#             if project is not None:
+#                 raise ValidationError(_('This particular project name is already taken.'))
+
+# class TestForm(FlaskForm):
+#     rad = RadioField('Select an option:',   'options'=['a','b','c'])
 

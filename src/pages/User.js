@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import {
   useParams
   } from "react-router-dom";
+import { useAuthState } from '../store/UserContext'
 
 export default function User() {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [user, setUser] = useState({});
+    const currentUser = useAuthState();
+    
     const {id} = useParams();
   
     useEffect(() => {
@@ -46,8 +49,10 @@ export default function User() {
                 }
 
                 <p>{user.project_count} projects </p>
-                
-                {/* edit profile */}
+                {currentUser.user_id == id && /* eslint eqeqeq: 0 */
+
+                  <button> Edit profile </button>
+                }
                 
                 {/* follow/unfollow buttons */}
                 

@@ -1,7 +1,5 @@
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, g, \
-                    current_app, jsonify, abort
-from flask_login import current_user, login_required
+from flask import request, g, jsonify
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
@@ -19,6 +17,20 @@ import json
 #         db.session.commit()
 #         g.search_form = SearchForm() # g variable is specific to each request and each client
 #     g.locale = str(get_locale())
+
+### HELPER FUNC
+def validate_name(self, name, case='new proj'):
+    if name.data != self.original_name or case == 'new proj':
+        project = Project.query.filter_by(name=self.name.data).first()
+        if project is not None:
+            raise ValidationError(_('This particular project name is already taken.'))
+
+def validate_username(self, username):
+    if username.data != self.original_username:
+        user = User.query.filter_by(username=self.username.data).first()
+        if user is not None:
+            raise ValidationError(_('Please use a different username.'))
+###
 
 @bp.route('/project/<int:id>', methods=['GET'])
 def get_project(id):
