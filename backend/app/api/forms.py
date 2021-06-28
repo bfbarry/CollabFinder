@@ -60,7 +60,7 @@ with open('./app/data/colleges.json','r') as f:
     colleges = json.load(f)
     colleges = [i for i in colleges if 'college' in i.lower() or 'university' in i.lower()]
 
-@bp.route('/create_project', methods=['GET'])
+@bp.route('/forms/create_project', methods=['GET'])
 def project_form():
     """Create a new project"""
     option1 = _l('Select one')
@@ -75,24 +75,24 @@ def project_form():
     #### Project form fields ####
     
     payload = {
-        'name' : {'label':_l('Give your project a name'), 'maxlength': lens['name']}, 
-        'category' : {'label' : _l('Category'), 'options': categories}, # SELECT FIELD
-        'descr' : {'label':_l('Describe your project'), 'maxlength': lens['descr']}, #make 1030
-        'skill_level' : {'label':_l('Skill Level'),   'options':skill_lvls}, # RADIO FIELD
-        'setting' : {'label':_l('Setting'),   'options':proj_settings}, # RADIO FIELD
+        'name' : {'label':_l('Give your project a name: '), 'maxlength': lens['name']}, 
+        'category' : {'label' : _l('Category: '), 'options': categories}, # SELECT FIELD
+        'descr' : {'label':_l('Describe your project: '), 'maxlength': lens['descr']}, #make 1030
+        'skill_level' : {'label':_l('Skill Level: '),   'options':skill_lvls}, # RADIO FIELD
+        'setting' : {'label':_l('Setting: '),   'options':proj_settings}, # RADIO FIELD
         ### GEO ###
         'geo_type' : {'label':_l('Is this project constrained to a city or school?'),   'options':geo_options}, #RADIO FIELD
-        'college' :{'label':_l('Enter college or university (must be currently enrolled or recent alum)'), 'options':colleges}, # CUSTOM STRING FIELD 
+        'college' :{'label':_l('Enter college or university (must be currently enrolled or recent alum): '), 'options':colleges}, # CUSTOM STRING FIELD 
         ### Learning ###
-        'learning_category' : {'label':_l('Learning category'),   'options':learning_categories}, # SELECT FIELD
-        'pace' : {'label': _l('Learning pace'),   'options':pace_types}, # SELECT FIELD
-        'resource' : {'label': _l('Main resource (can be a textbook, website, playlist, etc.)'), 'maxlength': lens['resource']},
+        'learning_category' : {'label':_l('Learning category: '),   'options':learning_categories}, # SELECT FIELD
+        'pace' : {'label': _l('Learning pace: '),   'options':pace_types}, # SELECT FIELD
+        'resource' : {'label': _l('Main resource (can be a textbook, website, playlist, etc.): '), 'maxlength': lens['resource']},
         ### Software Development ###
-        'lang' : {'label':_l('Language(s)'),   'options':['None'] + langs} #eventually would want to type it and it autofills since there are so many
+        'lang' : {'label':_l('Language(s): '),   'options':['None'] + langs} #eventually would want to type it and it autofills since there are so many
 
 
     }
-    return payload
+    return jsonify(payload)
 
 # class EditProjectForm(FlaskForm):
 #     lens = lens

@@ -2,7 +2,7 @@ from flask import Blueprint
 
 bp = Blueprint('api', __name__)
 
-from app.api import user, project, tokens
+from app.api import user, project, tokens, forms
 # jwt = JWTManager(bp)
 # from ..models import ProjPerm, SitePerm
 

@@ -9,6 +9,7 @@ import './App.css';
 import Project  from './pages/Project';
 import User  from './pages/User';
 import Login from './forms/Login';
+import CreateProject from './forms/CreateProject';
 import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
 
 export default function App(props) {
@@ -106,6 +107,9 @@ export default function App(props) {
           </Route>
           <Route path='/user/:id'>
             <User />
+          </Route>
+          <Route path='/create_project'>
+            <CreateProject />
           </Route>
           <Route path='/test'>
             <Test />
