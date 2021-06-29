@@ -60,14 +60,14 @@ def create_project():
     db.session.add(project)
     db.session.commit() 
 
-    membership = ProjMember(user_id=user_id, project_id = project.id, rank_id=1,position_id=None)
+    membership = ProjMember(user_id=user_id, project_id = project.id, rank_id=3,position_id=None)
     user.member_of.append(membership)
     db.session.commit()
 
     return jsonify(project.to_dict())
 
-@bp.route('/project/<int:id>/update', methods=['POST'])
-# @token_auth.login_required
+@bp.route('/project/<int:id>/update', methods=['PUT'])
+@token_auth.login_required
 def update_project(id):
     # if token_auth.current_user().id not in project.members: 
     #         abort(403)
@@ -77,7 +77,7 @@ def update_project(id):
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
     # TODO Check if user has perms
     # TODO add from_dict() for specific sub classes
-    proj.from_dict_main(input_data)
+    proj.from_dict(input_data)
     
     for tag in input_data['tags']:
         tag = tag.lower()
@@ -93,7 +93,7 @@ def update_project(id):
 
     db.session.commit()
 
-    return jsonify(proj.to_dict_main()) 
+    return jsonify(proj.to_dict()) 
 
 @bp.route('/project/<int:id>/scrum/', methods=['GET'])
 def get_scrum(id):

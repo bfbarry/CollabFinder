@@ -69,7 +69,7 @@ if 0:
     r.user = u
     u.send_request(proj, r)
 
-x = Project.query.get_or_404(2)
+x = Project.query.get_or_404(23)
 # task = ScrumTask(project_id=2, user_id=1, text="doitNOW", task_type="Done")
 # db.session.add(task)
 # db.session.commit()
@@ -79,7 +79,8 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-print(x.creator.username)
+print(list(x.members)[0].position)
+
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)

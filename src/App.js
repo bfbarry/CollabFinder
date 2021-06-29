@@ -11,6 +11,7 @@ import Project  from './pages/Project';
 import User  from './pages/User';
 import Login from './forms/Login';
 import CreateProject from './forms/CreateProject';
+import EditProject from './forms/EditProject';
 import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
 
 export default function App(props) {
@@ -103,7 +104,7 @@ export default function App(props) {
           <Route path='/login'>
             <Login />
           </Route>
-          <Route path='/project/:id'>
+          <Route exact path='/project/:id'>
             <Project />
           </Route>
           <Route path='/user/:id'>
@@ -115,6 +116,14 @@ export default function App(props) {
               !Boolean(user.token) ? (
                   <Redirect to={{ pathname: "/login" }}/>
               ) : (<CreateProject/>)
+          }
+            />
+          <Route 
+            exact path='/project/:id/update'
+            render={() =>
+              !Boolean(user.token) ? (
+                  <Redirect to={{ pathname: "/login" }}/>
+              ) : (<EditProject/>)
           }
             />
           <Route path='/test'>

@@ -4,8 +4,10 @@ import {
   useParams
   } from "react-router-dom";
 import moment from 'moment';
+import { useAuthState } from '../store/UserContext';
 
 export default function Project() {
+  const user = useAuthState();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [proj, setProj] = useState([]);
@@ -16,8 +18,8 @@ export default function Project() {
     .then(res => res.json())
     .then(
       (data) => {
-      setIsLoaded(true);
-      setProj(data);
+        setIsLoaded(true);
+        setProj(data);
       },
       (error) => {
       setIsLoaded(true);
@@ -71,7 +73,7 @@ export default function Project() {
     }  
     {/*later check if member not creator */}
     {proj.category === 'learning' &&
-      <div id = 'learning'>
+      <div>
         <p><b>Pace: </b>Learning at a {proj.pace} pace</p>
         {proj.resource &&
           <p> <b>Resources: </b>using {proj.resource}</p>
@@ -79,21 +81,37 @@ export default function Project() {
       </div>
     }
     { proj.category === 'software development' &&
-      <div id = 'software'>
+      <div>
         Hello
       </div>
     }
-    
-    {/* {% if current_user == proj.creator %}
-      <a href="{{ url_for('main.edit_project', project_id=proj.id) }}" method='post' className="btn btn" style="color:white;background-color:turquoise;"> {{_('edit project details')}} </a>
-        <br><br>
-      <a href="{{ url_for('main.request_project', project_id=proj.id, kind='invite') }}"  method='post' className="btn btn" style="color:white;background-color:purple;"> + {{ _('invite user') }} </a>
+    {/* ADMIN PRIV */}
+    {proj.members && Object.keys(proj.members).includes(String(user.user_id)) &&
+      <div>
+        <Link to={`/project/${id}/update`}
+          className="btn btn"
+          style={{color:'white',backgroundColor:'turquoise'}}> edit project details </Link>
+          <br/><br/>
+        <a href="/project/invite"  
+        className="btn btn" 
+        style={{color:'white',backgroundColor:'purple'}}> 
+        + invite user </a>
+      </div>
+    }
 
-    {% elif current_user.can_request(proj) %}
-      <a href="{{ url_for('main.request_project', project_id=proj.id, kind='request') }}"  method='post' className="btn btn" style="color:white;background-color:purple;"> + {{ _('request to join project') }} </a>
-    {% elif not current_user.can_request(proj) and not proj.is_member(current_user.id) %}
-      <a className="btn btn" style="color:white;background-color:rgb(129, 129, 129);cursor:default;"> + {{ _('Request pending') }} </a>
-    {% endif %} */}
+    {proj.members && !Object.keys(proj.members).includes(String(user.user_id)) && !Object.keys(proj.requests).includes(String(user.user_id)) &&
+    
+      <a href="/project/request/:id"  
+        className="btn btn" 
+        style={{color:'white',backgroundColor:'purple'}}> request to join project </a>
+    }
+      
+    {proj.requests && Object.keys(proj.requests).includes(String(user.user_id)) &&
+
+      <a className="btn btn" 
+      style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</a>
+    }
+
     </div>
     
   ) 

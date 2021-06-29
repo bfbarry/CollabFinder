@@ -1,5 +1,4 @@
 //keep all async login related functions in one place
-import {useHistory} from 'react-router-dom';
 const ROOT_URL = 'http://localhost:3000/api'
 
 export async function loginUser(dispatch, loginPayload) {
