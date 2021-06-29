@@ -79,7 +79,10 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-print(list(x.members)[0].position)
+ids=[p.project_id for p in ProjMember.query.filter_by(user_id=1)]
+print(ids)
+q = Project.query.filter(Project.id.in_( ids)).all()
+print(list(q))
 
 # x.scrum_board.append()
 # print(x.to_dict())

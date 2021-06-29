@@ -3,11 +3,13 @@ import {
   useParams
   } from "react-router-dom";
 import { useAuthState } from '../store/UserContext'
+import ProjectPvw from '../components/ProjectPvw'
 
 export default function User() {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [user, setUser] = useState({});
+    const [projs, setProjs] = useState({});
     const currentUser = useAuthState();
     
     const {id} = useParams();
@@ -26,6 +28,21 @@ export default function User() {
           }
         )
     }, [id])
+
+    useEffect(() => {
+      fetch(`/api/projects/${id}`)
+       .then(res => res.json())
+       .then(
+         (data) => {
+           setIsLoaded(true);
+           setProjs(data);
+         },
+         (error) => {
+           setIsLoaded(true);
+           setError(error);
+         }
+       )
+   }, [id])
 
     if (error) {
       return <div>Error: {error.message}</div>;
@@ -60,6 +77,12 @@ export default function User() {
             </tr>
         </table>
         <hr/>
+        <h2> Projects </h2>
+        <div>
+          {projs.items && projs.items.map(p => (
+            <ProjectPvw key={p.id} id={p.id} name={p.name} descr={p.descr} timestamp={p.timestamp}/>
+          ))}
+        </div>
     </div>
     
     )

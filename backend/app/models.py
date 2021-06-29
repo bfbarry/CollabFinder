@@ -476,13 +476,13 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
         data = {
             'id': self.id,
             'name': self.name,
-            'creator': Project.query.get(self.id).creator.username,
+            # 'creator': Project.query.get(self.id).creator.username,
             'category': self.category,
             'timestamp': self.timestamp.isoformat() + 'Z',
             'descr': self.descr,
             'skill_level': self.skill_level,
             'setting': self.setting,
-            'members': {u.user_id : {'rank':u.rank.name, 'position':u.position.name if u.position is not None else None} for u in self.members},
+            'members': {u.user_id : {'rank':u.rank.name, 'position':u.position.name if u.position is not None else None} for u in self.members}, #Make name None default and remove the None check once 
             'requests': {r.user_id: {'kind':r.kind, 'msg':r.msg, 'timestamp':r.timestamp.isoformat() + 'Z'} if len(list(self.user_requests)) > 0 else None for r in self.user_requests},
             'tags' : [t.name for t in self.tags], 
             'wanted_positions' : [p.name for p in self.wanted_positions],
@@ -519,7 +519,6 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
                         new_wpos.append(Position.query.filter_by(name=pos).first())
                     self.add_tags(new_wpos, kind='w_pos')
                 else:
-                    print(f' \n 500 ERROR \n : {field} | {data[field]}')
                     setattr(self, field, data[field])
     
     def scrum_to_dict(self):

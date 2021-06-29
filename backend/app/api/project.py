@@ -36,15 +36,22 @@ def validate_username(self, username):
 def get_project(id):
     return jsonify(Project.query.get_or_404(id).to_dict())
 
-@bp.route('/projects', methods=['GET'])
-def get_projects(q=None):
+@bp.route('/projects/<_q>', methods=['GET'])
+def get_projects(_q):
     """If invoked within User.to_dict(), passes in q as all a user's projects"""
-    if q is None:
+    if _q == 'all':
         q=Project.query
+    else:
+        ids=[p.project_id for p in ProjMember.query.filter_by(user_id=_q)]
+        q = Project.query.filter(Project.id.in_(ids))#.all()
+
     page = request.args.get('page',1,type=int)
     
     per_page = min(request.args.get('per_page', 10, type=int), 100)
-    data = Project.to_collection_dict(q, page, per_page, 'api.get_projects')
+    if _q == 'all': 
+        data = Project.to_collection_dict(q, page, per_page, 'api.get_projects', _q='all')
+    else:
+        data = Project.to_collection_dict(q, page, per_page, 'api.get_projects', _q=_q)
     return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
@@ -69,9 +76,10 @@ def create_project():
 @bp.route('/project/<int:id>/update', methods=['PUT'])
 @token_auth.login_required
 def update_project(id):
-    # if token_auth.current_user().id not in project.members: 
-    #         abort(403)
+    
     proj = Project.query.get_or_404(id)
+    if {u.user_id:u.rank.name for u in proj.members}[token_auth.current_user().id] != 'Admin': # TODO Haven't tried this yet. Needs better way
+        return 403
     input_data = request.get_json()
     
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]

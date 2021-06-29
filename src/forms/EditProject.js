@@ -5,6 +5,7 @@ import {Autocomplete} from '@material-ui/lab';
 import {TextField} from '@material-ui/core';
 import '../App.css';
 
+//need to check if current user is authenticated
 export default function CreateProject(props) {
   const user = useAuthState();
   const {id} = useParams();
@@ -13,7 +14,7 @@ export default function CreateProject(props) {
   const [error, setError] = useState(null);
   const [output, setOutput] = useState({});
   const history = useHistory();
-  const unwanted_attr = ['creator'];
+  const unwanted_attr = ['creator']; //because the JSON attr is a string and flask expects an object. Also just don't need this in payload. Need better way of fetching?
 
   useEffect(() => {
     fetch(`/api/project/${id}`)
@@ -22,10 +23,8 @@ export default function CreateProject(props) {
       (data) => {
       setIsLoaded(true);
       setOutput(data);
-      if (data.members[user.user_id].rank !== "Admin") {
+      if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
         history.replace('/')
-      
-      
       }
       },
       (error) => {
