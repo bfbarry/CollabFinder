@@ -84,21 +84,23 @@ def update_project(id):
     
     tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
     # TODO Check if user has perms
-    # TODO add from_dict() for specific sub classes
     proj.from_dict(input_data)
-    
+    tagms, posms = [], [] #models to add to Project
+    print('\n\n', input_data['tags'])
     for tag in input_data['tags']:
         tag = tag.lower()
         if tag not in tag_names:
             db.session.add(Tag(name=tag))
             db.session.commit() #redundant?
-        
+        tagms.append(Tag.query.filter_by(name=tag).first())
     for pos in input_data['wanted_positions']:
         pos = pos.lower()
         if pos not in pos_names:
             db.session.add(Position(name=pos))
             db.session.commit()
-
+        posms.append(Position.query.filter_by(name=pos).first())
+    proj.add_tags(tagms)
+    proj.add_tags(posms,kind='w_pos')
     db.session.commit()
 
     return jsonify(proj.to_dict()) 

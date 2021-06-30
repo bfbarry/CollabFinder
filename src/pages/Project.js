@@ -108,8 +108,8 @@ export default function Project() {
       
     {proj.requests && Object.keys(proj.requests).includes(String(user.user_id)) &&
 
-      <a className="btn btn" 
-      style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</a>
+      <button className="btn btn" 
+      style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</button>
     }
 
     </div>

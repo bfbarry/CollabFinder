@@ -22,9 +22,12 @@ export default function CreateProject(props) {
     .then(
       (data) => {
       setIsLoaded(true);
+      data.tags.map(t => t + ',');
       setOutput(data);
       if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
         history.replace('/')
+      console.log(data);
+      
       }
       },
       (error) => {
@@ -48,20 +51,21 @@ export default function CreateProject(props) {
       }
     )
     }, [])
-  
-  function handleChange(e) {
+
+    function handleChange(e) {
     const {name, value} = e.target;
     setOutput(prevOutput => ({
       ...prevOutput,
       [name]: value
     }))
-    // console.log(output)
   }
   
   async function submitHandler(e) {
     // post request
-    e.preventDefault()
-    unwanted_attr.map(a => delete output[a])
+    e.preventDefault();
+    unwanted_attr.map(a => delete output[a]);
+    let tag_arr = output.tags.split(',').map(el => el.trim());
+    output.tags = tag_arr // BAD... but setOutput is literally not setting state?
     const opts = {
       method: 'PUT',
       headers: new Headers({
@@ -76,13 +80,14 @@ export default function CreateProject(props) {
         else return (<p>error</p>)
       })
       .then(data => {
+        
         history.replace(`/project/${data.id}`)
         })
       .catch(error => {
         console.error("error", error)
       } )
   }
-
+  // console.log(output)
   return ( //useref here?
     <div > 
     {/* onSubmit={submitHandler}  */}
@@ -103,17 +108,22 @@ export default function CreateProject(props) {
       </div>
       <div >
         <label > {form.skill_level && form.skill_level.label} </label>
-        {form.skill_level && form.skill_level.options.map(lvl => (
-
-            <label htmlFor='skill_level' key={lvl + 'label'} > 
+        <div className="btn-group-toggle" data-toggle="buttons">
+          {form.skill_level && form.skill_level.options.map(lvl => (
+          
+            <label className="btn btn-primary" htmlFor='skill_level' key={lvl + 'label'} > 
               <input type='radio' 
                     key={lvl}
+                    checked={output.skill_level === lvl}
+                    style={{cursor:'pointer'}}
                     name='skill_level'
                     value={lvl || ''}
                     onChange={handleChange}/>
                  {lvl} &nbsp;
               </label>
-        ))}
+              ))}
+          </div>
+        
       </div>
       <div >
         <label > {form.setting && form.setting.label} </label>
@@ -122,6 +132,7 @@ export default function CreateProject(props) {
             <label htmlFor='setting' key={stg + 'label'} > 
               <input type='radio' 
                     key={stg}
+                    checked={output.setting === stg}
                     name='setting'
                     value={stg || ''}
                     onChange={handleChange}/>
@@ -136,6 +147,7 @@ export default function CreateProject(props) {
             <label htmlFor='geo_type' key={gt + 'label'} > 
               <input type='radio' 
                     key={gt}
+                    checked={output.geo_type === gt}
                     name='geo_type'
                     value={gt || ''}
                     onChange={handleChange}/>
@@ -192,6 +204,13 @@ export default function CreateProject(props) {
 
         </div>
       }
+      <div>
+        <label htmlFor='tags'> Tags: </label> 
+        <input type='text' 
+              name='tags'
+              value={output.tags || ''}
+              onChange={handleChange}/> 
+      </div>
     <button className='btn-lg btn-success' onClick={submitHandler}>update project details</button>
     </div>
   )

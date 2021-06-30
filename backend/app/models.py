@@ -506,7 +506,8 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
                     for t in orig_tags: # removing tags
                         if t not in data['tags']:
                             self.rm_tag(Tag.query.filter_by(name=t).first())
-                    for tag in data['tags']:
+                    for tag in data['tags']: #this block is useless?
+                        if tag not in orig_tags: continue
                         tag = tag.lower()
                         new_tags.append(Tag.query.filter_by(name=tag).first()) #there should only be one
                     self.add_tags(new_tags)
