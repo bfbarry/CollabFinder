@@ -105,26 +105,27 @@ def update_project(id):
 
     return jsonify(proj.to_dict()) 
 
-@bp.route('/project/<int:id>/scrum/', methods=['GET'])
+@bp.route('/project/<int:id>/scrum', methods=['GET'])
 def get_scrum(id):
     return jsonify(Project.query.get_or_404(id).scrum_to_dict())
 
-@bp.route('/project/<int:id>/update_scrum/', methods=['GET'])
+@bp.route('/project/<int:id>/update_scrum', methods=['PUT'])
 # @token_auth.login_required
 def update_scrum(id):
     """input_data not same format as get_scrum!"""
     input_data = request.get_json()
     proj = Project.query.get_or_404(id)
-    orig_tasks = [{task.text:task.id} for task in proj.scrum_board.all()]
-    for text, id in orig_tasks:
-        if text not in [t.get('text') for t in input_data]:
-            db.session.delete(ScrumTask.query.get_or_404(id))
+    orig_tasks = [(t.text, t.id, t.task_type) for t in proj.scrum_board.all()]
+    # print(orig_tasks)
+    for text, _id, typ in orig_tasks:
+        if (text, typ) not in [(t['text'], t['task_type']) for t in input_data]:
+            db.session.delete(ScrumTask.query.get_or_404(_id))
     for t in input_data:
-        if t.get('text') not in orig_tasks: #avoid redundant tasks
+        if (t['text'], t['task_type']) not in [(i[0],i[2]) for i in orig_tasks]: #avoid redundant tasks
             task = ScrumTask(project_id=id, 
-                            user_id=input_data.get('user_id'),
-                            text=input_data.get('text'),
-                            task_type=input_data.get('task_type'))
+                            user_id=1,#input_data.get('user_id'),
+                            text=t.get('text'),
+                            task_type=t.get('task_type'))
             db.session.add(task)
     db.session.commit()
     return jsonify(Project.query.get_or_404(id).scrum_to_dict())

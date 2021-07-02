@@ -13,6 +13,7 @@ import Login from './forms/Login';
 import CreateProject from './forms/CreateProject';
 import EditProject from './forms/EditProject';
 import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
+import ScrumBoard from './components/ScrumBoard';
 
 export default function App(props) {
   const dispatch = useAuthDispatch();
@@ -128,6 +129,9 @@ export default function App(props) {
             />
           <Route path='/test'>
             <Test />
+          </Route>
+          <Route path='/scrum/:id'>
+            <ScrumBoard />
           </Route>
         </Switch>
         

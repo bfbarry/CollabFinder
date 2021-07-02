@@ -5,6 +5,7 @@ import {
   } from "react-router-dom";
 import moment from 'moment';
 import { useAuthState } from '../store/UserContext';
+import ScrumBoard from '../components/ScrumBoard';
 
 export default function Project() {
   const user = useAuthState();
@@ -35,83 +36,84 @@ export default function Project() {
     } else {
   return (
     <div style = {{marginLeft: '20px'}}>
-    <h1 style={{float: 'left'}}>{ proj.name }</h1> 
-    <p style= {{whiteSpace: 'nowrap', overflow: 'hidden', color: '#949494'}}> &nbsp; started by {proj.creator}, {moment(proj.timestamp).fromNow()} </p>
-    <br/><h3> A {proj.category} project.</h3>
-    <p>{proj.descr}</p>
-    { proj.tags && proj.tags.length > 0 &&
-      <div>
-      <b>tags:</b>
-      <ul>
-        {proj.tags.map (tag => (
-          <Link to={`/search?q=${tag}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(98, 199, 101)', marginLeft:'5px'}}> {tag}</Link>
-        ))}
-      </ul></div>
+      <h1 style={{float: 'left'}}>{ proj.name }</h1> 
+      <p style= {{whiteSpace: 'nowrap', overflow: 'hidden', color: '#949494'}}> &nbsp; started by {proj.creator}, {moment(proj.timestamp).fromNow()} </p>
+      <br/><h3> A {proj.category} project.</h3>
+      <p>{proj.descr}</p>
+      { proj.tags && proj.tags.length > 0 &&
+        <div>
+        <b>tags:</b>
+        <ul>
+          {proj.tags.map (tag => (
+            <Link to={`/search?q=${tag}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(98, 199, 101)', marginLeft:'5px'}}> {tag}</Link>
+          ))}
+        </ul></div>
+        
+      }
+
+      {/* MAPPINGS NEED KEYS! */}
+      { proj.wanted_positions && proj.wanted_positions.length > 0 &&
+        <div>
+        <b>wanted positions:</b>
+        <ul>
+          {proj.wanted_positions.map (pos => (
+            <Link to={`/search?q=${pos}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(140, 98, 199)', marginLeft:'5px'}}> {pos}</Link>
+          ))}
+        </ul></div>
+        
+      }
+
+      <p>{proj.setting} setting - for those at {proj.skill_level} skill level</p>
+      {proj._links && proj._links.chat_link  &&
+        <div>
+          <p>Join the conversation:</p> 
+          <a className="btn btn-info" href={`http://${proj._links.chat_link}`}> 
+          {proj._links.chat_link} 
+          </a>
+        </div>
+      }  
+      {/*later check if member not creator */}
+      {proj.category === 'learning' &&
+        <div>
+          <p><b>Pace: </b>Learning at a {proj.pace} pace</p>
+          {proj.resource &&
+            <p> <b>Resources: </b>using {proj.resource}</p>
+          }
+        </div>
+      }
+      { proj.category === 'software development' &&
+        <div>
+          Hello
+        </div>
+      }
+      {/* ADMIN PRIV */}
+      {proj.members && Object.keys(proj.members).includes(String(user.user_id)) &&
+        <div>
+          <Link to={`/project/${id}/update`}
+            className="btn btn"
+            style={{color:'white',backgroundColor:'turquoise'}}> edit project details </Link>
+            <br/><br/>
+          <a href="/project/invite"  
+          className="btn btn" 
+          style={{color:'white',backgroundColor:'purple'}}> 
+          + invite user </a>
+        </div>
+      }
+
+      {proj.members && !Object.keys(proj.members).includes(String(user.user_id)) && !Object.keys(proj.requests).includes(String(user.user_id)) &&
       
-    }
+        <a href="/project/request/:id"  
+          className="btn btn" 
+          style={{color:'white',backgroundColor:'purple'}}> request to join project </a>
+      }
+        
+      {proj.requests && Object.keys(proj.requests).includes(String(user.user_id)) &&
 
-    {/* MAPPINGS NEED KEYS! */}
-    { proj.wanted_positions && proj.wanted_positions.length > 0 &&
-      <div>
-      <b>wanted positions:</b>
-      <ul>
-        {proj.wanted_positions.map (pos => (
-          <Link to={`/search?q=${pos}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(140, 98, 199)', marginLeft:'5px'}}> {pos}</Link>
-        ))}
-      </ul></div>
-      
-    }
+        <button className="btn btn" 
+        style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</button>
+      }
 
-    <p>{proj.setting} setting - for those at {proj.skill_level} skill level</p>
-    {proj._links && proj._links.chat_link  &&
-      <div>
-        <p>Join the conversation:</p> 
-        <a className="btn btn-info" href={`http://${proj._links.chat_link}`}> 
-        {proj._links.chat_link} 
-        </a>
-      </div>
-    }  
-    {/*later check if member not creator */}
-    {proj.category === 'learning' &&
-      <div>
-        <p><b>Pace: </b>Learning at a {proj.pace} pace</p>
-        {proj.resource &&
-          <p> <b>Resources: </b>using {proj.resource}</p>
-        }
-      </div>
-    }
-    { proj.category === 'software development' &&
-      <div>
-        Hello
-      </div>
-    }
-    {/* ADMIN PRIV */}
-    {proj.members && Object.keys(proj.members).includes(String(user.user_id)) &&
-      <div>
-        <Link to={`/project/${id}/update`}
-          className="btn btn"
-          style={{color:'white',backgroundColor:'turquoise'}}> edit project details </Link>
-          <br/><br/>
-        <a href="/project/invite"  
-        className="btn btn" 
-        style={{color:'white',backgroundColor:'purple'}}> 
-        + invite user </a>
-      </div>
-    }
-
-    {proj.members && !Object.keys(proj.members).includes(String(user.user_id)) && !Object.keys(proj.requests).includes(String(user.user_id)) &&
-    
-      <a href="/project/request/:id"  
-        className="btn btn" 
-        style={{color:'white',backgroundColor:'purple'}}> request to join project </a>
-    }
-      
-    {proj.requests && Object.keys(proj.requests).includes(String(user.user_id)) &&
-
-      <button className="btn btn" 
-      style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</button>
-    }
-
+      <ScrumBoard id={id}/>
     </div>
     
   ) 

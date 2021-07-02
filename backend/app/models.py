@@ -525,7 +525,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     def scrum_to_dict(self):
         data = {
             'Requested' : [],
-            'To do' : [],
+            'To Do' : [],
             'In Progress' : [],
             'Done' : []
         }
