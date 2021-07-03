@@ -28,6 +28,7 @@ def search():
     page = request.args.get('page', 1, type=int)
     projects, total = Project.search(g.search_form.q.data, page,
                                current_app.config['PROJECTS_PER_PAGE'])
+    print(f'\n \n {list(projects)} \n \n')
     next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
         if total > page * current_app.config['PROJECTS_PER_PAGE'] else None
     prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \

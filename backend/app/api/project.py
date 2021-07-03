@@ -1,13 +1,10 @@
 from datetime import datetime
 from flask import request, g, jsonify
-from flask_babel import _, get_locale
-from guess_language import guess_language
+from flask_babel import _
 from app import db
-from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
 from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, proj_categories, \
                             Learning #Project subclasses
 from app.api import bp
-import json
 from app.api.auth import token_auth
 
 # @bp.before_app_request

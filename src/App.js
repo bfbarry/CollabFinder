@@ -1,9 +1,8 @@
-import React, { useHistory }from 'react';
+import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
   Redirect
 } from "react-router-dom";
 import './App.css';
@@ -13,17 +12,16 @@ import Login from './forms/Login';
 import CreateProject from './forms/CreateProject';
 import EditProject from './forms/EditProject';
 import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
-import ScrumBoard from './components/ScrumBoard';
+import NavBar from './components/NavBar';
+import Index from './pages/Index';
+import SearchPage from './pages/SearchPage';
 
-export default function App(props) {
+export default function App() {
   const dispatch = useAuthDispatch();
   const user = useAuthState();
-  // console.log(user);
 
   const handleLogout = () => {
-
     logout(dispatch)
-    
   }
 
   return (
@@ -31,79 +29,17 @@ export default function App(props) {
     <div className="App">
           
       <Router>
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <Link className="navbar-brand" to="/">CollabSource</Link>
-            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span className="navbar-toggler-icon"></span>
-            </button>
-          
-            <div className="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul className="navbar-nav mr-auto">
-                <li className="nav-item">
-                  <Link className="nav-link" to="/explore">Explore</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/create_project">Create Project</Link>
-                </li>
-                
-                <li className="nav-item dropdown">
-                  <a className="nav-link dropdown-toggle" href="/#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Dropdown
-                  </a>
-                  <div className="dropdown-menu"  href="/#" aria-labelledby="navbarDropdown">
-                    <a className="dropdown-item" href="/#">Action</a>
-                    <a className="dropdown-item" href="/#">Another action</a>
-                    <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" href="/#">Something else here</a>
-                  </div>
-                </li>
-              
-                  
-              </ul>
-              <ul className="nav navbar-nav navbar-right">
-                {/* {% if g.search_form %}
-                  <form className="navbar-form" method="get"
-                          action="{{ url_for('main.search') }}">
-                      <div className="form-group">
-                          {{ g.search_form.q(size=20, className='form-control',
-                              placeholder=g.search_form.q.label.text) }}
-                      </div>
-                  </form>
-                  {% endif %} */}
-                <li className="nav-item">
-                {user.user_id !== "" &&
-                  <Link className="nav-link" to={`/user/${user.user_id}`}> Profile </Link>
-                }
-                </li>
-                <li className="nav-item">
-                  {user.user_id !== "" ? (
-                  <button className="nav-link linkButton"
-                  onClick={handleLogout} >
-                    Logout</button>
-                  ) : (
-                    <Link className="nav-link" to="/login">Login</Link>
-                  )}
-                </li>
-                 {/* <li>
-                   <a className="nav-link" href="{{ url_for('main.messages') }}"> 
-                     &nbsp; {{ _('Messages') }} &nbsp;
-                     {% set new_notifs = current_user.new_requests() %} 
-                     {% if new_notifs %}
-                       <span className="badge"> {{ new_notifs }} </span>
-                     {% endif %}
-                   </a>
-                 </li> */}
-              </ul>
-            </div>
-          </nav>
-        {/* <div>
-          <Link to='/'>Home</Link>
-          <Link to='/test'>Test</Link>
-        </div> */}
+        <NavBar user={user} handleLogout={handleLogout}/>
         
         <Switch>
+          <Route exact path='/'>
+            <Index />
+          </Route>
           <Route path='/login'>
             <Login />
+          </Route>
+          <Route path='/search/:q'>
+            <SearchPage />
           </Route>
           <Route exact path='/project/:id'>
             <Project />
@@ -130,9 +66,7 @@ export default function App(props) {
           <Route path='/test'>
             <Test />
           </Route>
-          <Route path='/scrum/:id'>
-            <ScrumBoard />
-          </Route>
+          
         </Switch>
         
 

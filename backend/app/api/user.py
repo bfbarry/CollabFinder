@@ -1,14 +1,8 @@
 from app.api.errors import bad_request
-from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, g, \
-                    current_app, jsonify, abort
-from flask_login import current_user, login_required
-from flask_babel import _, get_locale
-from guess_language import guess_language
+from flask import url_for, request, g, jsonify, abort
+from flask_babel import _
 from app import db
-from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
-from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
-                            Learning #Project subclasses
+from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories
 from app.api import bp
 from app.api.auth import token_auth
 
