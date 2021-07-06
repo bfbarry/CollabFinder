@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import ProjPreview from '../components/ProjPreview'
 
 export default function SearchPage(props) {
   const {q} = useParams();
@@ -44,7 +45,7 @@ export default function SearchPage(props) {
           </li>
         </ul>
       </nav> */}
-      <pre>{JSON.stringify(results)}</pre>
+      <ProjPreview projs={results}/>
 
     </div>
 

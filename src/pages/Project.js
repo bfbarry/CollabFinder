@@ -6,12 +6,15 @@ import {
 import moment from 'moment';
 import { useAuthState } from '../store/UserContext';
 import ScrumBoard from '../components/ScrumBoard';
+import ProjRequest from '../components/ProjRequest';
+import BackDrop from '../components/BackDrop';
 
 export default function Project() {
   const user = useAuthState();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [proj, setProj] = useState([]);
+  const [showRequest, setShowRequest] = useState(false);
   const {id} = useParams();
   
   useEffect(() => {
@@ -29,6 +32,16 @@ export default function Project() {
     )
   }, [id]) //should id be passed in here?
   
+  function requestJoin(e) {
+    e.preventDefault();
+    setShowRequest(true)
+    console.log('hi@')
+  }
+
+  function requestInvite(e) {
+    e.preventDefault();
+  }
+
   if (error) {
     return <div>Error: {error.message}</div>;
     } else if (!isLoaded) {
@@ -93,24 +106,34 @@ export default function Project() {
             className="btn btn"
             style={{color:'white',backgroundColor:'turquoise'}}> edit project details </Link>
             <br/><br/>
-          <a href="/project/invite"  
+          <button
+          onClick={() => setShowRequest('invite')}
           className="btn btn" 
           style={{color:'white',backgroundColor:'purple'}}> 
-          + invite user </a>
+          + invite user </button>
         </div>
       }
 
       {proj.members && !Object.keys(proj.members).includes(String(user.user_id)) && !Object.keys(proj.requests).includes(String(user.user_id)) &&
       
-        <a href="/project/request/:id"  
+        <button
+        onClick={() => setShowRequest('request')}
           className="btn btn" 
-          style={{color:'white',backgroundColor:'purple'}}> request to join project </a>
+          style={{color:'white',backgroundColor:'purple'}}> request to join project </button>
       }
         
       {proj.requests && Object.keys(proj.requests).includes(String(user.user_id)) &&
 
         <button className="btn btn" 
         style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> + Request pending</button>
+      }
+
+      {showRequest &&
+        <div>
+          <BackDrop/>
+          <ProjRequest id={id} type={showRequest} onCancel={() => setShowRequest(false)}/>
+
+        </div>
       }
 
       <ScrumBoard id={id}/>

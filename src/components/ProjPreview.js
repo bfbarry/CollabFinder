@@ -6,28 +6,10 @@ import moment from 'moment';
 import ProjIcon from '../svg/ProjIcon';
 
 export default function ProjPreview(props) {
-  const [projs, setProjs] = useState({});
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  
-  useEffect(() => {
-    fetch(`/api/projects/${props.user_id}`)
-     .then(res => res.json())
-     .then(
-       (data) => {
-         setIsLoaded(true);
-         setProjs(data);
-       },
-       (error) => {
-         setIsLoaded(true);
-         setError(error);
-       }
-     )
-    }, [props.user_id])
 
     return (
       <div>
-        {projs.items && projs.items.map(p => (
+        {props.projs.items && props.projs.items.map(p => (
           <div style = {{marginLeft: '20px'}}>
             <table class="table table-hover">
                 <tr>

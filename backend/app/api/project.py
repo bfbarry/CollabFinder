@@ -136,7 +136,7 @@ def request_project(id):
     '''
     input_data = request.get_json()
     proj = Project.query.get_or_404(id) 
-    u = User.query.filter_by(input_data.get('username')).first_or_404()
+    u = User.query.filter_by(input_data.get('username')).first_or_404() #this is either the username requesting or the one invited
 
     if input_data.get('kind') == 'invite':
         r = JoinRequest(kind='invite',msg=input_data.get('msg'),status='pending')
@@ -153,7 +153,7 @@ def request_project(id):
         
     return jsonify(r)
 
-@bp.route('/project/<int:id>/cancel_request', methods=['POST'])
+@bp.route('/project/<int:id>/cancel_request', methods=['DELETE'])
 # @token_auth.login_required
 def cancel_request(id):
     proj = Project.query.get_or_404(id)
