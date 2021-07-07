@@ -127,7 +127,7 @@ def update_scrum(id):
     db.session.commit()
     return jsonify(Project.query.get_or_404(id).scrum_to_dict())
 
-@bp.route('/project/<int:id>/request/', methods=['GET', 'POST'])
+@bp.route('/project/<int:id>/request', methods=['GET', 'POST'])
 # @token_auth.login_required
 def request_project(id):
     ''' 
@@ -136,7 +136,11 @@ def request_project(id):
     '''
     input_data = request.get_json()
     proj = Project.query.get_or_404(id) 
-    u = User.query.filter_by(input_data.get('username')).first_or_404() #this is either the username requesting or the one invited
+    usr = input_data.get('user')
+    if type(usr) != int:
+        u = User.query.filter_by(username=usr).first_or_404() #this is either the username requesting or the one invited
+    else:
+        u = User.query.get_or_404(usr)
 
     if input_data.get('kind') == 'invite':
         r = JoinRequest(kind='invite',msg=input_data.get('msg'),status='pending')
@@ -151,7 +155,7 @@ def request_project(id):
         u.send_request(proj,r)
         db.session.commit()
         
-    return jsonify(r)
+    return jsonify(proj.to_dict())
 
 @bp.route('/project/<int:id>/cancel_request', methods=['DELETE'])
 # @token_auth.login_required

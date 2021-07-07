@@ -15,6 +15,7 @@ export default function Project() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [proj, setProj] = useState([]);
   const [showRequest, setShowRequest] = useState(false);
+  const [reqSuccess, setReqSuccess] = useState(false); //success div
   const {id} = useParams();
   
   useEffect(() => {
@@ -31,15 +32,11 @@ export default function Project() {
       }
     )
   }, [id]) //should id be passed in here?
-  
-  function requestJoin(e) {
-    e.preventDefault();
-    setShowRequest(true)
-    console.log('hi@')
-  }
 
-  function requestInvite(e) {
-    e.preventDefault();
+  function showReqSuccess(kind) {
+    // e.preventDefault();
+    setShowRequest(false);
+    setReqSuccess(kind);
   }
 
   if (error) {
@@ -131,10 +128,23 @@ export default function Project() {
       {showRequest &&
         <div>
           <BackDrop/>
-          <ProjRequest id={id} type={showRequest} onCancel={() => setShowRequest(false)}/>
+          <ProjRequest id={id} 
+          type={showRequest} 
+          onCancel={() => setShowRequest(false)} 
+          onSuccess={showReqSuccess}
+          setProj={setProj}/>
 
         </div>
       }
+
+      {reqSuccess &&
+        <div>
+          <BackDrop onClick={()=>setReqSuccess(false)}/>
+          <div className='modal1'>{reqSuccess} sent!</div>
+        </div>
+
+      }
+
 
       <ScrumBoard id={id}/>
     </div>

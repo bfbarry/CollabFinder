@@ -8,6 +8,7 @@ export default function NavBar(props) {
   
   function submitHandler(e) {
     e.preventDefault();
+    // setSearchq('');
     history.replace(`/search/${searchq}`)
 
   }

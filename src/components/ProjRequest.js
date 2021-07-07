@@ -1,15 +1,18 @@
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { useAuthState } from "../store/UserContext";
 
 export default function ProjRequest(props){
   const [inputText, setInputText] = useState('');
   const user = useAuthState();
+  const history = useHistory();
   const form_text = {
     request: 'Briefly explain why you would like to join the project',
     invite: 'Briefly explain why you would like to invite this member'}
   
   function sendRequest(e) {
     e.preventDefault();
+    let d;
     const opts = {
       method: 'POST',
       headers: new Headers({
@@ -17,22 +20,29 @@ export default function ProjRequest(props){
         "Authorization": `Bearer ${user.token}`
       }),
       body: JSON.stringify({
-        'username': user.id,
-        'text': inputText
+        'user': user.user_id,
+        'msg': inputText,
+        'kind': props.type
       })
     }
     fetch(`/api/project/${props.id}/request`, opts)
       .then(res => {
+        console.log(opts);
         if (res.status === 200) return res.json()
         else return (<p>error</p>)
       })
       .then(data => {
-        console.log()
-        // props.setSuccess(`${props.type} sent!`)
+        console.log('HELLO!')
+        // history.replace(`/project/${props.id}`)
+        props.onSuccess(props.type) //`${props.type} sent!`
+        props.setProj(data)
+        d = data;
         })
       .catch(error => {
         console.error("error", error)
       } )  
+      // props.onSuccess() //`${props.type} sent!`
+      // props.setProj(d)
   }
 
   return(

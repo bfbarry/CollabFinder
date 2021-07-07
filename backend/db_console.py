@@ -28,6 +28,7 @@ db.session.delete()
 
 instead of paginate, use .all() at end of query
 
+"in" aggregator : Project.query.filter(Project.id.in_( ids)).all()
 '''
 def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat_link , proj_kwargs):
     project = proj_model(creator=u, name = name, category = category, 
@@ -39,15 +40,14 @@ def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat
     u.member_of.append(membership)
     db.session.commit()
 
-u = User.query.filter_by(username='susan').first_or_404()
 # proj = Project.query.filter_by(name='Bo project').first()
 
 
 
-invites = u.proj_requests.filter_by(kind='invite') 
-requests = JoinRequest.query.join(ProjMember,
-            (JoinRequest.project_id == ProjMember.project_id)).filter(
-                ProjMember.user_id == u.id)
+# invites = u.proj_requests.filter_by(kind='invite') 
+# requests = JoinRequest.query.join(ProjMember,
+#             (JoinRequest.project_id == ProjMember.project_id)).filter(
+#                 ProjMember.user_id == u.id)
 
 
 ### ADD PROJECT TO DB ###
@@ -69,7 +69,6 @@ if 0:
     r.user = u
     u.send_request(proj, r)
 
-x = Project.query.get_or_404(23)
 # task = ScrumTask(project_id=2, user_id=1, text="doitNOW", task_type="Done")
 # db.session.add(task)
 # db.session.commit()
@@ -79,10 +78,9 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-ids=[p.project_id for p in ProjMember.query.filter_by(user_id=1)]
-print(ids)
-q = Project.query.filter(Project.id.in_( ids)).all()
-print(list(q))
+x = JoinRequest.query.filter_by(user_id=1,project_id=5).first_or_404()
+db.session.delete(x)
+db.session.commit()
 
 # x.scrum_board.append()
 # print(x.to_dict())

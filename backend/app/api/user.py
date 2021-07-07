@@ -113,7 +113,8 @@ def get_messages(id):
         'messages': [{'user_id': m.user_id,
                     'project_id':m.project_id,
                     'msg':m.msg,
-                    'kind':m.kind} for m in messages.items],
+                    'kind':m.kind,
+                    'timestamp':m.timestamp.isoformat() + 'Z'} for m in messages.items],
         '_links': {'self': None,
                 'next': next_url,
                 'prev': prev_url}
