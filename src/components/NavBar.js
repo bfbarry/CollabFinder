@@ -57,6 +57,11 @@ export default function NavBar(props) {
                 </form>
                 <li className="nav-item">
                 {props.user.user_id !== "" &&
+                  <Link className="nav-link" to={`/user/${props.user.user_id}/notifications`}> Notifications </Link>
+                }
+                </li>
+                <li className="nav-item">
+                {props.user.user_id !== "" &&
                   <Link className="nav-link" to={`/user/${props.user.user_id}`}> Profile </Link>
                 }
                 </li>

@@ -98,28 +98,30 @@ def get_messages(id):
             (JoinRequest.project_id == ProjMember.project_id)).filter(
                 ProjMember.user_id == user.id)
     messages = invites.union(requests).order_by(JoinRequest.timestamp.desc()) #order now because union queries can't be ordered
-    p_ids = [m.project_id for m in messages]
-    p_objs = [Project.query.get(i) for i in p_ids]
-    proj_id_map = {k:v for k,v in zip(p_ids, p_objs)} #for easy displaying on HTML
-    messages = messages.paginate(page, 5, False)
 
-    next_url = url_for('api.get_messages', page = messages.next_num) \
-        if messages.has_next else None
-    prev_url = url_for('api.get_messages', page = messages.prev_num) \
-        if messages.has_prev else None
-    
-    data = {
-        'proj_id_map':proj_id_map, # this no work
-        'messages': [{'user_id': m.user_id,
-                    'project_id':m.project_id,
-                    'msg':m.msg,
-                    'kind':m.kind,
-                    'timestamp':m.timestamp.isoformat() + 'Z'} for m in messages.items],
-        '_links': {'self': None,
-                'next': next_url,
-                'prev': prev_url}
-    }
+    page = request.args.get('page',1,type=int)
+    per_page = min(request.args.get('per_page', 10, type=int), 100)
+
+    data = JoinRequest.to_collection_dict(messages, page, per_page, 'api.get_messages', id=id)
+   
     return jsonify(data)
+
+@bp.route('/user/<int:id>/handle_proj_request', methods=['PUT'])
+# @token_auth.login_required
+def handle_proj_request(id):
+    ''' 
+    endpoint for both sending request and sending invitation 
+    u_inv a username string
+    '''
+    input_data = request.get_json()
+    print('\n', input_data, '\n')
+    proj = Project.query.get(input_data.get('project_id'))
+    user_id = input_data.get('user_id')
+    m = ProjMember(user_id=user_id, rank_id=1, project_id = proj.id,position_id=None)
+    proj.add_member(user_id,m)
+    db.session.commit()
+    
+    return get_messages(id)
 
 @bp.route('/test/put', methods=['PUT'])
 # @token_auth.login_required

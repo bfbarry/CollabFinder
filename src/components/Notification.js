@@ -1,81 +1,93 @@
 import moment from "moment";
 import { Link } from "react-router-dom";
+import ProjIcon from "../svg/ProjIcon";
 
 export default function Notification(props) {
+
+  function handleAcceptClick() {
+    props.onAccept({project_id : props.msg.project_id,
+                    user_id : props.msg.user_id});
+  }
+
   return (
-    <table class="table table-hover">
+    <table className="table table-hover">
     <tr>
-        {props.msg.kind === 'request' &&
+      {props.msg.kind === 'request' &&
+      <td width="70px">
+        <a href="{{ url_for('main.user', username=msg.user.username) }}">
+          <ProjIcon/>
+        </a>
+      </td>
+      
+      }
+      {props.msg.kind === 'invite' &&
         <td width="70px">
-            <a href="{{ url_for('main.user', username=msg.user.username) }}">
-                <img src="{{ msg.user.avatar(70) }}" />
-            </a>
+          <a href="{{ url_for('main.project', project_id=msg.project_id) }}">
+            <ProjIcon/>
+          </a>
         </td>
+      
+      }
+      <td>
         
-        }
-        {props.msg.kind === 'invite' &&
-          <td width="70px">
-              <a href="{{ url_for('main.project', project_id=msg.project_id) }}">
-                  <img style='width: 70px', src="{{ url_for('static', filename='img/proj.jpg') }}" />
-              </a>
-          </td>
         
-        }
-        <td>
-            
-            
-        {props.msg.kind === 'request' &&
-          <p>
-            <Link to={`/user/${props.msg.user_id}`}>
-              {`${props.msg.user_id} `}
-            </Link>
-            <p>{`requests to join your project ${props.msg.project_id}: ${moment(props.msg.timestamp)}`}</p>
-            
-                 <br/>
-            { props.msg.msg }
-          </p>
-        }
+      {props.msg.kind === 'request' &&
+        <div>
+        <Link to={`/user/${props.msg.user_id}`}>
+          {`${props.msg.username && props.msg.username} `}
+        </Link>
+          {`requests to join your project ${props.msg.project_id}: ${moment(props.msg.timestamp).fromNow()}`}
+        
+          <br/>
+        { props.msg.msg }
+        
+        { !props.msg.members.includes(props.msg.user_id) ? 
+          ( <p>
+                <button className='btn btn-success' onClick={() => handleAcceptClick()}>Accept request</button>
+            </p>)
+            : (
 
-            
-
-            {% if not proj_id_map[msg.project_id].is_member(msg.user_id) %}
-            <!-- accept button -->
             <p>
-                <form action="{{ url_for('main.accept', user_id=msg.user_id, project_id=msg.project_id) }}" method="post">
-                    {{ form.hidden_tag() }}
-                    {{ form.submit(value=_('Accept request'), class_='btn btn-success') }}
-                </form>
+              <button className="btn btn" style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> Join request accepted. </button>
             </p>
-            {% else %}
+            )
+
+          }
+        </div>
+      }
+
+
+      {props.msg.kind === 'invite' &&
+        <div>
+          <Link to={`/project/${props.msg.project_id}`}>
+          {`${props.msg.projectname && props.msg.projectname} `}
+        </Link>
+          {`invited you to join their project ${props.msg.project_id}: ${moment(props.msg.timestamp).fromNow()}`}
+        
+          <br/>
+        { props.msg.msg }
+        
+
+        { !props.msg.members.includes(props.msg.user_id) ? 
+          ( <p>
+              <button className='btn btn-success' onClick={() => handleAcceptClick()}>Join project</button>
+            </p>)
+            : (
+
             <p>
-                <a class="btn btn" style="color:white;background-color:rgb(129, 129, 129);cursor:default;"> {{ _('Join request accepted.') }} </a>
+              <button className="btn btn" style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> You joined the project. </button>
             </p>
-            {% endif %}
+            )
 
-        {% elif msg.kind == 'invite' %}
-            
-            {{ _('Project %(project)s invited you to join their project: %(when)s',
-                project=proj_link, when=moment(msg.timestamp).fromNow()) }} <br>
-            {{ msg.msg }}
+          }
 
-            {% if not proj_id_map[msg.project_id].is_member(msg.user_id) %}
-            <!-- accept button -->
-            <p>
-                <form action="{{ url_for('main.accept', user_id=msg.user_id, project_id=msg.project_id) }}" method="post">
-                    {{ form.hidden_tag() }}
-                    {{ form.submit(value=_('Join Project'), class_='btn btn-success') }}
-                </form>
-            </p>
-            {% else %}
-            <p>      
-                <a class="btn btn" style="color:white;background-color:rgb(129, 129, 129);cursor:default;"> {{ _('You joined the project.') }} </a>
-            </p>  
-            {% endif %}
+        </div>
+      }
+        
 
-        {% endif%}
 
-        </td>
+      </td>
     </tr>
-</table>
+  </table>
   )
   }

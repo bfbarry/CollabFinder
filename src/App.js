@@ -15,6 +15,7 @@ import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
 import NavBar from './components/NavBar';
 import Index from './pages/Index';
 import SearchPage from './pages/SearchPage';
+import Notifications from './pages/Notifications'; 
 
 export default function App() {
   const dispatch = useAuthDispatch();
@@ -32,21 +33,24 @@ export default function App() {
         <NavBar user={user} handleLogout={handleLogout}/>
         
         <Switch>
-          <Route exact path='/'>
-            <Index />
-          </Route>
-          <Route path='/login'>
-            <Login />
-          </Route>
-          <Route path='/search/:q'>
-            <SearchPage />
-          </Route>
-          <Route exact path='/project/:id'>
-            <Project />
-          </Route>
-          <Route path='/user/:id'>
-            <User />
-          </Route>
+          <Route 
+            exact path='/'
+            component={Index} />
+          <Route 
+            path='/login'
+            component={Login} />
+          <Route 
+            path='/search/:q'
+            component={SearchPage} />
+          <Route 
+            exact path='/project/:id'
+            component={Project} />
+          <Route 
+            exact path='/user/:id'
+            component={User}/>
+          <Route 
+            exact path='/user/:id/notifications'
+            component={Notifications}/>
           <Route 
             path='/create_project'
             render={() =>

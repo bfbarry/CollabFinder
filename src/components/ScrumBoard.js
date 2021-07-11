@@ -323,7 +323,6 @@ export default function ScrumBoard (props) {
         payload.push({text: item.content, task_type: task_type});
       })
     })
-    console.log(payload);
     const opts = {
       method: 'PUT',
       headers: new Headers({

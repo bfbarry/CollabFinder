@@ -105,7 +105,7 @@ position_map = db.Table('position_map',
 #     db.Column('proj_followed_id', db.Integer, db.ForeignKey('project.id'))
 # )
 
-class JoinRequest(db.Model):
+class JoinRequest(db.Model, PaginatedAPIMixin):
     """
     Association table User <--> Project 
     kind: 'invite' (project admin-->user) or 'request' (user-->project)
@@ -121,6 +121,17 @@ class JoinRequest(db.Model):
     msg = db.Column(db.String(650))
     status = db.Column(db.String(15))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) #indexed to order them easily
+
+    def to_dict(self):
+        data = {'user_id': self.user_id,
+                'project_id':self.project_id,
+                'username': self.user.username,
+                'projectname': self.project.name,
+                'msg':self.msg,
+                'kind':self.kind,
+                'members': [u.user_id for u in Project.query.get(self.project_id).members],
+                'timestamp':self.timestamp.isoformat() + 'Z'}
+        return data
 
 class ProjMember(db.Model):
     '''
