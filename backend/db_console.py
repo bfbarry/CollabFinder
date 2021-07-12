@@ -1,7 +1,7 @@
 '''
 Script to modify database
 '''
-from datetime import datetime, timedelta
+from datetime import datetime
 import unittest
 from app import create_app, db, cli
 from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
@@ -39,6 +39,32 @@ def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat
     membership = ProjMember(user_id=u.id, project_id = project.id, rank_id=3,position_id=Position.query.filter_by(name='Lead').first().id)
     u.member_of.append(membership)
     db.session.commit()
+
+def make_request(user, proj, kind = 'request', msg = hash(datetime.now())):
+    proj = Project.query.get_or_404(proj) 
+    
+    if type(user) != int:
+        u = User.query.filter_by(username=user).first_or_404() #this is either the username requesting or the one invited
+    else:
+        u = User.query.get_or_404(user)
+
+    if kind == 'invite':
+        r = JoinRequest(kind='invite',msg=msg,status='pending')
+        r.project = proj
+        r.user = u
+        u.send_request(proj,r,kind='invite',u_inv=u) # works like invited user is sending request to themselves
+        db.session.commit()
+    elif kind == 'request':
+        r = JoinRequest(kind='request',msg=msg,status='pending')
+        r.project = proj
+        r.user = u
+        u.send_request(proj,r)
+        db.session.commit()
+
+def delete_request(user_id, project_id):
+    x = JoinRequest.query.filter_by(user_id=user_id,project_id=project_id).first_or_404()
+    db.session.delete(x)
+    db.session.commit() 
 
 # proj = Project.query.filter_by(name='Bo project').first()
 
@@ -78,9 +104,7 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-x = JoinRequest.query.filter_by(user_id=1,project_id=5).first_or_404()
-db.session.delete(x)
-db.session.commit()
+delete_request(3, 2)
 
 # x.scrum_board.append()
 # print(x.to_dict())

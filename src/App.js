@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect
+  Redirect,
+  useHistory
 } from "react-router-dom";
 import './App.css';
 import Project  from './pages/Project';
@@ -11,7 +12,7 @@ import User  from './pages/User';
 import Login from './forms/Login';
 import CreateProject from './forms/CreateProject';
 import EditProject from './forms/EditProject';
-import { useAuthState, useAuthDispatch, logout } from './store/UserContext'
+import { useAuthState, useAuthDispatch } from './store/UserContext'
 import NavBar from './components/NavBar';
 import Index from './pages/Index';
 import SearchPage from './pages/SearchPage';
@@ -20,17 +21,31 @@ import Notifications from './pages/Notifications';
 export default function App() {
   const dispatch = useAuthDispatch();
   const user = useAuthState();
+  const [notifCount, setNotifCount] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const handleLogout = () => {
-    logout(dispatch)
-  }
+  useEffect(() => { //should be in user context?
+    fetch(`/api/users/${user.user_id}/notif_count`)
+    .then(res => res.json())
+    .then(
+      (data) => {
+        setIsLoaded(true);
+        setNotifCount(data.notif_count);
+      },
+      (error) => {
+      setIsLoaded(true);
+      setError(error);
+      }
+    )
+  }, [user])
 
   return (
 
     <div className="App">
           
       <Router>
-        <NavBar user={user} handleLogout={handleLogout}/>
+        <NavBar user={user} dispatch={dispatch} notifCount={notifCount}/>
         
         <Switch>
           <Route 
@@ -49,8 +64,9 @@ export default function App() {
             exact path='/user/:id'
             component={User}/>
           <Route 
-            exact path='/user/:id/notifications'
-            component={Notifications}/>
+            exact path='/user/:id/notifications'> 
+            <Notifications setNotifCount={setNotifCount}/>
+          </Route>
           <Route 
             path='/create_project'
             render={() =>

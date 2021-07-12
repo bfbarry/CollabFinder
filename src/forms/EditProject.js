@@ -23,10 +23,14 @@ export default function CreateProject(props) {
       (data) => {
       setIsLoaded(true);
       data.tags.map(t => t + ',');
+      data.wanted_positions.map(p => p + ',');
       setOutput(data);
       if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
         history.replace('/')
-      console.log(data);
+      setOutput(prevOutput => ({
+        ...prevOutput,
+        chat_link: data._links.chat_link
+      }))
       
       }
       },
@@ -52,7 +56,7 @@ export default function CreateProject(props) {
     )
     }, [])
 
-    function handleChange(e) {
+  function handleChange(e) {
     const {name, value} = e.target;
     setOutput(prevOutput => ({
       ...prevOutput,
@@ -63,9 +67,12 @@ export default function CreateProject(props) {
   async function submitHandler(e) {
     // post request
     e.preventDefault();
+    console.log(output)
     unwanted_attr.map(a => delete output[a]);
     let tag_arr = output.tags.split(',').map(el => el.trim());
     output.tags = tag_arr // BAD... but setOutput is literally not setting state?
+    let wp_arr = output.wanted_positions.split(',').map(el => el.trim());
+    output.wanted_positions = wp_arr // BAD... but setOutput is literally not setting state?
     const opts = {
       method: 'PUT',
       headers: new Headers({
@@ -81,7 +88,7 @@ export default function CreateProject(props) {
       })
       .then(data => {
         
-        history.replace(`/project/${data.id}`)
+        history.replace(`/project/${id}`)
         })
       .catch(error => {
         console.error("error", error)
@@ -209,6 +216,20 @@ export default function CreateProject(props) {
         <input type='text' 
               name='tags'
               value={output.tags || ''}
+              onChange={handleChange}/> 
+      </div>
+      <div>
+        <label htmlFor='wanted_positions'> Wanted positions: </label> 
+        <input type='text' 
+              name='wanted_positions'
+              value={output.wanted_positions || ''}
+              onChange={handleChange}/> 
+      </div>
+      <div>
+        <label htmlFor='chat_link'> Chat link: </label> 
+        <input type='text' 
+              name='chat_link'
+              value={output.chat_link || ''}
               onChange={handleChange}/> 
       </div>
     <button className='btn-lg btn-success' onClick={submitHandler}>update project details</button>

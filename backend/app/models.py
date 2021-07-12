@@ -527,6 +527,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
                         if p not in data['wanted_positions']:
                             self.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
                     for pos in data['wanted_positions']:
+                        if pos not in orig_wpos: continue
                         pos = pos.lower()
                         new_wpos.append(Position.query.filter_by(name=pos).first())
                     self.add_tags(new_wpos, kind='w_pos')

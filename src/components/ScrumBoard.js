@@ -296,6 +296,7 @@ export default function ScrumBoard (props) {
         data = {'Requested': data['Requested'], 'To Do': data['To Do'],
                'In Progress':data['In Progress'], 'Done': data['Done']} //setting order
         let columnsFromBackend = {} //preparing for uuid format
+        console.log(data);
         Object.keys(data).map((task_type) => {
           let items = []
           data[task_type].map((item) => {

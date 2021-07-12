@@ -110,6 +110,7 @@ def get_scrum(id):
 # @token_auth.login_required
 def update_scrum(id):
     """input_data not same format as get_scrum!"""
+    #TODO: one more sneaky edge case when moving tasks gives duplicates
     input_data = request.get_json()
     proj = Project.query.get_or_404(id)
     orig_tasks = [(t.text, t.id, t.task_type) for t in proj.scrum_board.all()]

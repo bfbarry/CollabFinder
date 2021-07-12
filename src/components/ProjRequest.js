@@ -4,6 +4,7 @@ import { useAuthState } from "../store/UserContext";
 
 export default function ProjRequest(props){
   const [inputText, setInputText] = useState('');
+  const [requestedUser, setRequestedUser] = useState('');
   const user = useAuthState();
   const history = useHistory();
   const form_text = {
@@ -12,7 +13,13 @@ export default function ProjRequest(props){
   
   function sendRequest(e) {
     e.preventDefault();
-    let d;
+    let user_payload;
+    if (props.type === 'request') {
+      user_payload = user.user_id
+    }
+    else {
+      user_payload = requestedUser;
+    }
     const opts = {
       method: 'POST',
       headers: new Headers({
@@ -20,11 +27,12 @@ export default function ProjRequest(props){
         "Authorization": `Bearer ${user.token}`
       }),
       body: JSON.stringify({
-        'user': user.user_id,
+        'user': user_payload,
         'msg': inputText,
         'kind': props.type
       })
     }
+
     fetch(`/api/project/${props.id}/request`, opts)
       .then(res => {
         console.log(opts);
@@ -36,7 +44,6 @@ export default function ProjRequest(props){
         // history.replace(`/project/${props.id}`)
         props.onSuccess(props.type) //`${props.type} sent!`
         props.setProj(data)
-        d = data;
         })
       .catch(error => {
         console.error("error", error)
@@ -49,7 +56,10 @@ export default function ProjRequest(props){
     <div className='modal1'>
       {/* <form> */}
       {props.type === 'invite' &&
-        <input type="text" placeholder='enter username'/>
+        <input 
+          type="text" 
+          placeholder='enter username'
+          onChange={(e) => setRequestedUser(e.target.value)}/>
       }
         <p>{form_text[props.type]} : </p>
         

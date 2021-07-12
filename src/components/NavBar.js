@@ -1,17 +1,25 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link, useHistory } from "react-router-dom";
+import {  logout  } from '../store/UserContext';
 import SearchPage from '../pages/SearchPage';
 
 export default function NavBar(props) {
-  const [searchq, setSearchq] = useState('')
+  const [searchq, setSearchq] = useState('');
   const history = useHistory();
   
+  const handleLogout = () => {
+    //had to move this from App.js into here for history to work
+    logout(props.dispatch)
+    history.replace('/')
+  }
+
   function submitHandler(e) {
     e.preventDefault();
     // setSearchq('');
     history.replace(`/search/${searchq}`)
 
   }
+
     return(
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <Link className="navbar-brand" to="/">CollabSource</Link>
@@ -57,9 +65,14 @@ export default function NavBar(props) {
                 </form>
                 <li className="nav-item">
                 {props.user.user_id !== "" &&
-                  <Link className="nav-link" to={`/user/${props.user.user_id}/notifications`}> Notifications </Link>
+                    <Link className="nav-link" to={`/user/${props.user.user_id}/notifications`}> Notifications 
+                    {props.notifCount > 0 &&
+                      <span className="badge badge-pill" style={{color: 'white', backgroundColor: '#eb9834', marginLeft: 5}}> { props.notifCount } </span>
+                    }
+                    </Link>
                 }
                 </li>
+
                 <li className="nav-item">
                 {props.user.user_id !== "" &&
                   <Link className="nav-link" to={`/user/${props.user.user_id}`}> Profile </Link>
@@ -68,7 +81,7 @@ export default function NavBar(props) {
                 <li className="nav-item">
                   {props.user.user_id !== "" ? (
                   <button className="nav-link linkButton"
-                  onClick={props.handleLogout} >
+                  onClick={() => handleLogout()} >
                     Logout</button>
                   ) : (
                     <Link className="nav-link" to="/login">Login</Link>

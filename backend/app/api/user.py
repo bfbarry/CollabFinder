@@ -6,6 +6,8 @@ from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, pr
 from app.api import bp
 from app.api.auth import token_auth
 
+from datetime import datetime
+
 # @bp.before_app_request
 # def before_request():
 #     if current_user.is_authenticated:
@@ -90,8 +92,8 @@ def update_user(id):
 def get_messages(id):
     '''proj_id_map used in view to check if is_member (! not jsonifying well)'''
     user = User.query.get_or_404(id)
-    # user.last_notif_read_time = datetime.utcnow() # How to handle this read time?
-    # db.session.commit()
+    user.last_notif_read_time = datetime.utcnow() 
+    db.session.commit()
     page = request.args.get('page',1, type=int)
     invites = user.proj_requests.filter_by(kind='invite')
     requests = JoinRequest.query.filter_by(kind='request').join(ProjMember,
@@ -103,10 +105,18 @@ def get_messages(id):
     per_page = min(request.args.get('per_page', 10, type=int), 100)
 
     data = JoinRequest.to_collection_dict(messages, page, per_page, 'api.get_messages', id=id)
+    # data['unread_count'] = user.new_requests()
    
     return jsonify(data)
 
-@bp.route('/user/<int:id>/handle_proj_request', methods=['PUT'])
+@bp.route('/users/<int:id>/notif_count')
+# @token_auth.login_required
+def get_notif_count(id):
+    user = User.query.get_or_404(id)
+    return {'notif_count':user.new_requests()}
+   
+
+@bp.route('/users/<int:id>/handle_proj_request', methods=['PUT'])
 # @token_auth.login_required
 def handle_proj_request(id):
     ''' 

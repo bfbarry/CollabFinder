@@ -80,6 +80,7 @@ def project_form():
         'descr' : {'label':_l('Describe your project: '), 'maxlength': lens['descr']}, #make 1030
         'skill_level' : {'label':_l('Skill Level: '),   'options':skill_lvls}, # RADIO FIELD
         'setting' : {'label':_l('Setting: '),   'options':proj_settings}, # RADIO FIELD
+        'chat_link': {'label':_l('Chat link: ')},
         ### GEO ###
         'geo_type' : {'label':_l('Is this project constrained to a city or school?'),   'options':geo_options}, #RADIO FIELD
         'college' :{'label':_l('Enter college or university (must be currently enrolled or recent alum): '), 'options':colleges}, # CUSTOM STRING FIELD 

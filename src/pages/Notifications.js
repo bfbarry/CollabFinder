@@ -8,10 +8,12 @@ import ProjRequest from '../components/ProjRequest';
 import Notification from '../components/Notification';
 import { deprecationHandler } from 'moment';
 
-export default function Notifications() {
+export default function Notifications(props) {
   const user = useAuthState();
   const [error, setError] = useState(null);
+  const [notiferror, setNotifError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [notifisLoaded, setNotifIsLoaded] = useState(false);
   const [notifs, setNotifs] = useState([]);
   const {id} = useParams();
 
@@ -30,6 +32,22 @@ export default function Notifications() {
     )
   }, [id])
 
+  if (isLoaded) {
+    fetch(`/api/users/${id}/notif_count`)
+    .then(res => res.json())
+    .then(
+      (data) => {
+        setNotifIsLoaded(true);
+        props.setNotifCount(data.notif_count);
+      },
+      (error) => {
+      setNotifIsLoaded(true);
+      setNotifError(error);
+      }
+    )
+  }
+
+
   function handleAccept(payload) {
     const opts = {
       method: 'PUT',
@@ -39,7 +57,7 @@ export default function Notifications() {
       }),
       body: JSON.stringify(payload)
     }
-    fetch(`/api/user/${id}/handle_proj_request`, opts)
+    fetch(`/api/users/${id}/handle_proj_request`, opts)
       .then(res => {
         if (res.status === 200) return res.json()
         else return (<p>error</p>)
