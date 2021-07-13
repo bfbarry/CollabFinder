@@ -55,7 +55,7 @@ export default function Project() {
         <b>tags:</b>
         <ul>
           {proj.tags.map (tag => (
-            <Link to={`/search?q=${tag}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(98, 199, 101)', marginLeft:'5px'}} key={tag}> {tag}</Link>
+            <Link to={`/search/${tag}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(98, 199, 101)', marginLeft:'5px'}} key={tag}> {tag}</Link>
           ))}
         </ul></div>
         
@@ -67,7 +67,7 @@ export default function Project() {
         <b>wanted positions:</b>
         <ul>
           {proj.wanted_positions.map (pos => (
-            <Link to={`/search?q=${pos}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(140, 98, 199)', marginLeft:'5px'}} key={pos}> {pos}</Link>
+            <Link to={`/search/${pos}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(140, 98, 199)', marginLeft:'5px'}} key={pos}> {pos}</Link>
           ))}
         </ul></div>
         

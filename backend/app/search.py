@@ -5,7 +5,10 @@ def add_to_index(index, model):
         return
     payload = {}
     for field in model.__searchable__:
-        payload[field] = getattr(model, field)
+        if field == 'tags':
+            payload[field] = [tag.name for tag in model.tags]
+        else:
+            payload[field] = getattr(model, field)
     current_app.elasticsearch.index(index=index, id=model.id, body=payload)
 
 def remove_from_index(index, model):

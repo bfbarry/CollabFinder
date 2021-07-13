@@ -450,7 +450,7 @@ class Role(db.Model):
 @dataclass
 class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
-    __searchable__ = ['category','name','descr'] # add 'tags' and 'wanted_positions' when JSON figured out
+    __searchable__ = ['category','name','descr', 'tags'] # add 'tags' and 'wanted_positions' when JSON figured out
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
     category = db.Column(db.String(60))

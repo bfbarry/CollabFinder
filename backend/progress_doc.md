@@ -187,7 +187,7 @@ with op.batch_alter_table("project") as batch_op:
 WHAT WE CAN OFFER THAN FINDCOLLABS DOESN'T
 - random matching with project
 - Learning projects for self teaching
-- Data science category 
+- more categories
 - Emphasis of emergence of a product from interdisciplinary collaboration.
 - restrict by geographical area or school (the latter is important as this is our audience)
 - No chat – leave that to discord or slack
