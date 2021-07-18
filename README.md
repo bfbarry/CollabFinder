@@ -4,7 +4,10 @@
 
 Note: as the website migrates to a React frontend, some things have changed. To view the Flask only portion, cd into `/backend`
 ### **Packages**
+Set up virtual environment + install packages,
 ```shell
+$ cd backend
+$ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
@@ -27,11 +30,11 @@ To make debugging easier:
 ```shell
 $ export FLASK_DEBUG=1 # this can also be in your .bash_rc or .bash_profile to automatically set this at start up
 ``` 
-You MIGHT have to run this for set up:
+Run this for set up:
 ```
 $ export FLASK_APP=collabsource.py
 ```
-To start server:
+To start server (make sure venv is active):
 ```shell
 $ flask run
 ```
@@ -43,7 +46,8 @@ yarn start
 
 To start API to feed into the above
 ```shell
-yarn start-api
+cd backend
+flask run
 ```
 
 
