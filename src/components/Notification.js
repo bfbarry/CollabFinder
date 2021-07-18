@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import ProjIcon from "../svg/ProjIcon";
 
 export default function Notification(props) {
-
+  /* The individual notification itself, iterated in the notification page
+  For now only for incoming requests/invites
+    - Message with button to handle request/invite  */
+    
   function handleAcceptClick() {
     props.onAccept({project_id : props.msg.project_id,
                     user_id : props.msg.user_id});
@@ -14,15 +17,15 @@ export default function Notification(props) {
     <tr>
       {props.msg.kind === 'request' &&
       <td width="70px">
-        <a href="{{ url_for('main.user', username=msg.user.username) }}">
-          <ProjIcon/>
+        <a href="USER URL">
+          <ProjIcon/> {/* Should be user icon */}
         </a>
       </td>
       
       }
       {props.msg.kind === 'invite' &&
         <td width="70px">
-          <a href="{{ url_for('main.project', project_id=msg.project_id) }}">
+          <a href="PROJECT URL">
             <ProjIcon/>
           </a>
         </td>
@@ -78,14 +81,11 @@ export default function Notification(props) {
               <button className="btn btn" style={{color:'white',backgroundColor:'rgb(129, 129, 129)',cursor:'default'}}> You joined the project. </button>
             </p>
             )
-
           }
 
         </div>
       }
         
-
-
       </td>
     </tr>
   </table>

@@ -43,19 +43,6 @@ and puts in their respective files
 #         super(SearchForm, self).__init__(*args, **kwargs)
 
 
-# class EmptyForm(FlaskForm):
-#     submit = SubmitField('Submit')
-
-# class RequestForm(FlaskForm):
-#     ''' empty labels depend on "request" or "invitation" in JS
-    
-#     could also use an __init__ to handle kind'''
-#     lens=lens #why is this necessary?
-#     u_inv = TextAreaField(_('Name of user to invite: '))
-#     msg = TextAreaField(' ', validators=[
-#         DataRequired(), Length(min=1, max=lens['msg'])],render_kw={'maxlength': lens['msg']})
-#     submit = SubmitField(' ')
-
 with open('./app/data/colleges.json','r') as f:
     colleges = json.load(f)
     colleges = [i for i in colleges if 'college' in i.lower() or 'university' in i.lower()]
@@ -116,6 +103,4 @@ def project_form():
 #             if project is not None:
 #                 raise ValidationError(_('This particular project name is already taken.'))
 
-# class TestForm(FlaskForm):
-#     rad = RadioField('Select an option:',   'options'=['a','b','c'])
 

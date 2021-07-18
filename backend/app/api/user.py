@@ -16,9 +16,6 @@ from datetime import datetime
 #         g.search_form = SearchForm() # g variable is specific to each request and each client
 #     g.locale = str(get_locale())
 
-### TODO: following tutorial ###
-# change all methods to POST later?
-
 @bp.route('/users/<int:id>', methods=['GET'])
 # @token_auth.login_required
 def get_user(id):
@@ -90,7 +87,6 @@ def update_user(id):
 @bp.route('/users/<int:id>/messages')
 # @token_auth.login_required
 def get_messages(id):
-    '''proj_id_map used in view to check if is_member (! not jsonifying well)'''
     user = User.query.get_or_404(id)
     user.last_notif_read_time = datetime.utcnow() 
     db.session.commit()

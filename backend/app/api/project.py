@@ -15,7 +15,7 @@ from app.api.auth import token_auth
 #         g.search_form = SearchForm() # g variable is specific to each request and each client
 #     g.locale = str(get_locale())
 
-### HELPER FUNC
+###TODO HELPER FUNC (unused and not API oriented yet)
 def validate_name(self, name, case='new proj'):
     if name.data != self.original_name or case == 'new proj':
         project = Project.query.filter_by(name=self.name.data).first()
@@ -54,6 +54,7 @@ def get_projects(_q):
 @bp.route('/project/create', methods=['POST'])
 @token_auth.login_required
 def create_project():
+    """Data from Create Project form"""
     input_data = request.get_json()
     user_id = token_auth.current_user().id
     user = User.query.get_or_404(user_id)
@@ -73,7 +74,7 @@ def create_project():
 @bp.route('/project/<int:id>/update', methods=['PUT'])
 @token_auth.login_required
 def update_project(id):
-    
+    """Corresponds to Edit Project form"""
     proj = Project.query.get_or_404(id)
     if {u.user_id:u.rank.name for u in proj.members}[token_auth.current_user().id] != 'Admin': # TODO Haven't tried this yet. Needs better way
         return 403

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import ProjPreview from '../components/ProjPreview'
 
 export default function SearchPage(props) {
+  /* For now only searches projects */
   const {q} = useParams();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -25,26 +26,6 @@ export default function SearchPage(props) {
 
   return(
     <div>
-      {/* <h1>{{ _('Search Results') }}</h1>
-      {% for project in projects %}
-        {% include '_proj_pvw.html' %}
-      {% endfor %}
-      <nav aria-label="...">
-        <ul class="pager">
-          <li class="previous{% if not prev_url %} disabled{% endif %}">
-            <a href="{{ prev_url or '#' }}">
-              <span aria-hidden="true">&larr;</span>
-              {{ _('Previous results') }}
-            </a>
-          </li>
-          <li class="next{% if not next_url %} disabled{% endif %}">
-            <a href="{{ next_url or '#' }}">
-              {{ _('Next results') }}
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
-      </nav> */}
       <ProjPreview projs={results}/>
 
     </div>

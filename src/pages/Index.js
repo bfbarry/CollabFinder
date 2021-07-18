@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
 export default function Index() {
+    /* For now contains jumbotron to search or create project */
     const [searchq, setSearchq] = useState('')
     const history = useHistory();
     
     function submitHandler(e) {
         e.preventDefault();
-        // setSearchq('');
         history.replace(`/search/${searchq}`)
 
     }

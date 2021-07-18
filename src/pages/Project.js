@@ -14,8 +14,8 @@ export default function Project() {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [proj, setProj] = useState([]);
-  const [showRequest, setShowRequest] = useState(false);
-  const [reqSuccess, setReqSuccess] = useState(false); //success div
+  const [showRequest, setShowRequest] = useState(false); // invite users or request to join project
+  const [reqSuccess, setReqSuccess] = useState(false); // success div
   const {id} = useParams();
   
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Project() {
   }, [id]) //should id be passed in here?
 
   function showReqSuccess(kind) {
-    // e.preventDefault();
+    /* kind is either invite or request */
     setShowRequest(false);
     setReqSuccess(kind);
   }
@@ -61,7 +61,6 @@ export default function Project() {
         
       }
 
-      {/* MAPPINGS NEED KEYS! */}
       { proj.wanted_positions && proj.wanted_positions.length > 0 &&
         <div>
         <b>wanted positions:</b>
@@ -82,7 +81,7 @@ export default function Project() {
           </a>
         </div>
       }  
-      {/*later check if member not creator */}
+
       {proj.category === 'learning' &&
         <div>
           <p><b>Pace: </b>Learning at a {proj.pace} pace</p>

@@ -3,6 +3,8 @@ import { useHistory } from "react-router-dom";
 import { useAuthState } from "../store/UserContext";
 
 export default function ProjRequest(props){
+  /* Mini form upon clicking on "Request to join project" or "Invite user" */
+
   const [inputText, setInputText] = useState('');
   const [requestedUser, setRequestedUser] = useState('');
   const user = useAuthState();
@@ -40,21 +42,16 @@ export default function ProjRequest(props){
         else return (<p>error</p>)
       })
       .then(data => {
-        console.log('HELLO!')
-        // history.replace(`/project/${props.id}`)
         props.onSuccess(props.type) //`${props.type} sent!`
         props.setProj(data)
         })
       .catch(error => {
         console.error("error", error)
       } )  
-      // props.onSuccess() //`${props.type} sent!`
-      // props.setProj(d)
   }
 
   return(
     <div className='modal1'>
-      {/* <form> */}
       {props.type === 'invite' &&
         <input 
           type="text" 
@@ -86,7 +83,6 @@ export default function ProjRequest(props){
           onClick={sendRequest}
           >Send
         </button>
-      {/* </form> */}
     </div>
   )
 }

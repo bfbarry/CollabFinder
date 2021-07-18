@@ -11,7 +11,8 @@ from flask_babel import Babel, lazy_gettext as _l
 from config import Config
 from elasticsearch import Elasticsearch
 
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+# from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+# ^ alternatives to jwt management
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -24,6 +25,8 @@ babel = Babel()
 
 from .models import User
 def create_app(config_class=Config):
+    """Instantiate application using blueprint factory method
+    see: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure"""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -33,15 +36,15 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app)
-    jwt = JWTManager(app)
+    # jwt = JWTManager(app)
        
-    @jwt.user_identity_loader
+    # @jwt.user_identity_loader
     def user_identity_lookup(user):
         """ Register a callback function that takes whatever object is passed in as the
         identity when creating JWTs and converts it to a JSON serializable format."""
         return user.id
 
-    @jwt.user_lookup_loader
+    # @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
         return User.query.filter_by(id=identity).one_or_none()
@@ -49,14 +52,15 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 
-    from app.errors import bp as errors_bp
-    app.register_blueprint(errors_bp)
+    # To delete the following registrations since these were only for non-api app
+    # from app.errors import bp as errors_bp
+    # app.register_blueprint(errors_bp)
 
-    from app.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    # from app.auth import bp as auth_bp
+    # app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    from app.main import bp as main_bp
-    app.register_blueprint(main_bp)
+    # from app.main import bp as main_bp
+    # app.register_blueprint(main_bp)
     
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')

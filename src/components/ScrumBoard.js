@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 // import $ from "jquery";
 
@@ -305,8 +305,6 @@ export default function ScrumBoard (props) {
           columnsFromBackend[uuid()] = {name: task_type, items: items}
         })
         setColumns(columnsFromBackend);
-        // console.log(columnsFromBackend)
-        // console.log(data)
       },
       (error) => {
       setIsLoaded(true);
@@ -338,7 +336,7 @@ export default function ScrumBoard (props) {
         else return (<p>error</p>)
       })
       .then(data => {
-        console.log(true)
+        console.log(true) //what to put here
         // history.replace(`/project/${data.id}`)
         })
       .catch(error => {

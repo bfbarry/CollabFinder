@@ -14,10 +14,10 @@ export default function NavBar(props) {
   }
 
   function submitHandler(e) {
+    /*For searching */
     e.preventDefault();
-    // setSearchq('');
+    // setSearchq(''); // not sure if this is wanted? (nice to keep search query there)
     history.replace(`/search/${searchq}`)
-
   }
 
     return(
@@ -87,21 +87,8 @@ export default function NavBar(props) {
                     <Link className="nav-link" to="/login">Login</Link>
                   )}
                 </li>
-                 {/* <li>
-                   <a className="nav-link" href="{{ url_for('main.messages') }}"> 
-                     &nbsp; {{ _('Messages') }} &nbsp;
-                     {% set new_notifs = current_props.user.new_requests() %} 
-                     {% if new_notifs %}
-                       <span className="badge"> {{ new_notifs }} </span>
-                     {% endif %}
-                   </a>
-                 </li> */}
               </ul>
             </div>
           </nav>
-        /* <div>
-          <Link to='/'>Home</Link>
-          <Link to='/test'>Test</Link>
-        </div> */
     )
 } 

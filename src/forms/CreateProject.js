@@ -6,6 +6,9 @@ import {TextField} from '@material-ui/core';
 import '../App.css';
 
 export default function CreateProject(props) {
+  /* Form for creating project
+  Renders different inputs depending on which project category is selected  */
+
   const user = useAuthState();
   const [form, setForm] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -13,7 +16,6 @@ export default function CreateProject(props) {
   const [output, setOutput] = useState({});
   const history = useHistory();
 
-  console.log()
   useEffect(() => {
     fetch(`/api/forms/create_project`)
     .then(res => res.json())
@@ -30,12 +32,12 @@ export default function CreateProject(props) {
     }, [])
   
   function handleChange(e) {
+    /* setState function */
     const {name, value} = e.target;
     setOutput(prevOutput => ({
       ...prevOutput,
       [name]: value
     }))
-    // console.log(output)
   }
   
   async function submitHandler(e) {

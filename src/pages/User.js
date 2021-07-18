@@ -6,6 +6,9 @@ import { useAuthState } from '../store/UserContext'
 import ProjPreview from '../components/ProjPreview'
 
 export default function User() {
+  /* Displays 'about me', projects user is part of
+  Want follow functionality? */
+
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState({});
@@ -47,9 +50,6 @@ export default function User() {
       )
     }, [id])
 
-  // function next() {
-  //   return next link for project list
-  // }
 
   if (error) {
     return <div>Error: {error.message}</div>;

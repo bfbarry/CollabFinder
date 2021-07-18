@@ -6,6 +6,8 @@ import moment from 'moment';
 import ProjIcon from '../svg/ProjIcon';
 
 export default function ProjPreview(props) {
+  /* Contains Name, Description, Project icon etc
+  Iterated over on user profile and search page */
 
     return (
       <div>

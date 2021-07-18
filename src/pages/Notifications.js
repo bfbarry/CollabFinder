@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Link,
   useParams
   } from "react-router-dom";
 import { useAuthState } from '../store/UserContext';
-import ProjRequest from '../components/ProjRequest';
 import Notification from '../components/Notification';
-import { deprecationHandler } from 'moment';
 
 export default function Notifications(props) {
+  /* populates page with Notifcation component */
+  
   const user = useAuthState();
   const [error, setError] = useState(null);
   const [notiferror, setNotifError] = useState(null);
