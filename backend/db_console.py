@@ -104,7 +104,12 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-delete_request(3, 2)
+for p in range(16,20):
+    x=Project.query.get(p)
+    db.session.delete(x)
+
+db.session.commit()
+
 
 # x.scrum_board.append()
 # print(x.to_dict())

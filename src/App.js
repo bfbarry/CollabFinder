@@ -17,6 +17,7 @@ import NavBar from './components/NavBar';
 import Index from './pages/Index';
 import SearchPage from './pages/SearchPage';
 import Notifications from './pages/Notifications'; 
+import Explore from './pages/Explore';
 
 export default function App() {
   const dispatch = useAuthDispatch();
@@ -57,6 +58,9 @@ export default function App() {
           <Route 
             path='/search/:q'
             component={SearchPage} />
+          <Route 
+            path='/explore'
+            component={Explore} />
           <Route 
             exact path='/project/:id'
             component={Project} />

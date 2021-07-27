@@ -25,9 +25,8 @@ export default function ProjPreview(props) {
                         {/* <Link to={`/user/${props.user_id}`}>
                             { proj.creator }
                         </Link> */}
-  
-                        
-                        <Link to={`/project/${p.id}`}>{p.name }</Link><br/>
+                        <Link to={`/project/${p.id}`}>{p.name }</Link>
+                        <Link to={`/search/${p.category}`} className="btn btn-sm" style={{color:'white', backgroundColor:'rgb(98, 199, 101)', marginLeft:'5px'}}> {p.category}</Link><br/>
                         <p>started {moment(p.timestamp).fromNow()}</p>
                         <p>{ p.descr }</p>
                     </td>

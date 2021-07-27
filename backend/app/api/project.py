@@ -37,10 +37,12 @@ def get_project(id):
 def get_projects(_q):
     """If invoked within User.to_dict(), passes in q as all a user's projects"""
     if _q == 'all':
-        q=Project.query
-    else:
+        q=Project.query.order_by(Project.timestamp.desc())
+    elif _q.isdigit():
         ids=[p.project_id for p in ProjMember.query.filter_by(user_id=_q)]
-        q = Project.query.filter(Project.id.in_(ids))#.all()
+        q = Project.query.filter(Project.id.in_(ids)).order_by(Project.timestamp.desc())#.all()
+    elif _q in proj_categories.keys():
+        q = Project.query.filter_by(category=_q).order_by(Project.timestamp.desc())
 
     page = request.args.get('page',1,type=int)
     
