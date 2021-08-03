@@ -2,16 +2,9 @@
 Script to modify database
 '''
 from datetime import datetime
-import unittest
-from app import create_app, db, cli
+from app import create_app, db
 from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
                             Learning
-from flask import request #for page stuff
-import app.models as models
-from config import Config
-import os
-
-from app import create_app
 
 app = create_app()
 app.app_context().push() # to accomodate updated app structure
@@ -104,11 +97,6 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
-for p in range(16,20):
-    x=Project.query.get(p)
-    db.session.delete(x)
-
-db.session.commit()
 
 
 # x.scrum_board.append()

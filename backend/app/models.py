@@ -91,9 +91,15 @@ followers = db.Table('followers',
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
     # project tags
-tag_map = db.Table('tag_map', 
+project_tag_map = db.Table('project_tag_map', 
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+
+# user interests
+user_tag_map = db.Table('user_tag_map', 
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+
     # for Projects' wanted positions
 position_map = db.Table('position_map', 
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
@@ -195,7 +201,9 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     proj_requests = db.relationship('JoinRequest', back_populates='user', 
                         lazy='dynamic',cascade="all, delete-orphan") # cascade to remove
     last_notif_read_time = db.Column(db.DateTime)
-    
+    tags = db.relationship(  #i.e., interests
+        'Tag', secondary=user_tag_map, 
+        backref=db.backref('user_tag_map', lazy='dynamic'), lazy='dynamic') 
     member_of = db.relationship('ProjMember',back_populates='user',
                         lazy='dynamic',cascade="all, delete-orphan")   
 
@@ -467,10 +475,10 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     __mapper_args__ = {'polymorphic_on': category}
 
     tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
-        'Tag', secondary=tag_map, #Self-ref, association table
-        # primaryjoin=(tag_map.c.project_id == id), 
-        # secondaryjoin=(tag_map.c.tag_id == tag_map.tag_id),
-        backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
+        'Tag', secondary=project_tag_map, #Self-ref, association table
+        # primaryjoin=(project_tag_map.c.project_id == id), 
+        # secondaryjoin=(project_tag_map.c.tag_id == project_tag_map.tag_id),
+        backref=db.backref('project_tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
 
     wanted_positions = db.relationship( # represented by 'w_pos' for kind arg in tag functions
         'Position', secondary=position_map, 
@@ -584,7 +592,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     def has_tag(self, tag, kind='tag'):
         if kind == 'tag':
             return self.tags.filter(
-                tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
+                project_tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
         elif kind == 'w_pos':
             return self.wanted_positions.filter(
                 position_map.c.position_id == tag.id).count() > 0
@@ -599,8 +607,8 @@ class Tag(SearchableMixin, db.Model):
     
     #project tags
     tags = db.relationship(
-        'Project', secondary=tag_map,
-        backref=db.backref('tag_map', lazy='dynamic'), lazy='dynamic') 
+        'Project', secondary=project_tag_map,
+        backref=db.backref('project_tag_map', lazy='dynamic'), lazy='dynamic') 
     
     def __repr__(self):
         return '<{}>'.format(self.name)
