@@ -50,6 +50,12 @@ cd backend
 flask run
 ```
 
+OR
+
+```
+yarn start-api
+```
+
 
 ranks:
 <br>in flask shell:

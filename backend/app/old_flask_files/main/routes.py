@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
 from app.main.forms import SearchForm, EditProfileForm, EmptyForm, ProjectForm, TestForm, EditProjectForm, RequestForm
-from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories, \
+from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, PROJ_CATEGORIES, \
                             Learning #Project subclasses
 from app.main import bp
 import app.api as api
@@ -60,7 +60,7 @@ def create_project():
             language = ''
 
         proj_kwargs = {}
-        proj_model = proj_categories[form.category.data] # Specific project type model class
+        proj_model = PROJ_CATEGORIES[form.category.data] # Specific project type model class
         spec_args = [attr for attr in list(vars(proj_model)) if not attr.startswith("_")][2:] # skipping id column and field_name
         spec_args = spec_args[:spec_args.index('category')] # to remove Project() var names (why does that happen anyways?)
         form_args = [attr for attr in list(vars(ProjectForm)) if not attr.startswith("_")] #all args of ProjectForm 
@@ -100,7 +100,7 @@ def explore():
 def project(project_id):
     form = EmptyForm()
     proj = Project.query.get(project_id) #.first_or_404()
-    model = proj_categories[proj.category]
+    model = PROJ_CATEGORIES[proj.category]
     proj_sub = model.query.get(project_id) #.first_or_404() #to access all subclass properties
     #print(f'\n {model} \n', flush=1)
     proj_dict = {} #creating a dictionary for attributes to be accessed easily from HTML side

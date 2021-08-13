@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, SelectField, RadioField
 from wtforms.validators import ValidationError, DataRequired, Length
 from flask_babel import _, lazy_gettext as _l
-from app.models import User, Project, JoinRequest, proj_cat_keys,\
+from app.models import User, Project, JoinRequest, PROJ_CAT_KEYS,\
                             Learning #Project subclasses
 import json
 
@@ -78,7 +78,7 @@ class ProjectForm(FlaskForm):
         DataRequired(), Length(min=1, max=60)],render_kw={'maxlength': lens['name']})
     
     categories = [option1] + _l_list(['learning','software development']) # test version, see below
-    #categories = [option1] + sorted(_l_list(proj_cat_keys)) 
+    #categories = [option1] + sorted(_l_list(PROJ_CAT_KEYS)) 
     category = SelectField(_l('Category'), choices=categories, default=1)
     
     descr = TextAreaField(_l('Describe your project'), validators=[ 

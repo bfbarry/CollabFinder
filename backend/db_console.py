@@ -5,7 +5,7 @@ from datetime import datetime
 from app import create_app, db
 from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
                             Learning
-
+from app.utils import api_func
 app = create_app()
 app.app_context().push() # to accomodate updated app structure
 
@@ -98,7 +98,9 @@ if 0:
     print([i.text for i in q])
 
 
-
+u = User.query.filter_by(username='brian').first()
+api_func.tag_update(Tag, 'tag',u, ['data-science', 'environment', 'machine-learning','python','javascript','sql','rest','react'])
+db.session.commit()
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)

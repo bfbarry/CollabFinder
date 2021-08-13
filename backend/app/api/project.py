@@ -2,10 +2,11 @@ from datetime import datetime
 from flask import request, g, jsonify
 from flask_babel import _
 from app import db
-from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, proj_categories, \
+from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, PROJ_CATEGORIES, \
                             Learning #Project subclasses
 from app.api import bp
 from app.api.auth import token_auth
+from ..utils import api_func
 
 # @bp.before_app_request
 # def before_request():
@@ -36,21 +37,17 @@ def get_project(id):
 @bp.route('/projects/<_q>', methods=['GET'])
 def get_projects(_q):
     """If invoked within User.to_dict(), passes in q as all a user's projects"""
-    if _q == 'all':
-        q=Project.query.order_by(Project.timestamp.desc())
-    elif _q.isdigit():
-        ids=[p.project_id for p in ProjMember.query.filter_by(user_id=_q)]
-        q = Project.query.filter(Project.id.in_(ids)).order_by(Project.timestamp.desc())#.all()
-    elif _q in proj_categories.keys():
-        q = Project.query.filter_by(category=_q).order_by(Project.timestamp.desc())
 
     page = request.args.get('page',1,type=int)
-    
     per_page = min(request.args.get('per_page', 10, type=int), 100)
-    if _q == 'all': 
-        data = Project.to_collection_dict(q, page, per_page, 'api.get_projects', _q='all')
-    else:
-        data = Project.to_collection_dict(q, page, per_page, 'api.get_projects', _q=_q)
+
+    if _q == 'all':
+        q = Project.query.order_by(Project.timestamp.desc())
+    elif _q.isdigit(): # User's projects
+        ids = [p.project_id for p in ProjMember.query.filter_by(user_id=_q)]
+        q = Project.query.filter(Project.id.in_(ids)).order_by(Project.timestamp.desc())#.all()
+
+    data = Project.to_collection_dict(q, page, per_page, 'api.get_projects', _q=_q) 
     return jsonify(data)
 
 @bp.route('/project/create', methods=['POST'])
@@ -62,7 +59,7 @@ def create_project():
     user = User.query.get_or_404(user_id)
     input_data['creator'] = user
     category = input_data.get("category")
-    project = proj_categories[category]()
+    project = PROJ_CATEGORIES[category]()
     project.from_dict(input_data)
     db.session.add(project)
     db.session.commit() 
@@ -82,25 +79,9 @@ def update_project(id):
         return 403
     input_data = request.get_json()
     
-    tag_names, pos_names  = [t.name for t in Tag.query.all()], [p.name for p in Position.query.all()]
     # TODO Check if user has perms
     proj.from_dict(input_data)
-    tagms, posms = [], [] #models to add to Project
-    print('\n\n', input_data['tags'])
-    for tag in input_data['tags']:
-        tag = tag.lower()
-        if tag not in tag_names:
-            db.session.add(Tag(name=tag))
-            db.session.commit() #redundant?
-        tagms.append(Tag.query.filter_by(name=tag).first())
-    for pos in input_data['wanted_positions']:
-        pos = pos.lower()
-        if pos not in pos_names:
-            db.session.add(Position(name=pos))
-            db.session.commit()
-        posms.append(Position.query.filter_by(name=pos).first())
-    proj.add_tags(tagms)
-    proj.add_tags(posms,kind='w_pos')
+    
     db.session.commit()
 
     return jsonify(proj.to_dict()) 

@@ -24,12 +24,12 @@ export default function Index() {
         <p>or...</p>
 
         <input className="form-group"
-        placeholder="Search for a project"
-        type='text' 
-        id='email'
-        value={searchq}
-        onChange={(e) => setSearchq(e.target.value)}
-        style={{marginRight:10}}>
+          placeholder="Search for a project"
+          type='text' 
+          id='email'
+          value={searchq}
+          onChange={(e) => setSearchq(e.target.value)}
+          style={{marginRight:10}}>
         </input>
         <input type="submit" style={{display: "none"}} />
           <button className="btn btn-lg" type="submit" style={{color:'white',backgroundColor:'#ff56ff'}}>

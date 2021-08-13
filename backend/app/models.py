@@ -79,6 +79,49 @@ class PaginatedAPIMixin:
         }
         return data
 
+class TagMixin:
+    """Used by User and Project"""            
+    def add_tags(self, _tags, kind='tags'):
+        '''where _tags is list of tag objs fed in route'''
+        for tag in _tags:
+            if not self.has_tag(tag, kind):
+                exec(f'self.{kind}.append(tag)')
+
+    def rm_tag(self, tag, kind='tags'):
+        if self.has_tag(tag):
+            exec(f'self.{kind}.remove(tag)')
+        
+    def has_tag(self, tag, kind='tags'):
+        if kind in ['tags', 'interests']:
+            return self.tags.filter(
+                project_tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
+        else:
+            return self.wanted_positions.filter(
+                position_map.c.position_id == tag.id).count() > 0
+
+    def tag_update(self, TagModel, kind, input_tags):
+        """TagModel: Tag or Position
+        self: instance of Project or User
+        input_tags: list of str tags
+        follow call with db.session.commit()"""
+        # TODO: in models.py as well, remove kind and only rely on TagModel
+        if kind=='tags':
+            orig_tags = [t.name for t in self.tags]
+        else:
+            orig_tags = [t.name for t in self.wanted_positions]
+        tag_names = [t.name for t in TagModel.query.all()]
+        tagms = [] #models to add to Project or User
+        for t in orig_tags: # removing tags
+            if t not in input_tags:
+                self.rm_tag(TagModel.query.filter_by(name=t).first(), kind=kind)
+        for tag in input_tags:
+            tag = tag.lower()
+            if tag not in tag_names: # creating new tag models if they don't already exist
+                db.session.add(TagModel(name=tag))
+                db.session.commit() #redundant?
+            tagms.append(TagModel.query.filter_by(name=tag).first())
+            
+        self.add_tags(tagms,kind=kind)
 
 # set up the event handlers
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
@@ -128,7 +171,7 @@ class JoinRequest(db.Model, PaginatedAPIMixin):
     status = db.Column(db.String(15))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) #indexed to order them easily
 
-    def to_dict(self):
+    def to_dict(self): #for invitation endpoint
         data = {'user_id': self.user_id,
                 'project_id':self.project_id,
                 'username': self.user.username,
@@ -166,6 +209,16 @@ class ProjMember(db.Model):
             if self.rank is None:
                 self.rank = Rank.query.filter_by(default=True).first()
 
+# class UserProjRecommendation(db.Model):
+#     """Recommend projects to user and vice versa"""
+#     __tablename__ = 'user_proj_recommendations'
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+#     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+#     rank = db.Column(db.Integer)
+
+#     user = db.relationship('User', back_populates='recommendations')
+#     project = db.relationship('Project', back_populates='recommendations')
+
 class ScrumTask(db.Model):
     __tablename__ = 'scrum_tasks'
     id = db.Column(db.Integer, primary_key=True)
@@ -180,7 +233,7 @@ class ScrumTask(db.Model):
     def __repr__(self):
         return f'<{self.task_type}: {self.text} by {self.user_id} proj {self.project_id}>'
 
-class User(PaginatedAPIMixin, UserMixin, db.Model):
+class User(TagMixin, PaginatedAPIMixin, UserMixin, db.Model):
     """ 
     """
     id = db.Column(db.Integer, primary_key=True)
@@ -199,13 +252,16 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
 
     proj_requests = db.relationship('JoinRequest', back_populates='user', 
-                        lazy='dynamic',cascade="all, delete-orphan") # cascade to remove
+                        lazy='dynamic',cascade="all, delete-orphan") # cascade used to remove
     last_notif_read_time = db.Column(db.DateTime)
     tags = db.relationship(  #i.e., interests
         'Tag', secondary=user_tag_map, 
         backref=db.backref('user_tag_map', lazy='dynamic'), lazy='dynamic') 
     member_of = db.relationship('ProjMember',back_populates='user',
-                        lazy='dynamic',cascade="all, delete-orphan")   
+                        lazy='dynamic',cascade="all, delete-orphan")  
+
+    # recommendations = db.relationship('UserProjRecommendation', back_populates='user',
+    #                                     lazy='dynamic',cascade='all, delete-orphan')
 
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime)
@@ -455,8 +511,7 @@ class Role(db.Model):
     def __repr__(self):
         return '<{}>'.format(self.name)
 
-@dataclass
-class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
+class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
     """tags and wanted positions share the same methods due to overlap in functionality"""
     __searchable__ = ['category','name','descr', 'tags'] # add 'tags' and 'wanted_positions' when JSON figured out
     id = db.Column(db.Integer, primary_key=True)
@@ -480,7 +535,7 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
         # secondaryjoin=(project_tag_map.c.tag_id == project_tag_map.tag_id),
         backref=db.backref('project_tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
 
-    wanted_positions = db.relationship( # represented by 'w_pos' for kind arg in tag functions
+    wanted_positions = db.relationship( # represented by 'wanted_positions' for kind arg in tag functions
         'Position', secondary=position_map, 
         backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic') 
         
@@ -488,6 +543,9 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
 
     members = db.relationship('ProjMember',back_populates='project',
                         lazy='dynamic',cascade="all, delete-orphan")
+    
+    # recommendations = db.relationship('UserProjRecommendation', back_populates='project',
+    #                                     lazy='dynamic',cascade='all, delete-orphan')
 
     scrum_board = db.relationship('ScrumTask', back_populates='project',cascade="all, delete-orphan", lazy='dynamic') # try setting to __tablename__ 
     ### API ###
@@ -513,32 +571,13 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
             }
         }
         return data
-
+    
+    # tag_model_map={'tags':Tag, 'wanted_positions':Position}
     def from_dict_main(self, data):
-        # current form data for tags and wanted positions
-        orig_tags = [t.name for t in self.tags]
-        orig_wpos = [p.name for p in self.wanted_positions]
-        new_tags, new_wpos = [], [] # holds the  model instances
         for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creator']:
             if field in data:
-                if field == 'tags':
-                    for t in orig_tags: # removing tags
-                        if t not in data['tags']:
-                            self.rm_tag(Tag.query.filter_by(name=t).first())
-                    for tag in data['tags']: #this block is useless?
-                        if tag not in orig_tags: continue
-                        tag = tag.lower()
-                        new_tags.append(Tag.query.filter_by(name=tag).first()) #there should only be one
-                    self.add_tags(new_tags)
-                elif field == 'wanted_positions':
-                    for p in orig_wpos:
-                        if p not in data['wanted_positions']:
-                            self.rm_tag(Position.query.filter_by(name=p).first(),kind='w_pos')
-                    for pos in data['wanted_positions']:
-                        if pos not in orig_wpos: continue
-                        pos = pos.lower()
-                        new_wpos.append(Position.query.filter_by(name=pos).first())
-                    self.add_tags(new_wpos, kind='w_pos')
+                if field in ['tags','wanted_positions']:
+                    self.tag_update(self.tag_model_map[field], field, data[field])
                 else:
                     setattr(self, field, data[field])
     
@@ -568,34 +607,6 @@ class Project(PaginatedAPIMixin, SearchableMixin, db.Model):
     def is_member(self,user_id):
         return self.members.filter(
             ProjMember.__table__.c.user_id == user_id).count() > 0 # checking if 1 or 0
-    
-    ### TAG FUNC ###                    
-    def add_tags(self, _tags, kind='tag'):
-        '''where _tags is list of tag objs fed in route'''
-        if kind == 'tag':
-            for tag in _tags:
-                if not self.has_tag(tag):
-                    self.tags.append(tag)
-        elif kind == 'w_pos':
-            for pos in _tags:
-                if not self.has_tag(pos,'w_pos'):
-                    self.wanted_positions.append(pos)
-
-    def rm_tag(self, tag, kind='tag'):
-        if kind == 'tag':
-            if self.has_tag(tag):
-                self.tags.remove(tag)
-        elif kind == 'w_pos':
-            if self.has_tag(tag,'w_pos'):
-                self.wanted_positions.remove(tag)
-    
-    def has_tag(self, tag, kind='tag'):
-        if kind == 'tag':
-            return self.tags.filter(
-                project_tag_map.c.tag_id == tag.id).count() > 0 # checking if 1 or 0
-        elif kind == 'w_pos':
-            return self.wanted_positions.filter(
-                position_map.c.position_id == tag.id).count() > 0
 
     def __repr__(self):
         return '<Project {}>'.format(self.name)
@@ -721,8 +732,8 @@ class Engineering:
 
 ## KEEP THIS AFTER ALL PROJECT CLASSES
 # imported in main/routes.py to instatiate specific project classes in /create_project
-proj_categories = {'learning': Learning} #, 'software development':SoftwareDev, engineering} 
-# proj_categories = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
+PROJ_CATEGORIES = {'learning': Learning} #, 'software development':SoftwareDev, engineering} 
+# PROJ_CATEGORIES = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
 
 # imported in main/forms.py for SelectField options
-proj_cat_keys = tuple(proj_categories.keys())
+PROJ_CAT_KEYS = tuple(PROJ_CATEGORIES.keys())

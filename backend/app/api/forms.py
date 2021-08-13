@@ -5,7 +5,7 @@ from flask_babel import _
 from app.api import bp
 
 from flask_babel import _, lazy_gettext as _l
-from app.models import User, Project, JoinRequest, proj_cat_keys,\
+from app.models import User, Project, JoinRequest, PROJ_CAT_KEYS,\
                             Learning #Project subclasses
 import json
 
@@ -52,7 +52,7 @@ def project_form():
     """Create a new project"""
     option1 = _l('Select one')
     categories = [option1] + _l_list(['learning','software development'])# test version, see below
-    #categories = [option1] + sorted(_l_list(proj_cat_keys)) 
+    #categories = [option1] + sorted(_l_list(PROJ_CAT_KEYS)) 
     skill_lvls = _l_list(('any','beginner','intermediate','advanced'))
     proj_settings =  _l_list(("casual", "serious/professional"))
     geo_options = _l_list(('college/university','high school', 'city (no school)'))

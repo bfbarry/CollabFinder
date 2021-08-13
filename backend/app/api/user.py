@@ -2,7 +2,7 @@ from app.api.errors import bad_request
 from flask import url_for, request, g, jsonify, abort
 from flask_babel import _
 from app import db
-from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, proj_categories
+from app.models import User, Project, ProjMember, JoinRequest, Tag, Position, PROJ_CATEGORIES
 from app.api import bp
 from app.api.auth import token_auth
 
