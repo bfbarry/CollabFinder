@@ -58,7 +58,9 @@ def create_project():
     user_id = token_auth.current_user().id
     user = User.query.get_or_404(user_id)
     input_data['creator'] = user
+    # print(f'\n\n {input_data}', flush=1)
     category = input_data.get("category")
+    input_data['category'] = '_'.join(input_data['category'].split())
     project = PROJ_CATEGORIES[category]()
     project.from_dict(input_data)
     db.session.add(project)

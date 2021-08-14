@@ -21,7 +21,7 @@ def recommend_projects(user_id):
 
 @bp.route('/explore/projects/<user_id>/<mode>', methods=['GET'])
 def explore_projects(user_id, mode):
-    """mode: 'recommended', category, """
+    """mode: 'recommended', 'recent', category"""
     # TODO call project api endpoint
 
     page = request.args.get('page',1,type=int)
@@ -32,9 +32,10 @@ def explore_projects(user_id, mode):
         ids = recommend_projects(user_id)
         q = Project.query.filter(Project.id.in_(ids)) # make sure order is conserved
     elif mode in PROJ_CATEGORIES.keys(): #Redundant? Should this be filtered in 
-        q = Project.query.filter_by(category=mode).order_by(Project.timestamp.desc())
-    elif mode == 'recent': 
+        q = Project.query.filter_by(category='_'.join(mode.split())).order_by(Project.timestamp.desc())
+    elif mode in ['recent','all']: # janky, see above
         q = Project.query.filter(Project.id.notin_(unwanted_id)).order_by(Project.timestamp.desc())
 
     data = Project.to_collection_dict(q, page, per_page, 'api.explore_projects', user_id=user_id, mode=mode)
+    data['_meta']['categories'] = ['all'] + list(PROJ_CATEGORIES.keys())
     return jsonify(data)

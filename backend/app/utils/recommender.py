@@ -26,7 +26,6 @@ def cbf(user, func, model=None, fake_data=False):
         user_tags = [t.name for t in user.tags]
         unwanted_id = [p.project_id for p in user.proj_requests] + [p.project_id for p in user.member_of]
         projects = Project.query.filter(Project.id.notin_(unwanted_id))
-        print([p.id for p in projects], flush=True)
         project_features = {p.id : [t.name for t in p.tags] for p in projects}
         scores = {p.id : 0 for p in projects}
     else:

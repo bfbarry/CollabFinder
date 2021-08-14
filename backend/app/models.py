@@ -80,7 +80,12 @@ class PaginatedAPIMixin:
         return data
 
 class TagMixin:
-    """Used by User and Project"""            
+    """Used by User and Project"""  
+    # TODO could use getattr instead  
+    def __init__(self, **kwargs):
+        super(TagMixin, self).__init__(**kwargs)
+        self.tag_list = [tag.name for tag in self.tags]
+
     def add_tags(self, _tags, kind='tags'):
         '''where _tags is list of tag objs fed in route'''
         for tag in _tags:
@@ -104,10 +109,10 @@ class TagMixin:
         self: instance of Project or User
         input_tags: list of str tags
         follow call with db.session.commit()"""
-        # TODO: in models.py as well, remove kind and only rely on TagModel
+        # TODO: remove kind and only rely on TagModel
         if kind=='tags':
             orig_tags = [t.name for t in self.tags]
-        else:
+        elif kind=='wanted_positions':
             orig_tags = [t.name for t in self.wanted_positions]
         tag_names = [t.name for t in TagModel.query.all()]
         tagms = [] #models to add to Project or User
@@ -511,15 +516,46 @@ class Role(db.Model):
     def __repr__(self):
         return '<{}>'.format(self.name)
 
+class Tag(SearchableMixin, db.Model):
+    __searchable__ = ['name']
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25))
+    
+    #project tags
+    tags = db.relationship(
+        'Project', secondary=project_tag_map,
+        backref=db.backref('project_tag_map', lazy='dynamic'), lazy='dynamic') 
+    
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+
+class Position(SearchableMixin, db.Model):
+    """Both for 'wanted positions' and member descriptors """
+    __searchable__ = ['name']
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25), unique=True)
+    
+    wanted_positions = db.relationship( 
+        'Project', secondary=position_map,
+        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic')
+
+    member_positions = db.relationship('ProjMember',back_populates='position',
+                        lazy='dynamic',cascade="all, delete-orphan")   
+    
+    def __repr__(self):
+        return '<{}>'.format(self.name)
+
 class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
-    """tags and wanted positions share the same methods due to overlap in functionality"""
-    __searchable__ = ['category','name','descr', 'tags'] # add 'tags' and 'wanted_positions' when JSON figured out
+    """tags and wanted positions share the same methods due to overlap in functionality
+    team_size: range (5-10, 25-40 etc) """
+    __searchable__ = ['category','name','descr', 'tags'] #  needs 'wanted_positions' 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
     category = db.Column(db.String(60))
     descr = db.Column(db.String(140))
     skill_level = db.Column(db.String(20))
     setting = db.Column(db.String(20))
+    team_size = db.Column(db.String(20))
     # location = db.Column(db.String(20))
     chat_link = db.Column(db.String(512)) # Discord, slack etc.
     # non optional variables
@@ -572,7 +608,7 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
         }
         return data
     
-    # tag_model_map={'tags':Tag, 'wanted_positions':Position}
+    tag_model_map={'tags':Tag, 'wanted_positions':Position}
     def from_dict_main(self, data):
         for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creator']:
             if field in data:
@@ -588,7 +624,6 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
             'In Progress' : [],
             'Done' : []
         }
-
         for task in self.scrum_board.all():
             data[task.task_type].append({'user_id': task.user_id, 'text':task.text, 'timestamp': task.timestamp.isoformat() + 'Z'})
 
@@ -610,35 +645,6 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
 
     def __repr__(self):
         return '<Project {}>'.format(self.name)
-
-class Tag(SearchableMixin, db.Model):
-    __searchable__ = ['name']
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25))
-    
-    #project tags
-    tags = db.relationship(
-        'Project', secondary=project_tag_map,
-        backref=db.backref('project_tag_map', lazy='dynamic'), lazy='dynamic') 
-    
-    def __repr__(self):
-        return '<{}>'.format(self.name)
-
-class Position(SearchableMixin, db.Model):
-    """Both for 'wanted positions' and member descriptors """
-    __searchable__ = ['name']
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), unique=True)
-    
-    wanted_positions = db.relationship( 
-        'Project', secondary=position_map,
-        backref=db.backref('position_map', lazy='dynamic'), lazy='dynamic')
-
-    member_positions = db.relationship('ProjMember',back_populates='position',
-                        lazy='dynamic',cascade="all, delete-orphan")   
-    
-    def __repr__(self):
-        return '<{}>'.format(self.name)
 
 class Rank(db.Model):
     ''' Rank for member (user) within a project
@@ -687,7 +693,6 @@ class Rank(db.Model):
     def __repr__(self):
         return '<{}>'.format(self.name)
 
-@dataclass
 class Learning(Project):
     '''Can be study group for a course, or just auto-didacts studying a subject together
     pace: according to perosnal timelines or college terms
@@ -695,7 +700,6 @@ class Learning(Project):
     
     __mapper_args__ = {'polymorphic_identity': 'learning'}
     id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
-    _field_name = 'learning' #SelectField option in form, not necessary with API?
     
     ### Project spec properties ###
     pace = db.Column(db.String(60))    
@@ -725,14 +729,139 @@ class Learning(Project):
     # if subject.lower() not in [i for row in self.learning_categories.values() for i in row]: # <-- list of all subjects
     #     ProjectDataBase.learning_categories[learning_category].append(subject)
 
-class SoftwareDev:
-    ...
-class Engineering:
-    ...
+class SoftwareDev(Project):
+    """Software Development project
+    kind: Web Development, Mobile App
+    Programming language will be a Tag for now"""
+    __mapper_args__ = {'polymorphic_identity': 'software_development'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
+
+class Engineering(Project):
+    """[Physical] engineering project
+    """
+    __mapper_args__ = {'polymorphic_identity': 'engineering'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
+
+class DataScience(Project):
+    """Data Science/Machine Learning project
+    """
+    __mapper_args__ = {'polymorphic_identity': 'data_science'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
+
+class Research(Project):
+    """Research Project
+    field: academic field
+    """
+    __mapper_args__ = {'polymorphic_identity': 'research'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    field = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'field': self.field}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['field']:
+            if field in data:
+                setattr(self, field, data[field])
+
+class Community(Project):
+    """E.g. trash clean up etc.
+    """
+    __mapper_args__ = {'polymorphic_identity': 'community'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
+
+class Entertainment(Project):
+    """E.g. YouTube collabs etc
+    """
+    __mapper_args__ = {'polymorphic_identity': 'entertainment'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
 
 ## KEEP THIS AFTER ALL PROJECT CLASSES
 # imported in main/routes.py to instatiate specific project classes in /create_project
-PROJ_CATEGORIES = {'learning': Learning} #, 'software development':SoftwareDev, engineering} 
+SUB_PROJS = (Learning, SoftwareDev, Engineering, DataScience, Research, Community, Entertainment)
+PROJ_CATEGORIES = {' '.join(table.__mapper_args__['polymorphic_identity'].split('_')):table \
+                        for table in SUB_PROJS} #, 'software development':SoftwareDev, engineering} 
 # PROJ_CATEGORIES = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
 
 # imported in main/forms.py for SelectField options

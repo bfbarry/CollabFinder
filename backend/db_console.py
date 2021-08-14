@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime
 from app import create_app, db
 from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
-                            Learning
+                            Learning, SoftwareDev
 from app.utils import api_func
 app = create_app()
 app.app_context().push() # to accomodate updated app structure
@@ -24,10 +24,10 @@ instead of paginate, use .all() at end of query
 "in" aggregator : Project.query.filter(Project.id.in_( ids)).all()
 '''
 def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat_link , proj_kwargs):
-    project = proj_model(creator=u, name = name, category = category, 
+    project = proj_model(name = name, category = category, 
                             skill_level = skill_level, setting = setting, descr=descr, language=language, chat_link = chat_link, **proj_kwargs) #instatiating the specific project
-            
     db.session.add(project)
+    project.tag_update(Tag, 'tags', ['javascript'])
     db.session.commit() #so that project.id can be extracted later
     membership = ProjMember(user_id=u.id, project_id = project.id, rank_id=3,position_id=Position.query.filter_by(name='Lead').first().id)
     u.member_of.append(membership)
@@ -97,15 +97,21 @@ if 0:
     q = x.scrum_board.filter_by(task_type='Done').all()
     print([i.text for i in q])
 
+u = User.query.filter_by(username='bo').first()
 
-u = User.query.filter_by(username='brian').first()
-api_func.tag_update(Tag, 'tag',u, ['data-science', 'environment', 'machine-learning','python','javascript','sql','rest','react'])
-db.session.commit()
+if 0:
+    u.tag_update(Tag, 'tags', ['ios', 'cooking', 'java','python','javascript','sql','vue'])
+    db.session.commit()
+
+# add_proj('TESSST101010', SoftwareDev, 'software_development','easy','casual','asddas', 'french',None,{'sub_category':None})
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)
 # print(Tag.query.filter_by(name='math').first())
 
+x= Project.query.get(44)
+print(x.tag_list)
+# print(getattr(x,'tags'), flush=1)
 
 #projects = Project.query.all()     
 

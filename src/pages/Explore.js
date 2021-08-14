@@ -11,7 +11,6 @@ export default function Explore(props) {
   const [results, setResults] = useState({});
   const [mode, setMode] = useState('recommended')
   const sort_options = ['recommended', 'recent'] //TODO
-  const temp_cat_options = ['all', 'learning'] //TODO: these should come from API
 
   useEffect(() => {
     fetch(`/api/explore/projects/${user.user_id}/${mode}`)
@@ -30,7 +29,7 @@ export default function Explore(props) {
 
   return(
     <div>
-      <div>
+      <div style={{margin: '20px'}}>
         <label htmlFor='category'> Sort by: </label>
         <select name='category'
               onChange={(e) => setMode(e.target.value)}
@@ -44,7 +43,7 @@ export default function Explore(props) {
         <select name='category'
               onChange={(e) => setMode(e.target.value)}
               value={mode}>
-          {temp_cat_options.map(opt => (
+          {results._meta && results._meta.categories.map(opt => (
             <option key={opt} > {opt} </option>
           ))}
         </select> 
