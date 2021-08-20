@@ -1,14 +1,15 @@
 from flask import current_app
 
-def add_to_index(index, model):
+def add_to_index(index, model, stage=None):
     if not current_app.elasticsearch:
         return
     payload = {}
     for field in model.__searchable__:
         if field == 'tags':
+            if stage == 'update': #don't run this when project is added to db
             # if len([tag.name for tag in model.tags]) == 0: continue
-            # tags = model.tags
-            payload[field] = getattr(model, 'tag_list') #[t.name for t in tags]
+                tags = model.tags
+                payload[field] = [t.name for t in tags] #getattr(model, 'tag_list')
         else:
             payload[field] = getattr(model, field)
     current_app.elasticsearch.index(index=index, id=model.id, body=payload)

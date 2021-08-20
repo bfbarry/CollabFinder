@@ -74,7 +74,7 @@ def project_form():
         'learning_category' : {'label':_l('Learning category: '),   'options':learning_categories}, # SELECT FIELD
         'pace' : {'label': _l('Learning pace: '),   'options':pace_types}, # SELECT FIELD
         'resource' : {'label': _l('Main resource (can be a textbook, website, playlist, etc.): '), 'maxlength': lens['resource']},
-        ### Software Development ###
+        ###  ###
         'lang' : {'label':_l('Language(s): '),   'options':['None'] + langs} #eventually would want to type it and it autofills since there are so many
 
 

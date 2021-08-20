@@ -27,8 +27,9 @@ def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat
     project = proj_model(name = name, category = category, 
                             skill_level = skill_level, setting = setting, descr=descr, language=language, chat_link = chat_link, **proj_kwargs) #instatiating the specific project
     db.session.add(project)
-    project.tag_update(Tag, 'tags', ['javascript'])
     db.session.commit() #so that project.id can be extracted later
+    project.tag_update(Tag, 'tags', ['javascript','django'])
+
     membership = ProjMember(user_id=u.id, project_id = project.id, rank_id=3,position_id=Position.query.filter_by(name='Lead').first().id)
     u.member_of.append(membership)
     db.session.commit()
@@ -103,14 +104,14 @@ if 0:
     u.tag_update(Tag, 'tags', ['ios', 'cooking', 'java','python','javascript','sql','vue'])
     db.session.commit()
 
-# add_proj('TESSST101010', SoftwareDev, 'software_development','easy','casual','asddas', 'french',None,{'sub_category':None})
+add_proj('TESSS14', SoftwareDev, 'software_development','easy','casual','OKOK', 'french',None,{'sub_category':None})
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)
 # print(Tag.query.filter_by(name='math').first())
 
-x= Project.query.get(44)
-print(x.tag_list)
+# x= Project.query.get(44)
+# print(x.tag_list)
 # print(getattr(x,'tags'), flush=1)
 
 #projects = Project.query.all()     

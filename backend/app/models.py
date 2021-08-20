@@ -44,7 +44,7 @@ class SearchableMixin(object):
                 add_to_index(obj.__tablename__, obj)
         for obj in session._changes['update']:
             if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
+                add_to_index(obj.__tablename__, obj, stage='update')
         for obj in session._changes['delete']:
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
@@ -81,20 +81,19 @@ class PaginatedAPIMixin:
 
 class TagMixin:
     """Used by User and Project"""  
-    # TODO could use getattr instead  
-    def __init__(self, **kwargs):
-        super(TagMixin, self).__init__(**kwargs)
-        self.tag_list = [tag.name for tag in self.tags]
+    # def __init__(self, **kwargs):
+    #     super(TagMixin, self).__init__(**kwargs)
+    #     self.tag_list = [tag.name for tag in self.tags]
 
     def add_tags(self, _tags, kind='tags'):
         '''where _tags is list of tag objs fed in route'''
         for tag in _tags:
             if not self.has_tag(tag, kind):
-                exec(f'self.{kind}.append(tag)')
+                getattr(self,kind).append(tag)
 
     def rm_tag(self, tag, kind='tags'):
         if self.has_tag(tag):
-            exec(f'self.{kind}.remove(tag)')
+            getattr(self,kind).remove(tag)
         
     def has_tag(self, tag, kind='tags'):
         if kind in ['tags', 'interests']:
@@ -613,6 +612,7 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
         for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creator']:
             if field in data:
                 if field in ['tags','wanted_positions']:
+                    continue
                     self.tag_update(self.tag_model_map[field], field, data[field])
                 else:
                     setattr(self, field, data[field])
@@ -861,7 +861,7 @@ class Entertainment(Project):
 # imported in main/routes.py to instatiate specific project classes in /create_project
 SUB_PROJS = (Learning, SoftwareDev, Engineering, DataScience, Research, Community, Entertainment)
 PROJ_CATEGORIES = {' '.join(table.__mapper_args__['polymorphic_identity'].split('_')):table \
-                        for table in SUB_PROJS} #, 'software development':SoftwareDev, engineering} 
+                        for table in SUB_PROJS} # 
 # PROJ_CATEGORIES = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
 
 # imported in main/forms.py for SelectField options
