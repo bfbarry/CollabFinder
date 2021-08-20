@@ -23,12 +23,13 @@ instead of paginate, use .all() at end of query
 
 "in" aggregator : Project.query.filter(Project.id.in_( ids)).all()
 '''
-def add_proj(name, proj_model,category,skill_level,setting,descr, language, chat_link , proj_kwargs):
-    project = proj_model(name = name, category = category, 
-                            skill_level = skill_level, setting = setting, descr=descr, language=language, chat_link = chat_link, **proj_kwargs) #instatiating the specific project
+def add_proj(name, proj_model,skill_level,setting,descr, language, chat_link, tags, proj_kwargs):
+    project = proj_model()
+    project.from_dict({ 'name' : name, 'category' : proj_model.__mapper_args__['polymorphic_identity'], 
+                            'skill_level' : skill_level, 'setting' : setting, 'descr':descr, 'language':language, 'chat_link' : chat_link,**proj_kwargs })#instatiating the specific project
     db.session.add(project)
     db.session.commit() #so that project.id can be extracted later
-    project.tag_update(Tag, 'tags', ['javascript','django'])
+    project.tag_update(Tag, 'tags', tags)
 
     membership = ProjMember(user_id=u.id, project_id = project.id, rank_id=3,position_id=Position.query.filter_by(name='Lead').first().id)
     u.member_of.append(membership)
@@ -104,7 +105,8 @@ if 0:
     u.tag_update(Tag, 'tags', ['ios', 'cooking', 'java','python','javascript','sql','vue'])
     db.session.commit()
 
-add_proj('TESSS14', SoftwareDev, 'software_development','easy','casual','OKOK', 'french',None,{'sub_category':None})
+add_proj('TESSS21', SoftwareDev,'easy','casual','OKO2K', 'french',None,['javascript','mongo-db'], dict()) #,{'sub_category':None}
+# q = Project.query.get()
 # x.scrum_board.append()
 # print(x.to_dict())
 # print(tag_names)

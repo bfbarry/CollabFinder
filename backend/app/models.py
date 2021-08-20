@@ -44,7 +44,7 @@ class SearchableMixin(object):
                 add_to_index(obj.__tablename__, obj)
         for obj in session._changes['update']:
             if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj, stage='update')
+                add_to_index(obj.__tablename__, obj, stage='update') # this is when tags are added
         for obj in session._changes['delete']:
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
@@ -54,7 +54,7 @@ class SearchableMixin(object):
     def reindex(cls):
         '''refreshes an index'''
         for obj in cls.query:
-            add_to_index(cls.__tablename__, obj)
+            add_to_index(cls.__tablename__, obj,stage='reindex')
 
 class PaginatedAPIMixin:
     @staticmethod
