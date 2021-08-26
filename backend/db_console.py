@@ -4,7 +4,7 @@ Script to modify database
 from datetime import datetime
 from app import create_app, db
 from app.models import ScrumTask, User, Role, Project, Position, JoinRequest, ProjMember, Tag, ProjPerm,\
-                            Learning, SoftwareDev
+                            Learning, SoftwareDev, Resource
 from app.utils import api_func
 app = create_app()
 app.app_context().push() # to accomodate updated app structure
@@ -105,7 +105,12 @@ if 0:
     u.tag_update(Tag, 'tags', ['ios', 'cooking', 'java','python','javascript','sql','vue'])
     db.session.commit()
 
-add_proj('TESSS21', SoftwareDev,'easy','casual','OKO2K', 'french',None,['javascript','mongo-db'], dict()) #,{'sub_category':None}
+# add_proj('TESSS24', SoftwareDev,'easy','casual','OKO4K', 'french',None,['javascript','mongo-db'], dict()) #,{'sub_category':None}
+x = Resource(name='Supervised Learning Cheatsheet', link='https://stanford.edu/~shervine/teaching/cs-229/cheatsheet-supervised-learning')
+db.session.add(x)
+db.session.commit() #so that project.id can be extracted later
+x.tag_update(Tag, 'tags', ['machine-learning','supervised-learning'])
+db.session.commit()
 # q = Project.query.get()
 # x.scrum_board.append()
 # print(x.to_dict())

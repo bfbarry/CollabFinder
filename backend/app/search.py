@@ -6,7 +6,7 @@ def add_to_index(index, model, stage=None):
     payload = {}
     for field in model.__searchable__:
         if field == 'tags':
-            if stage in [ 'update','reindex']: #don't run this when project is added to db
+            if stage in ['reindex']: #don't run this when project is added to db
             # if len([tag.name for tag in model.tags]) == 0: continue
                 tags = model.tags
                 payload[field] = [t.name for t in tags] #getattr(model, 'tag_list')

@@ -13,7 +13,7 @@ export default function ProjPreview(props) {
       <div>
         {props.projs.items && props.projs.items.map(p => (
           <div style = {{marginLeft: '20px'}}>
-            <table class="table table-hover">
+            <table className="table table-hover">
                 <tr>
                     <td width="70px">
                         <Link to={`/project/${p.id}`}>

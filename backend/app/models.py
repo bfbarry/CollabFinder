@@ -147,6 +147,10 @@ user_tag_map = db.Table('user_tag_map',
         db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
 
+resource_tag_map = db.Table('resource_tag_map', 
+        db.Column('resource_id', db.Integer, db.ForeignKey('resource.id')),
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+
     # for Projects' wanted positions
 position_map = db.Table('position_map', 
         db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
@@ -866,3 +870,39 @@ PROJ_CATEGORIES = {' '.join(table.__mapper_args__['polymorphic_identity'].split(
 
 # imported in main/forms.py for SelectField options
 PROJ_CAT_KEYS = tuple(PROJ_CATEGORIES.keys())
+
+class Resource(TagMixin, db.Model, PaginatedAPIMixin):
+    __searchable__ = ['category','name','descr', 'tags'] #  needs 'wanted_positions' 
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(60))
+    category = db.Column(db.String(60))
+    descr = db.Column(db.String(140))
+    link = db.Column(db.String(512)) # Discord, slack etc.
+    # non optional variables
+    language = db.Column(db.String(5))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) # index to retrieve projs in chron. order
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    
+    tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
+        'Tag', secondary=resource_tag_map, #Self-ref, association table
+        backref=db.backref('resource_tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
+
+    ### API ###
+    def to_dict(self): #inherited classes will have to_dict()
+        data = {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'descr': self.descr,
+            'link': self.link,
+            'tags' : [t.name for t in self.tags] 
+        }
+        return data
+    
+    def from_dict(self, data):
+        for field in ['name','category','descr','link']:
+            if field in data:
+                setattr(self, field, data[field])
+
+    def __repr__(self):
+        return '<Project {}>'.format(self.name)

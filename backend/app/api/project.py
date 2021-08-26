@@ -83,8 +83,8 @@ def update_project(id):
     
     # TODO Check if user has perms
     proj.from_dict(input_data)
-    
     db.session.commit()
+    proj.tag_update(Tag, 'tags', input_data.get('tags'))
 
     return jsonify(proj.to_dict()) 
 

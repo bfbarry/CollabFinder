@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import request, g, jsonify
 from flask_babel import _
 from app import db
-from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, PROJ_CATEGORIES,\
+from app.models import User, Project, ProjMember, JoinRequest, ScrumTask, Tag, Position, Resource, PROJ_CATEGORIES,\
                             Learning #Project subclasses
 from app.api import bp
 from app.api.auth import token_auth
@@ -37,5 +37,24 @@ def explore_projects(user_id, mode):
         q = Project.query.filter(Project.id.notin_(unwanted_id)).order_by(Project.timestamp.desc())
 
     data = Project.to_collection_dict(q, page, per_page, 'api.explore_projects', user_id=user_id, mode=mode)
+    data['_meta']['categories'] = ['all'] + list(PROJ_CATEGORIES.keys())
+    return jsonify(data)
+
+@bp.route('/explore/resources/<user_id>/<mode>', methods=['GET'])
+def explore_resources(user_id, mode):
+    """mode: 'recommended', 'recent', category"""
+    page = request.args.get('page',1,type=int)
+    per_page = min(request.args.get('per_page', 10, type=int), 100)
+    user = User.query.get(user_id)
+    if mode == 'recommended':
+        return {}
+        ids = recommend_projects(user_id)
+        q = Project.query.filter(Project.id.in_(ids)) # make sure order is conserved
+    elif mode in PROJ_CATEGORIES.keys(): #Redundant? Should this be filtered in 
+        q = Resource.query.filter_by(category='_'.join(mode.split())).order_by(Resource.timestamp.desc())
+    elif mode in ['recent','all']: # janky, see above
+        q = Resource.query.order_by(Resource.timestamp.desc())
+
+    data = Resource.to_collection_dict(q, page, per_page, 'api.explore_resources', user_id=user_id, mode=mode)
     data['_meta']['categories'] = ['all'] + list(PROJ_CATEGORIES.keys())
     return jsonify(data)
