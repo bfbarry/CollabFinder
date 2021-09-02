@@ -5,7 +5,7 @@ import {
 import moment from 'moment';
 import ProjIcon from '../svg/ProjIcon';
 
-export default function ProjPreview(props) {
+export default function ResourcePreview(props) {
   /* Contains Name, Description, Project icon etc
   Iterated over on user profile and search page */
 
@@ -16,10 +16,7 @@ export default function ProjPreview(props) {
             <table className="table table-hover">
                 <tr>
                     <td width="70px">
-                      <a href={p.link}></a>
-                    </td>
-                    <td>
-                        <p>{ p.descr }</p>
+                      <a href={p.link}>{p.name}</a>
                     </td>
                 </tr>
             </table>

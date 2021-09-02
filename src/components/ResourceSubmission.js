@@ -9,10 +9,7 @@ export default function ProjRequest(props){
   const [requestedUser, setRequestedUser] = useState('');
   const user = useAuthState();
   const history = useHistory();
-  const form_text = {
-    request: 'Briefly explain why you would like to join the project',
-    invite: 'Briefly explain why you would like to invite this member'}
-  
+
   function sendRequest(e) {
     e.preventDefault();
     let user_payload;
@@ -35,17 +32,14 @@ export default function ProjRequest(props){
       })
     }
 
-    fetch(`/api/project/${props.id}/request`, opts)
+    fetch(`/api/explore/resources/suggest`, opts)
       .then(res => {
         console.log(opts);
         if (res.status === 200) return res.json()
         else return (<p>error</p>)
       })
       .then(data => {
-          props.onSuccess(`${data.system_message}`) // e.g., `${props.type} sent!`
-          if (data.request_sent) { // if user.can_request()
-            props.setProj(data)
-          }
+          props.onClick(`${data.system_message}`) // e.g., succesfully sent
         })
       .catch(error => {
         console.error("error", error)
@@ -54,14 +48,11 @@ export default function ProjRequest(props){
 
   return(
     <div className='modal1'>
-      {props.type === 'invite' &&
+      
+        <p> Give this resource a name: </p>
         <input 
           type="text" 
-          placeholder='enter username'
           onChange={(e) => setRequestedUser(e.target.value)}/>
-      }
-        <p>{form_text[props.type]} : </p>
-        
         <textarea name="textarea"
           type="text"
           value={inputText}

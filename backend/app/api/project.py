@@ -56,8 +56,8 @@ def create_project():
     """Data from Create Project form"""
     input_data = request.get_json()
     user_id = token_auth.current_user().id
-    user = User.query.get_or_404(user_id)
-    input_data['creator'] = user
+    creators = User.query.filter(User.username.in_( input_data.get('creators') )) 
+    input_data['creators'] = [user_id] + [u.id for u in creators]
     # print(f'\n\n {input_data}', flush=1)
     category = input_data.get("category")
     input_data['category'] = '_'.join(input_data['category'].split())
@@ -66,8 +66,14 @@ def create_project():
     db.session.add(project)
     db.session.commit() 
 
-    membership = ProjMember(user_id=user_id, project_id = project.id, rank_id=3,position_id=None)
-    user.member_of.append(membership)
+    for t, tm in zip(['tags', 'wanted_positions'], [Tag, Position]):
+        if input_data.get(t) != None:
+            project.tag_update(tm, t, input_data[t])
+
+    for uid in input_data['creators']:
+        user = User.query.get_or_404(uid)
+        membership = ProjMember(user_id=uid, project_id = project.id, rank_id=3,position_id=None)
+        user.member_of.append(membership)
     db.session.commit()
 
     return jsonify(project.to_dict())
@@ -84,7 +90,10 @@ def update_project(id):
     # TODO Check if user has perms
     proj.from_dict(input_data)
     db.session.commit()
-    proj.tag_update(Tag, 'tags', input_data.get('tags'))
+    for t, tm in zip(['tags', 'wanted_positions'], [Tag, Position]):
+        if input_data.get(t) != None:
+            proj.tag_update(tm, t, input_data[t])
+    db.session.commit()
 
     return jsonify(proj.to_dict()) 
 
@@ -128,7 +137,8 @@ def request_project(id):
         u = User.query.filter_by(username=usr).first_or_404() #this is either the username requesting or the one invited
     else:
         u = User.query.get_or_404(usr)
-
+    if not u.can_request(proj):
+        return {'request_sent':False, 'system_message': 'User is either a member or invite has been sent.'}
     if input_data.get('kind') == 'invite':
         r = JoinRequest(kind='invite',msg=input_data.get('msg'),status='pending')
         r.project = proj
@@ -142,13 +152,17 @@ def request_project(id):
         u.send_request(proj,r)
         db.session.commit()
         
-    return jsonify(proj.to_dict())
+    return {'request_sent':True, 
+            'system_message': f"{input_data.get('kind')} sent!", **proj.to_dict()}
 
 @bp.route('/project/<int:id>/cancel_request', methods=['DELETE'])
 # @token_auth.login_required
 def cancel_request(id):
     proj = Project.query.get_or_404(id)
     ...
+@bp.route('/project/yup', methods=['GET'])
+def yup():
+    return {'status':False}
 
 @bp.route('/project/<int:id>/delete', methods=['POST'])
 # @token_auth.login_required

@@ -43,6 +43,14 @@ export default function CreateProject(props) {
   async function submitHandler(e) {
     // post request
     e.preventDefault()
+    try {
+      let creators_arr = output.creators.split(',').map(el => el.trim());
+      output.creators = creators_arr
+      let tag_arr = output.tags.split(',').map(el => el.trim());
+      output.tags = tag_arr; // BAD... but setOutput is literally not setting state?
+      let wp_arr = output.wanted_positions.split(',').map(el => el.trim());
+      output.wanted_positions = wp_arr; // BAD... but setOutput is literally not setting state?
+    } catch (e) { } //do nothing 
     const opts = {
       method: 'POST',
       headers: new Headers({
@@ -84,6 +92,13 @@ export default function CreateProject(props) {
             <option key={opt} > {opt} </option>
           ))}
         </select> 
+      </div>
+      <div> {/* Should have <i> hover that says that these people will be admins */}
+        <label htmlFor='creators'> {form.creators && form.creators.label} </label> 
+        <input type='text' 
+              name='creators'
+              value={output.creators || ''}
+              onChange={handleChange}/> 
       </div>
       <div>
         <label htmlFor='descr'> {form.descr && form.descr.label} </label> 
@@ -183,6 +198,21 @@ export default function CreateProject(props) {
 
         </div>
       }
+      <div>
+        <label htmlFor='tags'> Tags: </label> 
+        <input type='text' 
+              name='tags'
+              value={output.tags || ''}
+              onChange={handleChange}/> 
+      </div>
+      {/* Wanted positions */}
+      <div>
+        <label htmlFor='wanted_positions'> Wanted positions: </label> 
+        <input type='text' 
+              name='wanted_positions'
+              value={output.wanted_positions || ''}
+              onChange={handleChange}/> 
+      </div>
     <button className='btn-lg btn-success' onClick={submitHandler}>Create Project!</button>
     </div>
   )

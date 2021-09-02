@@ -16,12 +16,17 @@ def _l_list(l):
 import re
 def col_char_lim(model):
     """returns dict of form {colname:length} for string columns"""
-    tb_info = str(vars(model)['__table__'].__dict__['constraints']).split('Column(')
     tb_lens = dict()
-    for v in tb_info:
-        if 'length=' in v:
-            colname, c_len = re.findall(r"\'(.+?)\'", v)[0], re.findall(r"length=(.+?)\)", v)[0]
-            tb_lens[colname] = int(c_len)
+    for col in model.__table__.columns.keys():
+        try:
+            exec(f'tb_lens[col] = model.{col}.property.columns[0].type.length')
+        except:
+            continue
+    # tb_info = str(vars(model)['__table__'].__dict__['constraints']).split('Column(')
+    # for v in tb_info:
+    #     if 'length=' in v:
+    #         colname, c_len = re.findall(r"\'(.+?)\'", v)[0], re.findall(r"length=(.+?)\)", v)[0]
+    #         tb_lens[colname] = int(c_len)
     return tb_lens
 
 lens = {**col_char_lim(Project), **col_char_lim(Learning),**col_char_lim(JoinRequest)} #DB character lengths for input field limit
@@ -49,6 +54,7 @@ with open('./app/data/colleges.json','r') as f:
 
 @bp.route('/forms/create_project', methods=['GET'])
 def project_form():
+    print(' \n\n ',col_char_lim(Project), flush=True)
     """Create a new project"""
     option1 = _l('Select one')
     categories = [option1] + _l_list(PROJ_CATEGORIES.keys())# test version, see below
@@ -67,6 +73,7 @@ def project_form():
         'skill_level' : {'label':_l('Skill Level: '),   'options':skill_lvls}, # RADIO FIELD
         'setting' : {'label':_l('Setting: '),   'options':proj_settings}, # RADIO FIELD
         'chat_link': {'label':_l('Chat link: ')},
+        'creators': {'label':_l('Who else is creating this project with you? (type usernames): ')},
         ### GEO ###
         'geo_type' : {'label':_l('Is this project constrained to a city or school?'),   'options':geo_options}, #RADIO FIELD
         'college' :{'label':_l('Enter college or university (must be currently enrolled or recent alum): '), 'options':colleges}, # CUSTOM STRING FIELD 

@@ -73,10 +73,12 @@ export default function CreateProject(props) {
     console.log(output)
     unwanted_attr.map(a => delete output[a]);
     console.log(output.tags);
-    let tag_arr = output.tags.split(',').map(el => el.trim());
-    output.tags = tag_arr // BAD... but setOutput is literally not setting state?
-    let wp_arr = output.wanted_positions.split(',').map(el => el.trim());
-    output.wanted_positions = wp_arr // BAD... but setOutput is literally not setting state?
+    try {
+      let tag_arr = output.tags.split(',').map(el => el.trim());
+      output.tags = tag_arr; // BAD... but setOutput is literally not setting state?
+      let wp_arr = output.wanted_positions.split(',').map(el => el.trim());
+      output.wanted_positions = wp_arr; // BAD... but setOutput is literally not setting state?
+    } catch (e) { } //do nothing 
     const opts = {
       method: 'PUT',
       headers: new Headers({

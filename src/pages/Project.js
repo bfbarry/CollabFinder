@@ -47,7 +47,12 @@ export default function Project() {
   return (
     <div style = {{marginLeft: '20px'}}>
       <h1 style={{float: 'left'}}>{ proj.name }</h1> 
-      <p style= {{whiteSpace: 'nowrap', overflow: 'hidden', color: '#949494'}}> &nbsp; started by {proj.creator}, {moment(proj.timestamp).fromNow()} </p>
+      <p style= {{whiteSpace: 'nowrap', overflow: 'hidden', color: '#949494'}}> 
+        &nbsp; started by {proj.creators && proj.creators.map( u => (
+          <Link to={`user/${u.id}`}> {u.name}, </Link>
+        ))} 
+        {moment(proj.timestamp).fromNow()} 
+      </p>
       <br/><h3> A {proj.category} project.</h3>
       <p>{proj.descr}</p>
       { proj.tags && proj.tags.length > 0 &&
@@ -139,7 +144,7 @@ export default function Project() {
       {reqSuccess &&
         <div>
           <BackDrop onClick={()=>setReqSuccess(false)}/>
-          <div className='modal1'>{reqSuccess} sent!</div>
+          <div className='modal1'> {reqSuccess} </div>
         </div>
 
       }

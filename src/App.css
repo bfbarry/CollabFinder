@@ -48,13 +48,13 @@
   font-size: 30px;
  }
 .go_center {
-position: relative; 
-left: 50%;
-margin-left: -300px;
-text-align: center;
-display: inline-block;
-/* top:40; */
-z-index: 1;
+  position: relative; 
+  left: 50%;
+  margin-left: -300px;
+  text-align: center;
+  display: inline-block;
+  /* top:40; */
+  z-index: 1;
 }
 .project_stream {
 position:absolute; 

@@ -18,7 +18,7 @@ import Index from './pages/Index';
 import SearchPage from './pages/SearchPage';
 import Notifications from './pages/Notifications'; 
 import Explore from './pages/Explore';
-import Explore_resource from './pages/Explore_resource';
+import ExploreResource from './pages/Explore_resource';
 
 export default function App() {
   const dispatch = useAuthDispatch();
@@ -64,7 +64,7 @@ export default function App() {
             component={Explore} />
           <Route 
             path='/explore/resources'
-            component={Explore_resource} />
+            component={ExploreResource} />
           <Route 
             exact path='/project/:id'
             component={Project} />

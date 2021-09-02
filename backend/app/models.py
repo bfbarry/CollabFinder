@@ -134,27 +134,31 @@ db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 ## Association tables ##
 
 followers = db.Table('followers',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
-)
-    # project tags
+            db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+            db.Column('followed_id', db.Integer, db.ForeignKey('user.id')) )
+
+# project tags
+project_creator_map = db.Table('project_creator_map', 
+                db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+                db.Column('user_id', db.Integer, db.ForeignKey('user.id')) )
+
 project_tag_map = db.Table('project_tag_map', 
-        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+                db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+                db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
 
 # user interests
 user_tag_map = db.Table('user_tag_map', 
-        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+                db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
 
 resource_tag_map = db.Table('resource_tag_map', 
-        db.Column('resource_id', db.Integer, db.ForeignKey('resource.id')),
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
+                db.Column('resource_id', db.Integer, db.ForeignKey('resource.id')),
+                db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')) )
 
     # for Projects' wanted positions
 position_map = db.Table('position_map', 
-        db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
-        db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
+                db.Column('project_id', db.Integer, db.ForeignKey('project.id')),
+                db.Column('position_id', db.Integer, db.ForeignKey('position.id')) )
 
 ## for starring projects
 # project_followers = db.Table('members',
@@ -249,7 +253,6 @@ class User(TagMixin, PaginatedAPIMixin, UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    projects = db.relationship('Project', backref='creator', lazy='dynamic') # only keep for ProjMember __init__?
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     # From the perspective of the follower
@@ -365,8 +368,11 @@ class User(TagMixin, PaginatedAPIMixin, UserMixin, db.Model):
         ''' if sent a request or (maybe?) if member'''
         # if self.is_member(proj):
         #     return False
-        return not self.proj_requests.filter(
-            JoinRequest.__table__.c.project_id == proj.id).count() > 0
+        num_requests = self.proj_requests.filter(
+            JoinRequest.__table__.c.project_id == proj.id).count()
+        num_memberships = self.member_of.filter(
+            ProjMember.__table__.c.project_id == proj.id).count()
+        return not num_requests + num_memberships > 0
     
     ### user-user func ###
     def follow(self, user):
@@ -548,7 +554,7 @@ class Position(SearchableMixin, db.Model):
     def __repr__(self):
         return '<{}>'.format(self.name)
 
-class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
+class Project(db.Model, TagMixin, PaginatedAPIMixin, SearchableMixin):
     """tags and wanted positions share the same methods due to overlap in functionality
     team_size: range (5-10, 25-40 etc) """
     __searchable__ = ['category','name','descr', 'tags'] #  needs 'wanted_positions' 
@@ -564,9 +570,12 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
     # non optional variables
     language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) # index to retrieve projs in chron. order
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creator ID (want this to be many to one: many creator to one proj)
-    
+    #! removed user_id
+
     __mapper_args__ = {'polymorphic_on': category}
+
+    creators = db.relationship('User', secondary=project_creator_map, 
+        backref=db.backref('project_creator_map', lazy='dynamic'), lazy='dynamic') 
 
     tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
         'Tag', secondary=project_tag_map, #Self-ref, association table
@@ -592,7 +601,7 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
         data = {
             'id': self.id,
             'name': self.name,
-            # 'creator': Project.query.get(self.id).creator.username,
+            'creators': [{'id':u.id,'name':u.username} for u in self.creators],
             'category': self.category,
             'timestamp': self.timestamp.isoformat() + 'Z',
             'descr': self.descr,
@@ -613,11 +622,14 @@ class Project(TagMixin, PaginatedAPIMixin, SearchableMixin, db.Model):
     
     tag_model_map={'tags':Tag, 'wanted_positions':Position}
     def from_dict_main(self, data):
-        for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creator']:
+        for field in ['name','category','descr','skill_level','setting','chat_link','tags','wanted_positions','creators']:
             if field in data:
                 if field in ['tags','wanted_positions']:
                     continue
                     self.tag_update(self.tag_model_map[field], field, data[field])
+                if field == 'creators':
+                    for c_id in data[field]:
+                       self.creators.append(User.query.get(c_id))
                 else:
                     setattr(self, field, data[field])
     
@@ -709,7 +721,7 @@ class Learning(Project):
     pace = db.Column(db.String(60))    
     learning_category = db.Column(db.String(60))
     subject = db.Column(db.String(60)) # may be redundant with project name
-    resource = db.Column(db.String(70)) #can be textbook, playlist, etc.
+    resource = db.Column(db.String(70)) #can be textbook, playlist, etc. Not same as Resource class
 
     ### API ###
     def to_dict(self):
@@ -797,6 +809,27 @@ class DataScience(Project):
             if field in data:
                 setattr(self, field, data[field])
 
+class Business(Project):
+    """Broader category
+    """
+    __mapper_args__ = {'polymorphic_identity': 'business'}
+    id = db.Column(db.Integer, db.ForeignKey('project.id'), primary_key=True)
+    
+    ### Project spec properties ###
+    sub_category = db.Column(db.String(60))    
+
+    ### API ###
+    def to_dict(self):
+        main_data = self.to_dict_main()
+        data = {'sub_category': self.sub_category}
+        return {**main_data, **data}
+
+    def from_dict(self, data):
+        self.from_dict_main(data)
+        for field in ['sub_category']:
+            if field in data:
+                setattr(self, field, data[field])
+
 class Research(Project):
     """Research Project
     field: academic field
@@ -863,7 +896,7 @@ class Entertainment(Project):
 
 ## KEEP THIS AFTER ALL PROJECT CLASSES
 # imported in main/routes.py to instatiate specific project classes in /create_project
-SUB_PROJS = (Learning, SoftwareDev, Engineering, DataScience, Research, Community, Entertainment)
+SUB_PROJS = (Learning, SoftwareDev, Engineering, DataScience, Business, Research, Community, Entertainment)
 PROJ_CATEGORIES = {' '.join(table.__mapper_args__['polymorphic_identity'].split('_')):table \
                         for table in SUB_PROJS} # 
 # PROJ_CATEGORIES = {cl.field_name:cl for cl in (Learning, SoftwareDev, Engineering)}
@@ -875,13 +908,14 @@ class Resource(TagMixin, db.Model, PaginatedAPIMixin):
     __searchable__ = ['category','name','descr', 'tags'] #  needs 'wanted_positions' 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
-    category = db.Column(db.String(60))
+    category = db.Column(db.String(60)) # could be multiple!
     descr = db.Column(db.String(140))
     link = db.Column(db.String(512)) # Discord, slack etc.
     # non optional variables
     language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) # index to retrieve projs in chron. order
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    accepted = db.Column(db.Boolean) # False if user submitted one pending review 
     
     tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
         'Tag', secondary=resource_tag_map, #Self-ref, association table
@@ -900,7 +934,7 @@ class Resource(TagMixin, db.Model, PaginatedAPIMixin):
         return data
     
     def from_dict(self, data):
-        for field in ['name','category','descr','link']:
+        for field in ['name','category','descr','link','user_id','accepted']:
             if field in data:
                 setattr(self, field, data[field])
 

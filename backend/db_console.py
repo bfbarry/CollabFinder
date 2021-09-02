@@ -25,8 +25,8 @@ instead of paginate, use .all() at end of query
 '''
 def add_proj(name, proj_model,skill_level,setting,descr, language, chat_link, tags, proj_kwargs):
     project = proj_model()
-    project.from_dict({ 'name' : name, 'category' : proj_model.__mapper_args__['polymorphic_identity'], 
-                            'skill_level' : skill_level, 'setting' : setting, 'descr':descr, 'language':language, 'chat_link' : chat_link,**proj_kwargs })#instatiating the specific project
+    project.from_dict({'name' : name, 'category' : proj_model.__mapper_args__['polymorphic_identity'], 
+                            'skill_level' : skill_level, 'setting' : setting, 'descr':descr, 'language':language, 'chat_link' : chat_link, 'creators':[u.id, 3], **proj_kwargs })#instatiating the specific project
     db.session.add(project)
     db.session.commit() #so that project.id can be extracted later
     project.tag_update(Tag, 'tags', tags)
@@ -105,12 +105,13 @@ if 0:
     u.tag_update(Tag, 'tags', ['ios', 'cooking', 'java','python','javascript','sql','vue'])
     db.session.commit()
 
-# add_proj('TESSS24', SoftwareDev,'easy','casual','OKO4K', 'french',None,['javascript','mongo-db'], dict()) #,{'sub_category':None}
-x = Resource(name='Supervised Learning Cheatsheet', link='https://stanford.edu/~shervine/teaching/cs-229/cheatsheet-supervised-learning')
-db.session.add(x)
-db.session.commit() #so that project.id can be extracted later
-x.tag_update(Tag, 'tags', ['machine-learning','supervised-learning'])
-db.session.commit()
+add_proj('TESSS26', SoftwareDev,'easy','casual','OKO4K', 'french',None,['javascript','mongo-db'], dict()) #,{'sub_category':None}
+print(list(Project.query.get(58).creators))
+# x = Resource(name='Supervised Learning Cheatsheet', link='https://stanford.edu/~shervine/teaching/cs-229/cheatsheet-supervised-learning')
+# db.session.add(x)
+# db.session.commit() #so that project.id can be extracted later
+# x.tag_update(Tag, 'tags', ['machine-learning','supervised-learning'])
+# db.session.commit()
 # q = Project.query.get()
 # x.scrum_board.append()
 # print(x.to_dict())
