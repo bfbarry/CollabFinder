@@ -65,5 +65,5 @@ def suggest_resource():
     if Resource.query.filter_by(link=input_data.get('link')).count() > 0:
         return {'system_message':'This resource has already been added or considered.'}
     user_id = token_auth.current_user().id
-    Resource.from_dict(input_data, **{'user_id':user_id, 'accepted':False})
+    Resource.from_dict(input_data, **{'user_id':user_id})
     return {'system_message':'Resource suggestion submitted!'}

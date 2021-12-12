@@ -915,8 +915,8 @@ class Resource(TagMixin, db.Model, PaginatedAPIMixin):
     language = db.Column(db.String(5))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow) # index to retrieve projs in chron. order
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) 
-    accepted = db.Column(db.Boolean) # False if user submitted one pending review 
-    
+    accepted = db.Column(db.Boolean, default=False) # False if user submitted one pending review 
+
     tags = db.relationship( # Looking at relationship from project (one) --> tags (many)
         'Tag', secondary=resource_tag_map, #Self-ref, association table
         backref=db.backref('resource_tag_map', lazy='dynamic'), lazy='dynamic') #defines how this relationship will be accessed from the right side entity
