@@ -1,15 +1,15 @@
-import { rgbToHex } from '@material-ui/core';
+import { rgbToHex } from '@mui/material';
 import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Index() {
   /* For now contains jumbotron to search or create project */
   const [searchq, setSearchq] = useState('')
-  const history = useHistory();
+  const navigate = useNavigate();
   
   function submitHandler(e) {
     e.preventDefault();
-    history.replace(`/search/${searchq}`)
+    navigate.replace(`/search/${searchq}`)
 
   }
   return(

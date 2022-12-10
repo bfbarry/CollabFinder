@@ -28,10 +28,10 @@ export async function loginUser(dispatch, loginPayload) {
 }
 
 export async function logout(dispatch) {
-    // const history = useHistory();
+    // const navigate = useNavigate();
     dispatch({ type: 'LOGOUT'});
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token'); //shouldn't need this
-    // history.replace('/')
+    // navigate.replace('/')
 
 }

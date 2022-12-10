@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  BrowserRouter as Router,
-  Switch,
+  BrowserRouter,
+  Routes,
   Route,
-  Redirect,
-  useHistory
+  Navigate,
 } from "react-router-dom";
 import './App.css';
 import Project  from './pages/Project';
@@ -27,6 +26,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+
   useEffect(() => { //should be in user context?
     fetch(`/api/users/${user.user_id}/notif_count`)
     .then(res => res.json())
@@ -46,10 +46,10 @@ export default function App() {
 
     <div className="App">
           
-      <Router>
+      <BrowserRouter>
         <NavBar user={user} dispatch={dispatch} notifCount={notifCount}/>
         
-        <Switch>
+        <Routes>
           <Route 
             exact path='/'
             component={Index} />
@@ -72,14 +72,14 @@ export default function App() {
             exact path='/user/:id'
             component={User}/>
           <Route 
-            exact path='/user/:id/notifications'> 
-            <Notifications setNotifCount={setNotifCount}/>
-          </Route>
+            exact path='/user/:id/notifications'
+            element={<Notifications setNotifCount={setNotifCount}/>}
+          />
           <Route 
             path='/create_project'
             render={() =>
               !Boolean(user.token) ? (
-                  <Redirect to={{ pathname: "/login" }}/>
+                  <Navigate to={{ pathname: "/login" }}/>
               ) : (<CreateProject/>)
           }
             />
@@ -87,18 +87,17 @@ export default function App() {
             exact path='/project/:id/update'
             render={() =>
               !Boolean(user.token) ? (
-                  <Redirect to={{ pathname: "/login" }}/>
+                  <Navigate to={{ pathname: "/login" }}/>
               ) : (<EditProject/>)
           }
             />
-          <Route path='/test'>
-            <Test />
-          </Route>
+          <Route path='/test'
+            component={Test}/>
           
-        </Switch>
+        </Routes>
         
 
-      </Router>
+      </BrowserRouter>
 
     </div>
   );

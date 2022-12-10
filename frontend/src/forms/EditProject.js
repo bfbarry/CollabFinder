@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {useParams, useHistory} from 'react-router-dom';
+import {useParams, useNavigate} from 'react-router-dom';
 import { useAuthState } from '../store/UserContext';
-import {Autocomplete} from '@material-ui/lab';
-import {TextField} from '@material-ui/core';
+import {TextField, Autocomplete} from '@mui/material';
 import '../App.css';
 
 export default function CreateProject(props) {
@@ -12,7 +11,7 @@ export default function CreateProject(props) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
   const [output, setOutput] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
   const unwanted_attr = ['creator']; //because the JSON attr is a string and flask expects an object. Also just don't need this in payload. Need better way of fetching?
 
   useEffect(() => {
@@ -32,7 +31,7 @@ export default function CreateProject(props) {
       }))
       console.log(data);
       if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
-        history.replace('/')
+        navigate.replace('/')
       
       }
       },
@@ -94,7 +93,7 @@ export default function CreateProject(props) {
       })
       .then(data => {
         
-        history.replace(`/project/${id}`)
+        navigate.replace(`/project/${id}`)
         })
       .catch(error => {
         console.error("error", error)

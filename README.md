@@ -13,27 +13,15 @@ $ pip install -r requirements.txt
 ```
 
 ### **Elasticsearch (search engine)**
+https://www.elastic.co/guide/en/elasticsearch/reference/8.5/targz.html
 
-```shell
-$ brew install elasticsearch
-```
-
-Then, run elasticsearch:
-- Run elasticsearch in background perpetually via launchd: `$ brew services start elasticsearch`
-- Or w/o background service you can just run: `$ elasticsearch`
-- check that it works @ http://localhost:9200
-    - should return JSON
-    - may take a minute or two to load after starting elasticsearch
 
 ### **Running flask**
-To make debugging easier:
+For set up
 ```shell
+$ export FLASK_APP=collabsource.py
 $ export FLASK_DEBUG=1 # this can also be in your .bash_rc or .bash_profile to automatically set this at start up
 ``` 
-Run this for set up:
-```
-$ export FLASK_APP=collabsource.py
-```
 To start server (make sure venv is active):
 ```shell
 $ flask run
@@ -43,14 +31,6 @@ To start frontend server on port 3000
 ```shell
 yarn start
 ```
-
-To start API to feed into the above
-```shell
-cd backend
-flask run
-```
-
-OR
 
 ```
 yarn start-api

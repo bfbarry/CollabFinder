@@ -1,23 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {  logout  } from '../store/UserContext';
 import SearchPage from '../pages/SearchPage';
 
 export default function NavBar(props) {
   const [searchq, setSearchq] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
   
   const handleLogout = () => {
     //had to move this from App.js into here for history to work
     logout(props.dispatch)
-    history.replace('/')
+    navigate.replace('/')
   }
 
   function submitHandler(e) {
     /*For searching */
     e.preventDefault();
     // setSearchq(''); // not sure if this is wanted? (nice to keep search query there)
-    history.replace(`/search/${searchq}`)
+    navigate.replace(`/search/${searchq}`)
   }
 
     return(

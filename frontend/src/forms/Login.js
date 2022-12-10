@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { loginUser, useAuthState, useAuthDispatch} from '../store/UserContext';
 
 export default function Login(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
   
   const dispatch = useAuthDispatch();
   const { loading, errorMessage } = useAuthState() //read values of loading and errorMessage from context
@@ -16,8 +16,7 @@ export default function Login(props) {
     try {
       let resp = await loginUser(dispatch, payload) //request + state changes in here
       if (!resp.user) return
-      // props.history.push('/')
-      history.replace('/')
+      navigate.replace('/')
     } catch (error) {
         console.log(error)
     }
@@ -54,7 +53,7 @@ export default function Login(props) {
 //     const [username, setUsername] = useState("");
 //     const [password, setPassword] = useState("");
 //     const token = sessionStorage.getItem("token");
-//     const history = useHistory();
+//     const navigate = useNavigate();
 
 //     const userCtx = useContext(UserContext);
 
@@ -76,7 +75,7 @@ export default function Login(props) {
 //           sessionStorage.setItem("token", data.token);
 //           userCtx.setId(data.user_id);
 //           sessionStorage.setItem("user_id", data.user_id);
-//           history.replace('/')
+//           navigate.replace('/')
 //         })
 //         .catch(error =>{
 //           console.error("error", error)
@@ -85,7 +84,7 @@ export default function Login(props) {
 
 //     return (
 //       <div className="text-center" style = {{marginLeft: '20px'}}>
-//         <h1>Login</h1> {/* maybe can also use onSubmit with form and useRef, and useHistory */}
+//         <h1>Login</h1> {/* maybe can also use onSubmit with form and useRef, and useNavigate */}
 //         {token && token!=="" && token!==undefined ? ("Currently logged in with token: " + token) : 
 //           (<div>
 //             <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}/>

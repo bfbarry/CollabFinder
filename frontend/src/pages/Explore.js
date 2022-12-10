@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import ProjPreview from '../components/ProjPreview'
 import { useAuthState } from '../store/UserContext';
 import {Link} from 'react-router-dom';
-import { flexbox } from '@material-ui/system';
 
 export default function Explore(props) {
   /* For now only searches projects */

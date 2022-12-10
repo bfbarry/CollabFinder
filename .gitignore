@@ -1,7 +1,7 @@
 venv/
 __pycache__
 .ipynb_checkpoints
-app.db# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+app.db
 
 # dependencies
 node_modules

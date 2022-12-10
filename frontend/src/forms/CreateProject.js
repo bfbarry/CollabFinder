@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { useAuthState } from '../store/UserContext';
-import {Autocomplete} from '@material-ui/lab';
-import {TextField} from '@material-ui/core';
+import {TextField, Autocomplete} from '@mui/material';
 import '../App.css';
 
 export default function CreateProject(props) {
@@ -14,7 +13,7 @@ export default function CreateProject(props) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
   const [output, setOutput] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`/api/forms/create_project`)
@@ -65,7 +64,7 @@ export default function CreateProject(props) {
         else return (<p>error</p>)
       })
       .then(data => {
-        history.replace(`/project/${data.id}`)
+        navigate.replace(`/project/${data.id}`)
         })
       .catch(error => {
         console.error("error", error)

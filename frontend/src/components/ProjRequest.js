@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthState } from "../store/UserContext";
 
 export default function ProjRequest(props){
@@ -8,7 +8,7 @@ export default function ProjRequest(props){
   const [inputText, setInputText] = useState('');
   const [requestedUser, setRequestedUser] = useState('');
   const user = useAuthState();
-  const history = useHistory();
+  const navigate = useNavigate();
   const form_text = {
     request: 'Briefly explain why you would like to join the project',
     invite: 'Briefly explain why you would like to invite this member'}
