@@ -44,9 +44,10 @@ Rank.insert_ranks()
 Role.insert_roles()
 ```
 
-### **Test usernames:passwords**
-susan: cat<br>
-bo: 1
+# TODO
+Backend
+- separate routes from controllers
+
 
 ### API commands
 GET

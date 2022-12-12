@@ -52,25 +52,25 @@ export default function App() {
         <Routes>
           <Route 
             exact path='/'
-            component={Index} />
+            element={<Index/>} />
           <Route 
             path='/login'
-            component={Login} />
+            element={<Login/>} />
           <Route 
             path='/search/:q'
-            component={SearchPage} />
+            element={<SearchPage/>} />
           <Route 
             path='/explore/projects'
-            component={Explore} />
+            element={<Explore/>} />
           <Route 
             path='/explore/resources'
-            component={ExploreResource} />
+            element={<ExploreResource/>} />
           <Route 
             exact path='/project/:id'
-            component={Project} />
+            element={<Project/>} />
           <Route 
             exact path='/user/:id'
-            component={User}/>
+            element={<User/>}/>
           <Route 
             exact path='/user/:id/notifications'
             element={<Notifications setNotifCount={setNotifCount}/>}
@@ -92,7 +92,7 @@ export default function App() {
           }
             />
           <Route path='/test'
-            component={Test}/>
+            element={<Test/>}/>
           
         </Routes>
         

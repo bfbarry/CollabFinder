@@ -48,7 +48,7 @@ def get_followed(id):
                                      'api.get_followed', id=id)
     return jsonify(data)
 
-@bp.route('/users', methods=['POST'])
+@bp.route('/users/signup', methods=['POST'])
 def create_user():
     data = request.get_json() or {}
     if 'username' not in data or 'email' not in data or 'password' not in data:
