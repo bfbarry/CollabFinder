@@ -53,14 +53,8 @@ def create_app(config_class=Config):
         if app.config['ELASTICSEARCH_URL'] else None
 
     # To delete the following registrations since these were only for non-api app
-    # from app.errors import bp as errors_bp
-    # app.register_blueprint(errors_bp)
-
-    # from app.auth import bp as auth_bp
-    # app.register_blueprint(auth_bp, url_prefix='/auth')
-
-    # from app.main import bp as main_bp
-    # app.register_blueprint(main_bp)
+    from app.errors import bp as errors_bp
+    app.register_blueprint(errors_bp)
     
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')

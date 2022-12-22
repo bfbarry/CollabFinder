@@ -8,6 +8,9 @@ from app.api.auth import token_auth
 
 from datetime import datetime
 
+## token_auth.login_required commented out to make API tests easier
+
+
 # @bp.before_app_request
 # def before_request():
 #     if current_user.is_authenticated:
@@ -56,7 +59,7 @@ def create_user():
     if User.query.filter_by(username=data['username']).first():
         return bad_request('username taken.')
     if User.query.filter_by(email=data['email']).first():
-        return bad_request('email address already used.')
+        return bad_request('email address already in use.')
     user = User()
     user.from_dict(data, new_user=True)
     db.session.add(user)

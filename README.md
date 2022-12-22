@@ -17,7 +17,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/8.5/targz.html
 
 
 ### **Running flask**
-For set up
+For set up (or put in .flaskenv)
 ```shell
 $ export FLASK_APP=collabsource.py
 $ export FLASK_DEBUG=1 # this can also be in your .bash_rc or .bash_profile to automatically set this at start up
