@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import './App.css';
+import './index.css';
 import Project  from './pages/Project';
 import User  from './pages/User';
 import Login from './forms/Login';
@@ -25,7 +25,6 @@ export default function App() {
   const [notifCount, setNotifCount] = useState(null);
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-
 
   useEffect(() => { //should be in user context?
     fetch(`/api/users/${user.user_id}/notif_count`)
@@ -55,7 +54,7 @@ export default function App() {
             element={<Index/>} />
           <Route 
             path='/login'
-            element={<Login/>} />
+            element={user.user_id ? <Index/> : <Login/>} />
           <Route 
             path='/search/:q'
             element={<SearchPage/>} />

@@ -1,4 +1,3 @@
-import { rgbToHex } from '@mui/material';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -9,7 +8,7 @@ export default function Index() {
   
   function submitHandler(e) {
     e.preventDefault();
-    navigate.replace(`/search/${searchq}`)
+    navigate(`/search/${searchq}`)
 
   }
   return(

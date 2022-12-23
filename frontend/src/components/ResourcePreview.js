@@ -1,9 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import {
-    Link,
-  } from "react-router-dom";
-import moment from 'moment';
-import ProjIcon from '../svg/ProjIcon';
+import React from 'react';
 
 export default function ResourcePreview(props) {
   /* Contains Name, Description, Project icon etc

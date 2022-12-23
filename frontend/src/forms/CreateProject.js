@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { useAuthState } from '../store/UserContext';
 import {TextField, Autocomplete} from '@mui/material';
-import '../App.css';
+import '../index.css';
 
 export default function CreateProject(props) {
   /* Form for creating project
@@ -64,7 +64,7 @@ export default function CreateProject(props) {
         else return (<p>error</p>)
       })
       .then(data => {
-        navigate.replace(`/project/${data.id}`)
+        navigate(`/project/${data.id}`)
         })
       .catch(error => {
         console.error("error", error)

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import ResourcePreview from '../components/ResourcePreview'
 import { useAuthState } from '../store/UserContext';
 import {Link} from 'react-router-dom'

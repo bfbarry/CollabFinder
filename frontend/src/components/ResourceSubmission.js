@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuthState } from "../store/UserContext";
 
 export default function ProjRequest(props){
@@ -8,7 +7,6 @@ export default function ProjRequest(props){
   const [inputText, setInputText] = useState('');
   const [requestedUser, setRequestedUser] = useState('');
   const user = useAuthState();
-  const navigate = useNavigate();
 
   function sendRequest(e) {
     e.preventDefault();

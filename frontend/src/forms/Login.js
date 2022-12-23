@@ -16,7 +16,7 @@ export default function Login(props) {
     try {
       let resp = await loginUser(dispatch, payload) //request + state changes in here
       if (!resp.user) return
-      navigate.replace('/')
+      navigate('/')
     } catch (error) {
         console.log(error)
     }
@@ -30,16 +30,15 @@ export default function Login(props) {
       }
       <form>
         <div>
-          <label htmlFor='email'>username</label>
-          <input type='text' 
-                id='email'
+          <label >username</label>
+          <input type='text'
+                className='ring-2 ring-blue-500' 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}/>
         </div>
         <div>
-          <label htmlFor='password'>password</label>
+          <label>password</label>
           <input type='password' 
-                id='password'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
         </div>
@@ -75,7 +74,7 @@ export default function Login(props) {
 //           sessionStorage.setItem("token", data.token);
 //           userCtx.setId(data.user_id);
 //           sessionStorage.setItem("user_id", data.user_id);
-//           navigate.replace('/')
+//           navigate('/')
 //         })
 //         .catch(error =>{
 //           console.error("error", error)

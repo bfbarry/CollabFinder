@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import { useAuthState } from '../store/UserContext';
 import {TextField, Autocomplete} from '@mui/material';
-import '../App.css';
+import '../index.css';
 
 export default function CreateProject(props) {
   const user = useAuthState();
@@ -31,7 +31,7 @@ export default function CreateProject(props) {
       }))
       console.log(data);
       if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
-        navigate.replace('/')
+        navigate('/')
       
       }
       },
@@ -93,7 +93,7 @@ export default function CreateProject(props) {
       })
       .then(data => {
         
-        navigate.replace(`/project/${id}`)
+        navigate(`/project/${id}`)
         })
       .catch(error => {
         console.error("error", error)

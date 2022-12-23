@@ -337,7 +337,7 @@ export default function ScrumBoard (props) {
       })
       .then(data => {
         console.log(true) //what to put here
-        // navigate.replace(`/project/${data.id}`)
+        // navigate(`/project/${data.id}`)
         })
       .catch(error => {
         console.error("error", error)

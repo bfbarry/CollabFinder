@@ -21,4 +21,3 @@ class Config(object):
     PROJECTS_PER_PAGE = 5 #small numbers during testing
     LANGUAGES = ['en', 'es']
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET', 'other_key')
