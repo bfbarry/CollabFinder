@@ -4,13 +4,13 @@ import {
   useParams
   } from "react-router-dom";
 import moment from 'moment';
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import ScrumBoard from '../components/ScrumBoard';
 import ProjRequest from '../components/ProjRequest';
 import BackDrop from '../components/BackDrop';
 
 export default function Project() {
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [proj, setProj] = useState([]);

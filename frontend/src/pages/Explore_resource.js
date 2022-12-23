@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import ResourcePreview from '../components/ResourcePreview'
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import {Link} from 'react-router-dom'
 import BackDrop from '../components/BackDrop';
 import ResourceSubmission from '../components/ResourceSubmission'
 
 export default function ExploreResource(props) {
   /* For now only searches projects */
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [results, setResults] = useState({});

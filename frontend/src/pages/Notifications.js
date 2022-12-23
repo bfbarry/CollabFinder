@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {
   useParams
   } from "react-router-dom";
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import Notification from '../components/Notification';
 
 export default function Notifications(props) {
   /* populates page with Notifcation component */
   
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const [error, setError] = useState(null);
   const [notiferror, setNotifError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);

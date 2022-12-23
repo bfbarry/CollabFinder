@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import {TextField, Autocomplete} from '@mui/material';
 import '../index.css';
 
 export default function CreateProject(props) {
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const {id} = useParams();
   const [form, setForm] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);

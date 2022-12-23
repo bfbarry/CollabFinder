@@ -8,10 +8,10 @@ import {
 import './index.css';
 import Project  from './pages/Project';
 import User  from './pages/User';
-import Login from './forms/Login';
-import CreateProject from './forms/CreateProject';
-import EditProject from './forms/EditProject';
-import { useAuthState, useAuthDispatch } from './store/UserContext'
+import Login from './pages/Login';
+import CreateProject from './pages/CreateProject';
+import EditProject from './pages/EditProject';
+import { useAuthContext } from './hooks/useAuthContext';
 import NavBar from './components/NavBar';
 import Index from './pages/Index';
 import SearchPage from './pages/SearchPage';
@@ -20,8 +20,7 @@ import Explore from './pages/Explore';
 import ExploreResource from './pages/Explore_resource';
 
 export default function App() {
-  const dispatch = useAuthDispatch();
-  const user = useAuthState();
+  const { user, dispatch } = useAuthContext();
   const [notifCount, setNotifCount] = useState(null);
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -76,22 +75,13 @@ export default function App() {
           />
           <Route 
             path='/create_project'
-            render={() =>
-              !Boolean(user.token) ? (
-                  <Navigate to={{ pathname: "/login" }}/>
-              ) : (<CreateProject/>)
-          }
+            element={user.user_id ? (<CreateProject/>)  : <Navigate to="/login"/>}
             />
           <Route 
             exact path='/project/:id/update'
-            render={() =>
-              !Boolean(user.token) ? (
-                  <Navigate to={{ pathname: "/login" }}/>
-              ) : (<EditProject/>)
+            element={user.token ? <EditProject/> : <Navigate to="/login" /> 
           }
             />
-          <Route path='/test'
-            element={<Test/>}/>
           
         </Routes>
         
@@ -102,10 +92,3 @@ export default function App() {
   );
 }
 
-
-
-function Test() {
-  const token = useAuthState();
-  return(
-  <p>{token}!</p>)
-}

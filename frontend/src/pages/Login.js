@@ -1,24 +1,18 @@
 import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
-import { loginUser, useAuthState, useAuthDispatch} from '../store/UserContext';
+import { useLogin } from '../hooks/useLogin';
 
 export default function Login(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { login, error, isLoading} = useLogin()
   const navigate = useNavigate();
-  
-  const dispatch = useAuthDispatch();
-  const { loading, errorMessage } = useAuthState() //read values of loading and errorMessage from context
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    let payload = username+':'+password;//{username, password};
-    try {
-      let resp = await loginUser(dispatch, payload) //request + state changes in here
-      if (!resp.user) return
+    await login(username, password)
+    if (!error) {
       navigate('/')
-    } catch (error) {
-        console.log(error)
     }
   }
   
@@ -26,7 +20,7 @@ export default function Login(props) {
     <div>
       <h1>Login</h1>
       {
-        errorMessage ? <p>{errorMessage}</p> : null
+        error ? <p>{error}</p> : null
       }
       <form>
         <div>
@@ -42,7 +36,7 @@ export default function Login(props) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
         </div>
-        <button onClick={handleLogin} disabled={loading}>login</button>
+        <button onClick={handleLogin} disabled={isLoading}>login</button>
       </form>
     </div>
   )

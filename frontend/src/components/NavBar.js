@@ -1,16 +1,17 @@
 import React, {useState} from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import {  logout  } from '../store/UserContext';
+import {useLogout } from "../hooks/useLogout"
 import '../index.css';
 
 
 export default function NavBar(props) {
   const [searchq, setSearchq] = useState('');
+  const { logout } = useLogout();
   const navigate = useNavigate();
   
   const handleLogout = () => {
     //had to move this from App.js into here for history to work
-    logout(props.dispatch)
+    logout()
   }
 
   function submitHandler(e) {

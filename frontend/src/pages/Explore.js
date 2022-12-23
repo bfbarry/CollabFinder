@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ProjPreview from '../components/ProjPreview'
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import {Link} from 'react-router-dom';
 
 export default function Explore(props) {
   /* For now only searches projects */
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [results, setResults] = useState({});

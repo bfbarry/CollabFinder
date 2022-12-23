@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   useParams
   } from "react-router-dom";
-import { useAuthState } from '../store/UserContext'
+import { useAuthContext } from '../hooks/useAuthContext'
 import ProjPreview from '../components/ProjPreview'
 
 export default function User() {
@@ -11,12 +11,12 @@ export default function User() {
 
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [user, setUser] = useState({});
+  const [curr_user, setUser] = useState({});
   //project previews
   const [projs, setProjs] = useState({});
   const [projerror, setProjError] = useState(null);
   const [projisLoaded, setProjIsLoaded] = useState(false);
-  const currentUser = useAuthState();
+  const { user } = useAuthContext;
   
   const {id} = useParams();
 
@@ -61,19 +61,19 @@ export default function User() {
       <table>
           <tr valign="top">
           <td>
-              <img src={user._links && user._links.avatar} alt=""/>
+              <img src={curr_user._links && curr_user._links.avatar} alt=""/>
           </td>
           <td>
-              <h1>User: {user.username}</h1>
-              { user.about_me != null &&
+              <h1>User: {curr_user.username}</h1>
+              { curr_user.about_me != null &&
               <div>
                   <p>About me: </p>
-                  <p>{user.about_me}</p>
+                  <p>{curr_user.about_me}</p>
               </div>
               }
 
-              <p>{user.project_count} projects </p>
-              {currentUser.user_id == id && /* eslint eqeqeq: 0 */
+              <p>{curr_user.project_count} projects </p>
+              {curr_user.user_id == id && /* eslint eqeqeq: 0 */
 
                 <button> Edit profile </button>
               }

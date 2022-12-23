@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { useAuthState } from "../store/UserContext";
+import { useAuthContext } from '../hooks/useAuthContext'
+
 
 export default function ProjRequest(props){
   /* Mini form upon clicking on "Request to join project" or "Invite user" */
 
   const [inputText, setInputText] = useState('');
   const [requestedUser, setRequestedUser] = useState('');
-  const user = useAuthState();
+  const {user} = useAuthContext();
 
   function sendRequest(e) {
     e.preventDefault();

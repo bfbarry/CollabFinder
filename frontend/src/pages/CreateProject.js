@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {useNavigate} from 'react-router-dom';
-import { useAuthState } from '../store/UserContext';
+import { useAuthContext } from '../hooks/useAuthContext';
 import {TextField, Autocomplete} from '@mui/material';
 import '../index.css';
 
@@ -8,7 +8,7 @@ export default function CreateProject(props) {
   /* Form for creating project
   Renders different inputs depending on which project category is selected  */
 
-  const user = useAuthState();
+  const {user} = useAuthContext();
   const [form, setForm] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);

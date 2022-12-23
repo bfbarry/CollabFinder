@@ -10,7 +10,7 @@ def get_token():
     token = basic_auth.current_user().get_token()
     db.session.commit()
     user_data = basic_auth.current_user().id
-    return jsonify({'auth_token': token, 'user':user_data})
+    return jsonify({'token': token, 'user_id':user_data})
 
 @bp.route('/tokens', methods=['DELETE'])
 @token_auth.login_required
