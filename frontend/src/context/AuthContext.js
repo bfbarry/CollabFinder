@@ -8,7 +8,7 @@ const empty_user = {token:null, user_id:null}
 export const authReducer = (state, action) => {
   switch (action.type) {
     case 'LOGIN':
-      return action.payload
+      return {user: action.payload}
     case 'LOGOUT':
       return {user: empty_user}
     default:
@@ -21,6 +21,7 @@ export const AuthContextProvider = ({ children }) => {
   // only runs when this context renders: if user is already in local storage
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('collabsource_user'))
+    // TODO GET to user notification endpoint, maybe in useLogin
     if (user) {
       dispatch({type: 'LOGIN', payload: user})
     }

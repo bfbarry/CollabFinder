@@ -29,7 +29,6 @@ export default function CreateProject(props) {
         tags: data.tags.join(", "), // to fix split
         wanted_positions: data.wanted_positions.join(", ")
       }))
-      console.log(data);
       if (data.members[user.user_id].rank !== "Admin") { //needs a more efficient way, like route protection
         navigate('/')
       
@@ -69,9 +68,7 @@ export default function CreateProject(props) {
   async function submitHandler(e) {
     // post request
     e.preventDefault();
-    console.log(output)
     unwanted_attr.map(a => delete output[a]);
-    console.log(output.tags);
     try {
       let tag_arr = output.tags.split(',').map(el => el.trim());
       output.tags = tag_arr; // BAD... but setOutput is literally not setting state?

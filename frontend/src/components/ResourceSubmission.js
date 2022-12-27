@@ -33,7 +33,6 @@ export default function ProjRequest(props){
 
     fetch(`/api/explore/resources/suggest`, opts)
       .then(res => {
-        console.log(opts);
         if (res.status === 200) return res.json()
         else return (<p>error</p>)
       })

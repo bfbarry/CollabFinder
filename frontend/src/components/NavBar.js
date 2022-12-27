@@ -4,7 +4,7 @@ import {useLogout } from "../hooks/useLogout"
 import '../index.css';
 
 
-export default function NavBar(props) {
+export default function NavBar({user, notifCount}) {
   const [searchq, setSearchq] = useState('');
   const { logout } = useLogout();
   const navigate = useNavigate();
@@ -41,28 +41,26 @@ export default function NavBar(props) {
               <input type="submit" style={{display: "none"}} />
           </form>
           <nav>
-            {props.user.user_id !== "" &&
-                <Link className="" to={`/user/${props.user.user_id}/notifications`}> Notifications 
-                {props.notifCount > 0 &&
-                  <span className="" style={{color: 'white', backgroundColor: '#eb9834', marginLeft: 5}}> { props.notifCount } </span>
+            {user.user_id &&
+                <Link className="" to={`/user/${user.user_id}/notifications`}> Notifications 
+                {notifCount > 0 &&
+                  <span className="" style={{color: 'white', backgroundColor: '#eb9834', marginLeft: 5}}> { notifCount } </span>
                 }
                 </Link>
             }
           </nav>
 
           <nav>
-            {props.user.user_id !== "" &&
-              <Link className="" to={`/user/${props.user.user_id}`}> Profile </Link>
+            {user.user_id &&
+              <Link className="" to={`/user/${user.user_id}`}> Profile </Link>
             }
           </nav>
           <nav>
-            {props.user.user_id !== "" ? (
-            <button className=""
-            onClick={() => handleLogout()} >
-              Logout</button>
-            ) : (
-              <Link className="" to="/login">Login</Link>
-            )}
+            {user.user_id  ? 
+              (<button className=""onClick={() => handleLogout()}> Logout </button>)
+              : 
+              (<Link className="" to="/login">Login</Link>) 
+            } 
           </nav>
         </div>
       </header>

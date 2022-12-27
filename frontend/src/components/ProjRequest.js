@@ -36,7 +36,6 @@ export default function ProjRequest(props){
 
     fetch(`/api/project/${props.id}/request`, opts)
       .then(res => {
-        console.log(opts);
         if (res.status === 200) return res.json()
         else return (<p>error</p>)
       })

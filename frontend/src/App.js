@@ -20,7 +20,7 @@ import Explore from './pages/Explore';
 import ExploreResource from './pages/Explore_resource';
 
 export default function App() {
-  const { user, dispatch } = useAuthContext();
+  const { user } = useAuthContext();
   const [notifCount, setNotifCount] = useState(null);
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,7 +45,7 @@ export default function App() {
     <div className="App">
           
       <BrowserRouter>
-        <NavBar user={user} dispatch={dispatch} notifCount={notifCount}/>
+        <NavBar user={user} notifCount={notifCount}/>
         
         <Routes>
           <Route 

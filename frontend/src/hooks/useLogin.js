@@ -10,9 +10,10 @@ export const useLogin = () => {
 
     setIsLoading(true)
     setError(null)
+    const auth_str = username + ':' + password
     const res = await fetch('/api/tokens', {
       method: 'POST',
-      headers: new Headers({'Authorization': `Basic ${btoa(username+password)}`}),
+      headers: new Headers({'Authorization': `Basic ${btoa(auth_str)}`}),
     })
     const json = await res.json()
 

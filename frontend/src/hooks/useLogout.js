@@ -4,7 +4,7 @@ import { useAuthContext } from "./useAuthContext";
 export const useLogout = () => {
   const { dispatch } = useAuthContext()
   const logout = () => {
-    localStorage.remove('collabsource_user')
+    localStorage.removeItem('collabsource_user')
     dispatch({type: 'LOGOUT'})
   }
   return { logout }

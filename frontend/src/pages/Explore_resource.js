@@ -25,7 +25,6 @@ export default function ExploreResource(props) {
       (data) => {
         setIsLoaded(true);
         setResults(data);
-        console.log(results);
       },
       (error) => {
       setIsLoaded(true);
